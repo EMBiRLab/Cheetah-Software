@@ -1,4 +1,4 @@
-## Cheetah-Software
+## ~Cheetah-Software~ Quadruped-Software
 This repository contains the Robot and Simulation software project.  For a getting started guide, see the documentation folder.
 
 The common folder contains the common library with dynamics and utilities
@@ -6,6 +6,8 @@ The resources folder will contain data files, like CAD of the robot used for the
 The robot folder will contain the robot program
 The sim folder will contain the simulation program. It is the only program which depends on QT.
 The third-party will contain *small* third party libraries that we have modified. This should just be libsoem for Cheetah 3, which Pat modified at one point.
+
+EMBiR Lab is forking and modifying MIT Biomimetics Lab's code to use our own hardware and TRI's Drake
 
 ## Build
 To build all code:
