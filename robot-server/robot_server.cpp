@@ -22,107 +22,15 @@ float clamp(float angle) {
 }
 
 RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream& datastream) : 
-	a1_(rs_set.a1_id, rs_set.a1_bus, rs_set.gear_a1, 1.0),
-	a2_(rs_set.a2_id, rs_set.a2_bus, rs_set.gear_a2, 1.0),
 	datastream_(datastream),
-	rs_set_(rs_set),
-	commands_(),
-	lpf_a1_(rs_set.lpf_order, rs_set.lpf_cutoff_freq_Hz, rs_set.period_s),
-	lpf_a2_(rs_set.lpf_order, rs_set.lpf_cutoff_freq_Hz, rs_set.period_s),
-	lpf_grp_(rs_set.lpf_order, rs_set.lpf_cutoff_freq_Hz, rs_set.period_s) {
-
-	if (rs_set_.a1_id == rs_set_.a2_id) {
-		throw std::runtime_error("The servos must have unique IDs! Exiting...");
-		ready_to_quit = true;
-	}
-	a_driving_ptr = &a1_;
-	a_loading_ptr = &a2_;
-	a1_.set_pos_lower_bound(std::numeric_limits<float>::quiet_NaN()); a1_.set_pos_upper_bound(std::numeric_limits<float>::quiet_NaN());
-	a2_.set_pos_lower_bound(std::numeric_limits<float>::quiet_NaN()); a2_.set_pos_upper_bound(std::numeric_limits<float>::quiet_NaN());
-
-	if (rs_set_.rs_opts["swap-actuators"].as<bool>()) swap_actuators();
-	test_mode_ = rs_set_.test_mode;
-	if (rs_set_.test_mode == RobotServer::TestMode::kDurability) {
-		if (rs_set_.playback_file == "") {
-			throw std::runtime_error("No replay file specified! Exiting...");
-			ready_to_quit = true;
-		}
-		else {
-			// Load mini cheetah test file.
-			load_playback_data(rs_set_.playback_file);
-		}
-	}
+	rs_set_(rs_set) {
 
 	if (!rs_set_.skip_cal) {
-		a1_.restore_cal("/home/pi/embir-modular-leg/moteus-setup/moteus-cal/ri50_cal_1_dyn.log");
-		a2_.restore_cal("/home/pi/embir-modular-leg/moteus-setup/moteus-cal/ri50_cal_2_dyn.log");
 	}
 	if (!rs_set_.skip_zero) {
-		a1_.zero_offset();
-		a2_.zero_offset();
 	}
 	if (!rs_set_.skip_cfg_load) {
-		a1_.restore_cfg("/home/pi/embir-modular-leg/moteus-setup/moteus-cfg/dyn_a1.cfg");
-		a2_.restore_cfg("/home/pi/embir-modular-leg/moteus-setup/moteus-cfg/dyn_a2.cfg");
 	}
-
-	std::cout << "loading configs... ";
-
-	std::ifstream grp_if("configs/grp.json");
-	grp_if >> grp_j;
-	grp_s = GRPSettings(grp_j);
-
-	std::ifstream durability_if("configs/durability.json");
-	durability_if >> durability_j;
-	durability_s = DurabilitySettings(durability_j);
-
-	std::ifstream efficiency_if("configs/efficiency.json");
-	efficiency_if >> efficiency_j;
-	efficiency_s = EfficiencySettings(efficiency_j);
-
-	std::ifstream step_if("configs/step.json");
-	step_if >> step_j;
-	step_s = StepSettings(step_j);
-
-	std::ifstream torque_step_if("configs/torque_step.json");
-	torque_step_if >> torque_step_j;
-	torque_step_s = TorqueStepSettings(torque_step_j);
-
-	std::ifstream safety_if("configs/safety_limits.json");
-	safety_if >> safety_j;
-	safety_s = SafetySettings(safety_j);
-	if(rs_set_.tqsen == RobotServer::TorqueSensor::kTRS605_5) safety_s.ts_max_torque_Nm_ = safety_s.trs605_5_max_torque_Nm_;
-	if(rs_set_.tqsen == RobotServer::TorqueSensor::kTRD605_18) safety_s.ts_max_torque_Nm_ = safety_s.trd605_18_max_torque_Nm_;
-
-	rs_set_.grp_sampling_period_us = static_cast<int64_t>(
-		(1e6)/float(grp_j["random_sampling_frequency_Hz"]));
-
-	rs_set_.status_period_us = static_cast<int64_t>(
-		(1e6)/float(10.0)); // 10Hz
-
-	std::cout << "done.\n";
-
-	// for (float trq : durability_s.torques_Nm) {
-	// 	for (float vel : durability_s.velocities_rad_s) {
-	// 		// std::cout << trq << ", " << vel << std::endl;
-	// 		sweep_trq.push_back(trq);
-	// 		sweep_trq.push_back(trq);
-	// 		sweep_trq.push_back(0);
-	// 		sweep_trq.push_back(-trq);
-	// 		sweep_trq.push_back(-trq);
-	// 		sweep_trq.push_back(0);
-
-	// 		sweep_vel.push_back(vel);
-	// 		sweep_vel.push_back(-vel);
-	// 		sweep_vel.push_back(0);
-	// 		sweep_vel.push_back(vel);
-	// 		sweep_vel.push_back(-vel);
-	// 		sweep_vel.push_back(0);
-	// 	}
-	// }
-
-	std::uniform_real_distribution<> dist(-grp_s.amplitude, grp_s.amplitude);
-	realdist = dist;
 
 	std::cout << "setting up sensors... ";
 	ads_.begin(0x48);
@@ -138,39 +46,17 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 	ina2_.setVoltageConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
 	std::cout << "done.\n";
 
-	if (rs_set_.test_mode == RobotServer::TestMode::kEfficiency) {
-		efficiency_timer.start_timer(efficiency_s.idle_duration_s);
+	actuator_ptrs_.resize(rs_set_.num_actuators);
+	for (size_t a_idx = 0; a_idx < rs_set_.num_actuators; a_idx++) {
+		// construct Actuator objects in dynamic memory with access by shared_ptr,
+		// throw straight into vector
+		actuator_ptrs_[a_idx] = std::make_shared<Actuator>(
+			rs_set_.moteus_ids[a_idx], rs_set_.moteus_buses[a_idx],
+			rs_set_.gear_ratios.size() == 1 ? rs_set_.gear_ratios[0] : rs_set_.gear_ratios[a_idx],
+			1
+		)
 	}
-	if (rs_set_.test_mode == RobotServer::TestMode::kDurability) {
-		durability_timer.start_timer(0.5);
-		durability_cycle_s = 
-			2*efficiency_s.efficiency_sweep_duration_s
-			+ 2*durability_s.damping_total_duration_s
-			+ 4*durability_s.interphase_idle_duration_s
-			+ durability_s.follow_duration_s;
-		std::cout << "durability cycle time = " << durability_cycle_s <<" s" << std::endl;
-		if (rs_set_.durability_resume > 0.1) {
-			initial_follow_delay = true;
-			float time_delay = 0;
-			time_delay =
-				int(rs_set_.durability_resume / durability_cycle_s)
-				*(durability_s.follow_duration_s)
-				+ fmod(rs_set_.durability_resume, durability_cycle_s);
-			playback_idx = time_delay / 0.002;
-			if (playback_idx >= playback_vel.size()) { // if we got thru a complete playback
-				if (playback_idx < playback_vel.size() + 30.0/0.002) { // if we resume from the 30s pause
-					time_delay = 0;
-				}
-				else { // else if we had got past the pause
-					time_delay = fmod(time_delay, playback_vel.size()*0.002 + 30);
-				}
-			}
-			playback_idx = time_delay / 0.002;
-			std::cout << "resuming from previous test at " << rs_set_.durability_resume << " s\n"
-				<< "time delay into playback data = " << time_delay << " s\n"
-				<< "playback_idx = " << playback_idx << std::endl;
-		}
-	}
+
 }
 
 void RobotServer::iterate_fsm() {
@@ -402,45 +288,6 @@ void RobotServer::print_status_update() {
 	return;
 }
 
-cxxopts::Options rs_opts() {
-	cxxopts::Options options(
-		"leg", "Run 2D leg");
-
-	options.add_options()
-		("c,comment", "enter comment string to be included in output csv.", 
-			cxxopts::value<std::string>())
-		("p,path", "path to output csv.",
-			cxxopts::value<std::string>()->default_value(
-				"/home/pi/embir-modular-leg/leg-data/"))
-		("main-cpu", "main CPU", cxxopts::value<uint8_t>()->default_value("1"))
-		("can-cpu", "CAN CPU", cxxopts::value<uint8_t>()->default_value("2"))
-		("duration", "test duration in seconds", cxxopts::value<float>())
-		("frequency", "test sampling and command frequency in Hz", 
-			cxxopts::value<float>()->default_value("250"))
-		("skip-cal", "skip recalibration")
-		("skip-zero", "skip setting actuator zero")
-		("skip-cfg-load", "skip loading actuator config")
-		("h,help", "Print usage")
-	;
-
-	return options;
-}
-
-RobotServer::RobotServerSettings::RobotServerSettings(cxxopts::ParseResult& rs_opts_in) {
-	rs_opts = rs_opts_in;
-	period_s = 1.0/rs_opts["frequency"].as<float>();
-	duration_s = rs_opts["duration"].as<float>();
-
-	main_cpu = rs_opts["main-cpu"].as<uint8_t>();
-	can_cpu = rs_opts["can-cpu"].as<uint8_t>();
-	
-	test_delay = rs_opts["test-delay"].as<float>();
-
-	skip_cal = rs_opts["skip-cal"].as<bool>();
-	skip_zero = rs_opts["skip-zero"].as<bool>();
-	skip_cfg_load = rs_opts["skip-cfg-load"].as<bool>();
-}
-
 void RobotServer::sample_sensors() {
 	// TODO: Add temp read and calc
 	sd_.torque_Nm = 0;
@@ -543,4 +390,77 @@ bool RobotServer::safety_check() {
 	// Put conditions to check here
 
 	return safe;
+}
+
+cxxopts::Options rs_opts() {
+	cxxopts::Options options(
+		"leg", "Run 2D leg");
+
+	options.add_options()
+		("rs-cfg-path", "path to robot server config JSON", 
+			cxxopts::value<std::string>()->default_value(
+				"/home/pi/quadruped-software/robot-server/robot_server_config.json"))
+		("c,comment", "enter comment string to be included in output csv.", 
+			cxxopts::value<std::string>())
+		("p,path", "path to output csv.",
+			cxxopts::value<std::string>()->default_value(
+				"/home/pi/embir-modular-leg/leg-data/"))
+		("main-cpu", "main CPU", cxxopts::value<uint8_t>()->default_value("1"))
+		("can-cpu", "CAN CPU", cxxopts::value<uint8_t>()->default_value("2"))
+		("duration", "test duration in seconds", cxxopts::value<float>())
+		("frequency-override", "test sampling and command frequency in Hz, overriding value in robot_server_config.json", 
+			cxxopts::value<float>())
+		("skip-cal", "skip recalibration")
+		("skip-zero", "skip setting actuator zero")
+		("skip-cfg-load", "skip loading actuator config")
+		("h,help", "Print usage")
+	;
+
+	return options;
+}
+
+RobotServer::RobotServerSettings::RobotServerSettings(cxxopts::ParseResult& rs_opts_in) {
+	rs_opts = rs_opts_in;
+
+	std::ifstream rs_cfg_if(rs_opts["rs-cfg-path"].as<std::string>());
+	nlohmann::json rs_cfg_j = nlohmann::json::parse(
+		rs_cfg_if,
+		nullptr, true, true); // parse with `//`-led comments
+
+	float frq_override = rs_opts["frequency-override"].as<float>();
+	period_s = frq_override >= 0 ? 1.0/frq_override : 1.0/rs_cfg_j["loop_frequency"];
+	duration_s = rs_opts["duration"].as<float>();
+
+	main_cpu = rs_opts["main-cpu"].as<uint8_t>();
+	can_cpu = rs_opts["can-cpu"].as<uint8_t>();
+	
+	test_delay = rs_opts["test-delay"].as<float>();
+
+	skip_cal = rs_opts["skip-cal"].as<bool>();
+	skip_zero = rs_opts["skip-zero"].as<bool>();
+	skip_cfg_load = rs_opts["skip-cfg-load"].as<bool>();
+
+	moteus_ids = rs_cfg_j["moteus_ids"].get<std::vector<uint8_t>>();
+	num_actuators = moteus_ids.size();
+
+	moteus_buses = rs_cfg_j["moteus_buses"].get<std::vector<uint8_t>>();
+
+	moteus_cfg_path_prefix = rs_cfg_j["moteus_cfg_path_prefix"];
+	moteus_cfg_filenames = rs_cfg_j["moteus_cfg_filenames"].get<std::vector<std::string>>();
+	moteus_cal_path_prefix = rs_cfg_j["moteus_cal_path_prefix"];
+	moteus_cal_filenames = rs_cfg_j["moteus_cal_filenames"].get<std::vector<std::string>>();
+
+	gear_ratios = rs_cfg_j["gear_ratios"].get<std::vector<float>>();
+	if (
+			moteus_buses.size() != num_actuators ||
+			(moteus_cfg_filenames.size() != 1 && moteus_cfg_filenames.size() != num_actuators) ||
+			moteus_cal_filenames.size() != num_actuators ||
+			(gear_ratios.size() != 1 && gear_ratios.size() != num_actuators)) {
+		std::cerr << "size mismatch in config parameters!!" << std::endl;
+		load_success = false;
+	}
+	else {
+		load_success = true;
+	}
+
 }

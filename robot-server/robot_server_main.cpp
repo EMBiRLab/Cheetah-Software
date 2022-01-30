@@ -226,7 +226,7 @@ void Run(RobotServer& robotserver) {
 
 
 int main(int argc, char** argv) {
-	auto options = dyn_opts();
+	auto options = rs_opts();
 	auto opts = options.parse(argc, argv);
 	std::cout << "user comment: " << opts["comment"].as<std::string>() << std::endl;
 
@@ -261,6 +261,9 @@ int main(int argc, char** argv) {
 	LockMemory();
 
 	RobotServer::RobotServerSettings rs_settings(opts);
+	if (!rs_settings.load_success) {
+		std::exit(EXIT_FAILURE);
+	}
 		
 	rs_settings.status_period_us = static_cast<int64_t>(
 		(1e6)/10);
