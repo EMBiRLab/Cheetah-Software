@@ -15,7 +15,8 @@
         {
             "name": "Windows",
             "includePath": [
-                "${default}"
+                "${default}",
+                "${workspaceFolder}/**"
             ],
             "compilerPath": "cl.exe",
             "cStandard": "c89",
