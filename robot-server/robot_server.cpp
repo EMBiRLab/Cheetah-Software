@@ -25,13 +25,6 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 	datastream_(datastream),
 	rs_set_(rs_set) {
 
-	if (!rs_set_.skip_cal) {
-	}
-	if (!rs_set_.skip_zero) {
-	}
-	if (!rs_set_.skip_cfg_load) {
-	}
-
 	std::cout << "setting up sensors... ";
 	ads_.begin(0x48);
 	ads_.setGain(adsGain_t::GAIN_ONE);
@@ -46,6 +39,7 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 	ina2_.setVoltageConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
 	std::cout << "done.\n";
 
+	std::cout << "constructing actuator objects... ";
 	actuator_ptrs_.resize(rs_set_.num_actuators);
 	for (size_t a_idx = 0; a_idx < rs_set_.num_actuators; a_idx++) {
 		// construct Actuator objects in dynamic memory with access by shared_ptr,
@@ -56,6 +50,21 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 			1
 		)
 	}
+	std::cout << "done.\n";
+	std::cout << "restoring configs and calibrations...\n";
+	for (size_t a_idx = 0; a_idx < rs_set_.num_actuators; a_idx++) {
+		if (!rs_set_.skip_cal)
+			actuator_ptrs_[a_idx]->restore_cal(rs_set_.moteus_cal_path_prefix + rs_set_.moteus_cal_filenames[a_idx]);
+		if (!rs_set_.skip_cfg_load) {
+			std::string fname_local =
+				rs_set_.moteus_cfg_filenames.size() == 1
+					? rs_set_.moteus_cfg_filenames[0] : rs_set_.moteus_cfg_filenames[a_idx];
+			actuator_ptrs_[a_idx]->restore_cfg(rs_set_.moteus_cfg_path_prefix + fname_local);
+		}
+		if (!rs_set_.skip_zero)
+			actuator_ptrs_[a_idx]->zero_offset();
+	}
+	std::cout << "\ndone.\n";
 
 }
 
