@@ -24,6 +24,8 @@ file(GLOB_RECURSE sources
 "./*.cpp"
 "src/*.cpp")
 
+# find_package(bcm2835)
+
 add_executable(robot_server ${sources} robot_server.cpp robot_server_main.cpp)
 
-target_link_libraries(robot_server I2CDevice Adafruit_ADS1X15 Adafruit_INA260 iir pi3hat)
+target_link_libraries(robot_server I2CDevice Adafruit_ADS1X15 Adafruit_INA260 iir pi3hat -lbcm2835)
