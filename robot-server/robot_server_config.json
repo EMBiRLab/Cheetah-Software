@@ -6,5 +6,6 @@
 	"moteus_cal_path_prefix" : "/home/pi/quadruped-software/robot-server/moteus-cals/",
 	"moteus_cal_filenames" : ["cal11.log", "cal12.log", "cal13.log", "cal21.log", "cal22.log", "cal23.log", "cal31.log", "cal32.log", "cal33.log", "cal41.log", "cal42.log", "cal43.log"],
 	"gear_ratios" : [7.5],
-	"loop_frequency" : 1000.0
+	"loop_frequency" : 1000.0,
+	"skip_count_max" : 20
 }

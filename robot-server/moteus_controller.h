@@ -39,6 +39,7 @@ public:
 	MoteusController(id_t id, uint8_t bus);
 
 	inline id_t get_id() {return id_;}
+	inline uint8_t get_bus() {return bus_;}
 	inline void set_id(id_t new_id) {id_ = new_id;}
 
 	void restore_cal(std::string path);

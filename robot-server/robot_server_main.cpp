@@ -18,20 +18,15 @@
 #include <ctime>
 #include <csignal>
 
-#include "mjbots/moteus/moteus_protocol.h"
-#include "mjbots/moteus/pi3hat_moteus_interface.h"
+#include "third-party/mjbots/moteus/moteus_protocol.h"
+#include "third-party/mjbots/moteus/pi3hat_moteus_interface.h"
 
-// #include "robotserver.h"
-#include "robotserver.h"
+#include "robot_server.h"
 #include "utils.h"
 
-#include "sensors/Adafruit_ADS1X15.h"
-#include "sensors/Adafruit_INA260.h"
-
-#include "libFilter/filters.h"
-#include "iir/iir.h"
-#include "nlohmann/json.hpp"
-#include "cxxopts/cxxopts.hpp"
+#include "third-party/iir/iir.h"
+#include "third-party/nlohmann/json.hpp"
+#include "third-party/cxxopts/cxxopts.hpp"
 
 #define PI 3.1415926
 
@@ -71,12 +66,7 @@ void Run(RobotServer& robotserver) {
 	MoteusInterface::Options moteus_options;
 	moteus_options.cpu = rs_settings.can_cpu;
 
-	// TODO: setup arbitrary number of actuator IDs and buses
-
-	moteus_options.servo_bus_map = {
-		{ rs_settings.a1_id, rs_settings.a1_bus },
-		{ rs_settings.a2_id, rs_settings.a2_bus },
-	};
+	moteus_options.servo_bus_map = robotserver.create_servo_bus_map();
 	MoteusInterface moteus_interface{moteus_options};
 	std::cout << "done.\n" << std::flush;
 
@@ -89,9 +79,6 @@ void Run(RobotServer& robotserver) {
 		prev_commands.push_back({});
 		prev_commands.back().id = pair.first;
 	}
-	// distributes pointers to this data into the MoteusController objects and
-	// initializes the commands (resolution settings etc.)
-	// robotserver.share_commands(curr_commands, prev_commands);
 
 	// ** CONTAINER FOR REPLIES **
 	std::vector<MoteusInterface::ServoReply> replies{curr_commands.size()};
@@ -170,9 +157,9 @@ void Run(RobotServer& robotserver) {
 		// robotserver.print_status_update();
 		robotserver.iterate_fsm();
 		// retrieve the commands (copy)
-		// TODO: Do this for arbitrary number of actuators
-		curr_commands[0] = robotserver.get_a1_cmd();
-		curr_commands[1] = robotserver.get_a2_cmd();
+		for (size_t a_idx = 0; a_idx < curr_commands.size(); a_idx++) {
+			curr_commands[a_idx] = robotserver.get_actuator_cmd(a_idx);
+		}
 
 		if (can_result.valid()) {
 			// Now we get the result of our last query and send off our new one.
@@ -201,8 +188,8 @@ void Run(RobotServer& robotserver) {
 				});
 		can_result = promise->get_future();
 
-		if (cycle_count > 5 && saved_replies.size() >= 2) reply_miss_count = 0;
-		else if (cycle_count > 5 && saved_replies.size() < 2) reply_miss_count++;
+		if (cycle_count > 5 && saved_replies.size() >= robotserver.num_actuators()) reply_miss_count = 0;
+		else if (cycle_count > 5 && saved_replies.size() < robotserver.num_actuators()) reply_miss_count++;
 
 		// kill loop if we miss all these replies
 		if (reply_miss_count > 20) {
@@ -249,14 +236,14 @@ int main(int argc, char** argv) {
 	data_file << std::endl;
 	// return 0;
 
-	Adafruit_ADS1015 ads;
-	Adafruit_INA260 ina1;
-	Adafruit_INA260 ina2;
-	if (!bcm2835_init()) {
-		std::cout << "bcm2835_init failed. Are you running as root??\n" << std::endl;
-		return 1;
-	}
-	bcm2835_i2c_begin();
+	// Adafruit_ADS1015 ads;
+	// Adafruit_INA260 ina1;
+	// Adafruit_INA260 ina2;
+	// if (!bcm2835_init()) {
+	// 	std::cout << "bcm2835_init failed. Are you running as root??\n" << std::endl;
+	// 	return 1;
+	// }
+	// bcm2835_i2c_begin();
 
 	LockMemory();
 
