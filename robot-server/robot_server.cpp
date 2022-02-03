@@ -25,7 +25,8 @@ float clamp(float angle) {
 RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream& datastream) : 
 	datastream_(datastream),
 	rs_set_(rs_set),
-	serverLCM_(getLcmUrl(255)) {
+	commandLCM_(getLcmUrl(255)),
+	responseLCM_(getLcmUrl(255)) {
 
 	// std::cout << "setting up sensors... ";
 	// ads_.begin(0x48);
@@ -71,15 +72,15 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 }
 
 void RobotServer::init_LCM() {
-	serverLCM_.subscribe(
-		"robot_server",
+	commandLCM_.subscribe(
+		"robot_server_command",
 		&RobotServer::handle_robot_server_command, this);
 
 	serverLCMThread = std::thread(&RobotServer::handle_serverLCM, this);
 }
 
 void RobotServer::handle_serverLCM() {
-	while (0 == serverLCM_.handle()) {}
+	while (0 == commandLCM_.handle()) {}
 }
 
 void RobotServer::handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
@@ -299,6 +300,19 @@ bool RobotServer::actuator_fault_check() {
 		fault |= bool(a_ptr->fault());
 	}
 	return fault;
+}
+
+void RobotServer::publish_LCM_response() {
+	auto& sr = server_response;
+	for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
+		sr[a_idx].q = actuator_ptrs_[a_idx]->get_position_rad();
+		sr[a_idx].qd = actuator_ptrs_[a_idx]->get_velocity_rad_s();
+		sr[a_idx].tau_est = actuator_ptrs_[a_idx]->get_torque_Nm();
+	}
+	sr.fsm_state = uint8_t(curr_state_);
+
+	auto data = sr;
+	responseLCM_.publish("robot_server_response", data);
 }
 
 void RobotServer::make_stop_all() {

@@ -139,6 +139,8 @@ public:
 		}
 	}
 
+	void publish_LCM_response();
+
 	void sample_random();
 	float filtered_random();
 
@@ -169,7 +171,8 @@ private:
 
 	// *** LCM ***
 
-	lcm::LCM serverLCM_;
+	lcm::LCM commandLCM_;
+	lcm::LCM responseLCM_;
 	std::thread serverLCMThread;
 
 	// where outside commands are stored,
@@ -178,6 +181,8 @@ private:
 	// protects requested_command variable, which is async manipulated 
 	// by the LCM handling on a different thread
 	std::mutex commandmutex;
+
+	robot_server_response_lcmt server_response;
 
 	// *** LOW LEVEL ***
 

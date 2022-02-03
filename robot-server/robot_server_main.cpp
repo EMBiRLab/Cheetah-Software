@@ -177,6 +177,8 @@ void Run(RobotServer& robotserver) {
 		// copy the replies over to the member actuators; they look for ID match. If
 		// there's no matching ID response, fault is raised
 		robotserver.retrieve_replies(saved_replies);
+		// send out robot data back onto LCM network
+		robotserver.publish_LCM_response();
 
 		// Then we can immediately ask them to be used again.
 		auto promise = std::make_shared<std::promise<MoteusInterface::Output>>();
