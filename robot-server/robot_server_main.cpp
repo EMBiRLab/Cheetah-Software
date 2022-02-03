@@ -28,7 +28,9 @@
 #include "third-party/nlohmann/json.hpp"
 #include "third-party/cxxopts/cxxopts.hpp"
 
+#ifndef PI
 #define PI 3.1415926
+#endif
 
 using namespace mjbots;
 
@@ -256,14 +258,8 @@ int main(int argc, char** argv) {
 		(1e6)/10);
 	data_file << "# \n# user comment: " << opts["comment"]
 		.as<std::string>() << "\n# \n";
-	if (rs_settings.test_mode != RobotServer::TestMode::kGRP) {
-		data_file << "# period s: " << 1.0/opts["frequency"].as<float>() << "\n";
-		data_file << "# duration s: " << opts["duration"].as<float>() << "\n";
-		data_file << "# main cpu: " << (int)(opts["main-cpu"]
-			.as<uint8_t>()) << "\n";
-		data_file << "# can cpu: " << (int)(opts["can-cpu"]
-			.as<uint8_t>()) << "\n# \n";
-	}
+	data_file << "# period s: " << 1.0/opts["frequency"].as<float>() << "\n";
+	data_file << "# duration s: " << opts["duration"].as<float>() << "\n";
 
 	ConfigureRealtime(rs_settings.main_cpu);
 	ConfigureRealtime(rs_settings.can_cpu);

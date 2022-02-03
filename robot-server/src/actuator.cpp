@@ -22,6 +22,9 @@ std::string Actuator::stringify_actuator() {
     reply_data.velocity*2*PI,
     reply_data.torque);
   result << cstr_buffer;
+
+  sprintf(cstr_buffer, "% -f,%3d", reply_data.temperature, (int)fault_code_);
+  result << cstr_buffer;
   return result.str();
 }
 
@@ -29,6 +32,7 @@ std::string Actuator::stringify_actuator_header() {
   std::ostringstream result;
   std::string aN = "a"+std::to_string(id_)+" ";
   result << aN << "position cmd [rad]," << aN << "velocity cmd [rad/s]," << aN << "ff torque cmd [Nm],"
-    << aN << "position [rad]," << aN << "velocity [rad/s]," << aN << "torque [Nm]";
+    << aN << "position [rad]," << aN << "velocity [rad/s]," << aN << "torque [Nm],"
+    << aN << "temp [C]," << aN << "fault";
   return result.str();
 }

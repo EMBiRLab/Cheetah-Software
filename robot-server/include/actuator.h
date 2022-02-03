@@ -3,7 +3,9 @@
 
 #include "moteus_controller.h"
 
+#ifndef PI
 #define PI 3.1415926
+#endif
 
 class Actuator : public MoteusController {
 public:

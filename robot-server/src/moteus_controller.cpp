@@ -16,6 +16,10 @@
 
 #include "moteus_controller.h"
 
+#ifndef PI
+#define PI 3.1415926
+#endif
+
 using namespace mjbots;
 
 using MoteusInterface = moteus::Pi3HatMoteusInterface;
@@ -186,7 +190,7 @@ void MoteusController::retrieve_v_per_hz() {
 		"' --dump-config | grep motor.v_per_hz | cut -c 16-24 > moteus_kt.temp";
 	int exit_code = system(command.c_str());
 	std::ifstream("moteus_kt.temp") >> v_per_hz;
-	torque_constant_Nm_A = 0.78*v_per_hz/M_PI;
+	torque_constant_Nm_A = 0.78*v_per_hz/PI;
 	std::cout << "actuator id " << id_str << " torque constant = " 
 		<< torque_constant_Nm_A << " Nm/A" << std::endl;
 }
