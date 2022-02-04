@@ -1,0 +1,11 @@
+{
+	"moteus_ids" : [11, 12, 13, 21, 22, 23, 31, 32, 33, 41, 42, 43],
+	"moteus_buses" : [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4],
+	"moteus_cfg_path_prefix" : "/home/pi/quadruped-software/robot-server/moteus-configs/", // path from ~/
+	"moteus_cfg_filenames" : ["a_gen.cfg"], // if single element, apply to all actuators, else apply element-wise
+	"moteus_cal_path_prefix" : "/home/pi/quadruped-software/robot-server/moteus-cals/",
+	"moteus_cal_filenames" : ["cal11.log", "cal12.log", "cal13.log", "cal21.log", "cal22.log", "cal23.log", "cal31.log", "cal32.log", "cal33.log", "cal41.log", "cal42.log", "cal43.log"],
+	"gear_ratios" : [7.5],
+	"loop_frequency" : 1000.0,
+	"skip_count_max" : 20
+}

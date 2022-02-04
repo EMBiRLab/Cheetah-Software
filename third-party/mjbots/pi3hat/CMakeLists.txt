@@ -1,0 +1,1 @@
+add_library (pi3hat STATIC pi3hat.h pi3hat.cc)
