@@ -8,8 +8,9 @@
 #include <math.h>
 
 #include "robot_server.h"
-// #include "color.h"
-#include "rapidcsv/rapidcsv.h"
+#include "third-party/rapidcsv/rapidcsv.h"
+
+#include "Utilities/utilities.h"
 
 namespace chron = std::chrono;
 
@@ -23,21 +24,23 @@ float clamp(float angle) {
 
 RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream& datastream) : 
 	datastream_(datastream),
-	rs_set_(rs_set) {
+	rs_set_(rs_set),
+	commandLCM_(getLcmUrl(255)),
+	responseLCM_(getLcmUrl(255)) {
 
-	std::cout << "setting up sensors... ";
-	ads_.begin(0x48);
-	ads_.setGain(adsGain_t::GAIN_ONE);
-	ads_.setDataRate(RATE_ADS1015_3300SPS);
-	ina1_.begin(0x40);
-	ina1_.prime_i2c();
-	ina1_.setCurrentConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
-	ina1_.setVoltageConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
-	ina2_.begin(0x41);
-	ina2_.prime_i2c();
-	ina2_.setCurrentConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
-	ina2_.setVoltageConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
-	std::cout << "done.\n";
+	// std::cout << "setting up sensors... ";
+	// ads_.begin(0x48);
+	// ads_.setGain(adsGain_t::GAIN_ONE);
+	// ads_.setDataRate(RATE_ADS1015_3300SPS);
+	// ina1_.begin(0x40);
+	// ina1_.prime_i2c();
+	// ina1_.setCurrentConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
+	// ina1_.setVoltageConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
+	// ina2_.begin(0x41);
+	// ina2_.prime_i2c();
+	// ina2_.setCurrentConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
+	// ina2_.setVoltageConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
+	// std::cout << "done.\n";
 
 	std::cout << "constructing actuator objects... ";
 	actuator_ptrs_.resize(rs_set_.num_actuators);
@@ -48,7 +51,7 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 			rs_set_.moteus_ids[a_idx], rs_set_.moteus_buses[a_idx],
 			rs_set_.gear_ratios.size() == 1 ? rs_set_.gear_ratios[0] : rs_set_.gear_ratios[a_idx],
 			1
-		)
+		);
 	}
 	std::cout << "done.\n";
 	std::cout << "restoring configs and calibrations...\n";
@@ -68,12 +71,33 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 
 }
 
+void RobotServer::init_LCM() {
+	commandLCM_.subscribe(
+		"robot_server_command",
+		&RobotServer::handle_robot_server_command, this);
+
+	serverLCMThread = std::thread(&RobotServer::handle_serverLCM, this);
+}
+
+void RobotServer::handle_serverLCM() {
+	while (0 == commandLCM_.handle()) {}
+}
+
+void RobotServer::handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
+                              const std::string& chan,
+                              const robot_server_command_lcmt* msg) {
+	(void)rbuf;
+	(void)chan;
+	std::lock_guard<std::mutex> commandguard(commandmutex); // wrapper for mutex
+	requested_command = *msg;
+}
+
 void RobotServer::iterate_fsm() {
 	cycles_++;
 	sample_sensors();
 
 	// immediately respond to fault condition
-	if (robotserver_fault()) next_state_ = 
+	if (!safety_check()) next_state_ = 
 		FSMState::kRecovery;
 
 	curr_state_ = next_state_;
@@ -86,7 +110,7 @@ void RobotServer::iterate_fsm() {
 	time_prog_old_s_ = time_prog_s_;
 
 
-	if ((time_prog_s_ > rs_set_.test_delay) && (curr_state_ == FSMState::kIdle)) 
+	if ((curr_state_ == FSMState::kIdle)) 
 		next_state_ = FSMState::kRunning;
 
 	switch (curr_state_) {
@@ -97,6 +121,33 @@ void RobotServer::iterate_fsm() {
 		case FSMState::kRunning: {
 			// ***TODO***: Implement your operation here
 			// feel free to expand into multiple states
+
+			// extract values from requested command and infer relevant control mode
+			// torque mode: position and velocity NAN
+			// velocity mode: position NAN
+			// position mode: nothing NAN
+			if (num_actuators() != 12) {
+				std::cout << "ERROR: num_actuators() = " << num_actuators() <<
+					" (only 12 actuator systems currently supported)\n";
+				ready_to_quit = true;
+			}
+			auto& rc = requested_command;
+			for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
+				if (std::isnan(rc.q_des[a_idx])) {
+					// either velocity or torque
+					if (std::isnan(rc.qd_dex[a_idx])) {
+						actuator_ptrs_[a_idx]->make_act_torque(rc.tau_ff[a_idx]);
+					}
+					else {
+						actuator_ptrs_[a_idx]->make_act_velocity(
+							rc.qd_des[a_idx], rc.tau_ff[a_idx]);
+					}
+				}
+				else {
+					actuator_ptrs_[a_idx]->make_act_full_pos(
+						rc.q_des[a_idx], rc.qd_des[a_idx], rc.tau_ff[a_idx]);
+				}
+			}
 
 			make_stop_all();
 			break;}
@@ -115,10 +166,10 @@ void RobotServer::iterate_fsm() {
 				break;
 
 			// if fault has cleared
-			if(!robotserver_fault()) next_state_ = recovery_return_state_;
+			if(safety_check()) next_state_ = recovery_return_state_;
 
 			// if recovery hasn't occurred, quit
-			if(robotserver_fault()) next_state_ = FSMState::kQuitting;
+			if(!safety_check()) next_state_ = FSMState::kQuitting;
 			
 			// else, recovery has occurred, and we go back to running
 			else next_state_ = recovery_return_state_;
@@ -145,16 +196,11 @@ void RobotServer::iterate_fsm() {
 void RobotServer::log_data() {
 	datastream_ << std::setw(10) << std::setprecision(4) << std::fixed
 		<< time_prog_s_ << ",";
-	datastream_ << a1_.stringify_actuator() << ",";
-	// std::cout << " 3.2 " << std::flush;
-	datastream_ << a1_.stringify_moteus_reply() << ",";
-	// std::cout << " 3.3 " << std::flush;
-	datastream_ << a2_.stringify_actuator() << ",";
-	// std::cout << " 3.4 " << std::flush;
-	datastream_ << a2_.stringify_moteus_reply() << ",";
+	for (auto a_ptr : actuator_ptrs_) {
+		datastream_ << a_ptr->stringify_actuator() << ",";
+	}
 	// std::cout << " 3.5 " << std::flush;
 	datastream_ << stringify_sensor_data() << ",";
-	datastream_ << (int)a_driving_ptr->get_id() << ",";
 	datastream_ << (int)curr_state_;
 	
 	datastream_ << "\n";
@@ -163,16 +209,11 @@ void RobotServer::log_data() {
 }
 
 void RobotServer::log_headers() {
-	datastream_ << "# driving actuator id: " << a_driving_ptr->get_id() << "\n";
 	datastream_ << "time [s],";
-	datastream_ << a1_.stringify_actuator_header() << ","
-	<< a1_.stringify_moteus_reply_header() << ","
-	<< a2_.stringify_actuator_header() << ","
-	<< a2_.stringify_moteus_reply_header() << ","
-	<< stringify_sensor_data_headers() << ","
-	<< "driving id" << ","
-	<< "robot server fsm state";
-	
+	for (auto a_ptr : actuator_ptrs_) {
+		datastream_ << a_ptr->stringify_actuator_header() << ",";
+	}
+	datastream_ << stringify_sensor_data_headers() << "," << "robot server fsm state";
 	datastream_ << "\n";
 	
 	return;
@@ -198,7 +239,7 @@ void RobotServer::print_status_update() {
 	std::cout << "NR:"
 		<< std::setw(2) << std::setprecision(2) << std::fixed << (int)num_recoveries << "|";
 
-	if (!(bool)robotserver_fault()) std::cout << color_factory.bg_grn() << color_factory.fg_blk() << " **SAFE**";
+	if (safety_check()) std::cout << color_factory.bg_grn() << color_factory.fg_blk() << " **SAFE**";
 	else std::cout << "|" << color_factory.bg_red() << color_factory.fg_blk() << "**FAULT**";
 	std::cout << color_factory.fg_def() << color_factory.bg_def() << "\r";
 	std::cout.flush();
@@ -207,7 +248,7 @@ void RobotServer::print_status_update() {
 
 void RobotServer::sample_sensors() {
 	// TODO: Add temp read and calc
-	sd_.torque_Nm = 0;
+	// sd_.torque_Nm = 0;
 	float t1 = 0;
 	float t2 = 0;
 	float alpha = 0.1;
@@ -227,8 +268,6 @@ void RobotServer::sample_sensors() {
 std::string RobotServer::stringify_sensor_data() {
 	std::ostringstream result;
 
-	sprintf(cstr_buffer, ",%f,%f,", sd_.temp1_C, sd_.temp2_C);
-	result << cstr_buffer;
 	sprintf(cstr_buffer, "%f,%f,%f,", sd_.ina1_voltage_V, sd_.ina1_current_A, sd_.ina1_power_W);
 	result << cstr_buffer;
 	sprintf(cstr_buffer, "%f,%f,%f", sd_.ina2_voltage_V, sd_.ina2_current_A, sd_.ina2_power_W);
@@ -239,7 +278,7 @@ std::string RobotServer::stringify_sensor_data() {
 std::string RobotServer::stringify_sensor_data_headers() {
 	std::ostringstream result;
 
-	result << ",motor temp [C],housing temp [C],ina1 voltage [V],ina1 current [A],ina1 power [W],ina2 voltage [V],ina2 current [A],ina2 power [W]";
+	result << ",ina1 voltage [V],ina1 current [A],ina1 power [W],ina2 voltage [V],ina2 current [A],ina2 power [W]";
 	return result.str();
 }
 
@@ -248,7 +287,7 @@ bool RobotServer::safety_check() {
 	//
 	bool safe = true;
 
-	if (robotserver_fault()) return false;
+	if (actuator_fault_check()) return false;
 	
 	// Put conditions to check here
 
@@ -258,9 +297,22 @@ bool RobotServer::safety_check() {
 bool RobotServer::actuator_fault_check() {
 	bool fault = false;
 	for (auto a_ptr : actuator_ptrs_) {
-		fault |= a_ptr->fault();
+		fault |= bool(a_ptr->fault());
 	}
 	return fault;
+}
+
+void RobotServer::publish_LCM_response() {
+	auto& sr = server_response;
+	for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
+		sr[a_idx].q = actuator_ptrs_[a_idx]->get_position_rad();
+		sr[a_idx].qd = actuator_ptrs_[a_idx]->get_velocity_rad_s();
+		sr[a_idx].tau_est = actuator_ptrs_[a_idx]->get_torque_Nm();
+	}
+	sr.fsm_state = uint8_t(curr_state_);
+
+	auto data = sr;
+	responseLCM_.publish("robot_server_response", data);
 }
 
 void RobotServer::make_stop_all() {
