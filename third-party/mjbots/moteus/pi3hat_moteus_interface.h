@@ -23,7 +23,7 @@
 #include <vector>
 #include <map>
 
-#include "mjbots/pi3hat/pi3hat.h"
+#include "../pi3hat/pi3hat.h"
 #include "mjbots/moteus/moteus_protocol.h"
 #include "mjbots/moteus/realtime.h"
 

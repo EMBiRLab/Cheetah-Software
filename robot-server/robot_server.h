@@ -8,6 +8,10 @@
 #include <memory>
 #include <cstdint>
 #include <stdint.h>
+#include <thread>
+#include <mutex>
+
+#include <lcm-cpp.hpp>
 
 #include "actuator.h"
 #include "utils.h"
@@ -100,6 +104,12 @@ public:
 	RobotServer(RobotServerSettings& rs_set,
 		std::ostream& datastream);
 
+	void init_LCM();
+	void handle_serverLCM();
+	void handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
+                              const std::string& chan,
+                              const robot_server_command_lcmt* msg);
+
 	void iterate_fsm();
 
 	void log_data();
@@ -118,16 +128,9 @@ public:
 	inline void set_time0(std::chrono::steady_clock::time_point t0) {time0_s_ = t0;}
 	inline float get_time_prog() {return time_prog_s_;}
 
-	// inline mjbots::moteus::Pi3HatMoteusInterface::ServoCommand get_a1_cmd() {
-	// 	return a1_.get_curr_cmd();
-	// }
-	// inline mjbots::moteus::Pi3HatMoteusInterface::ServoCommand get_a2_cmd() {
-	// 	return a2_.get_curr_cmd();
-	// }
 	inline mjbots::moteus::Pi3HatMoteusInterface::ServoCommand get_actuator_cmd(size_t idx) {
 		return actuator_ptrs_[idx]->get_curr_cmd();
 	}
-	
 	inline void retrieve_replies(std::vector<
 		mjbots::moteus::Pi3HatMoteusInterface::ServoReply>& prev_replies) {
 		
@@ -135,6 +138,8 @@ public:
 			a_ptr->retrieve_reply(prev_replies);
 		}
 	}
+
+	void publish_LCM_response();
 
 	void sample_random();
 	float filtered_random();
@@ -154,6 +159,7 @@ public:
 private:
 	char cstr_buffer[128];
 	
+
 	std::vector<std::shared_ptr<Actuator>> actuator_ptrs_;
 	std::ostream& datastream_;
 
@@ -162,6 +168,21 @@ private:
 	// Adafruit_INA260 ina2_;
 
 	SensorData sd_;
+
+	// *** LCM ***
+
+	lcm::LCM commandLCM_;
+	lcm::LCM responseLCM_;
+	std::thread serverLCMThread;
+
+	// where outside commands are stored,
+	// values are read and sent to moteus drivers
+	robot_server_command_lcmt requested_command;
+	// protects requested_command variable, which is async manipulated 
+	// by the LCM handling on a different thread
+	std::mutex commandmutex;
+
+	robot_server_response_lcmt server_response;
 
 	// *** LOW LEVEL ***
 
@@ -187,14 +208,6 @@ private:
 	uint8_t recovery_cycle_thresh = 10;
 	size_t num_recoveries = 0;
 
-	// *** HIGH LEVEL ***
-
-	double fsm_program_timer_end = 0;
-	double fsm_function_timer_end = 0;
-
-	size_t playback_idx = 0;
-
-	bool arrived_at_action_latch = false;
 };
 
 cxxopts::Options rs_opts();

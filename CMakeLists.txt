@@ -56,6 +56,9 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(robot)
 add_subdirectory(third-party)
+add_subdirectory(third-party/mjbots/pi3hat)
+add_subdirectory(third-party/iir)
+add_subdirectory(third-party/adafruit-sensors)
 add_subdirectory(common)
 
 if(NO_SIM)
