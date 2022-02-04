@@ -1,5 +1,6 @@
 build/
 mc-build/
+rs-build/
 cmake-build-debug/
 .idea/
 lcm-types/cheetahlcm

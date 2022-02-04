@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "iir/iir.h"
+#include "third-party/iir/iir.h"
 
 void LockMemory();
 
