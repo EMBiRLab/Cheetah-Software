@@ -54,6 +54,10 @@ class RobotRunner : public PeriodicTask {
   RobotControlParameters* controlParameters;
   VisualizationData* visualizationData;
   CheetahVisualization* cheetahMainVisualization;
+  // Need to define these, also defined in hardware bridge.h appropriately
+  // Need to update legcontroller.h also to use the data accordingly (updatedata and updatecommand functions)
+  LcmData* LCMdata;
+  LcmCommand* LCMCommand;
 
  private:
   float _ini_yaw;

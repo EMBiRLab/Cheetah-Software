@@ -68,6 +68,11 @@ class HardwareBridge {
   control_parameter_respones_lcmt _parameter_response_lcmt;
   SpiData _spiData;
   SpiCommand _spiCommand;
+  // For muadquad need to define these in a new file in rt
+  // Need to define these, also defined in hardware bridge.h appropriately
+  // Need to update legcontroller.h also to use the data accordingly (updatedata and updatecommand functions)
+  LcmData _LCMData;
+  LcmCommand _LCMCommand;
 
   TiBoardCommand _tiBoardCommand[4];
   TiBoardData _tiBoardData[4];
@@ -124,6 +129,23 @@ private:
   ecat_command_t ecatCmdLcm;
   ecat_data_t ecatDataLcm;
   // nothing?
+};
+
+
+//Interface between robot and hardware for MuadQuad
+class MuadQuadHardwareBridge : public HardwareBridge {
+public:
+  MuadQuadHardwareBridge(RobotController* rc, bool load_parameters_from_file);
+  void runLCM();
+  void initHardware();
+  void run();
+  // might need some more functions here...
+
+private:
+  //VectorNav is supposed to be the IMU data
+  VectorNavData _vectorNavData;
+  bool _load_parameters_from_file;
+  lcm::LCM _LCM;
 };
 #endif // END of #ifdef linux
 #endif  // PROJECT_HARDWAREBRIDGE_H
