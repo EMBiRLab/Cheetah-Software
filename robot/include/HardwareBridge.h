@@ -71,8 +71,8 @@ class HardwareBridge {
   // For muadquad need to define these in a new file in rt
   // Need to define these, also defined in hardware bridge.h appropriately
   // Need to update legcontroller.h also to use the data accordingly (updatedata and updatecommand functions)
-  LcmData _LCMData;
-  LcmCommand _LCMCommand;
+  robot_server_response_lcmt _LCMData;
+  robot_server_command_lcmt _LCMCommand;
 
   TiBoardCommand _tiBoardCommand[4];
   TiBoardData _tiBoardData[4];

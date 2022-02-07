@@ -56,8 +56,15 @@ class RobotRunner : public PeriodicTask {
   CheetahVisualization* cheetahMainVisualization;
   // Need to define these, also defined in hardware bridge.h appropriately
   // Need to update legcontroller.h also to use the data accordingly (updatedata and updatecommand functions)
-  LcmData* LCMdata;
-  LcmCommand* LCMCommand;
+  
+
+  //Updating LCM Data and Command (Robot_server) MUADQUAD
+  robot_server_response_lcmt LCMData;
+  void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
+                        const robot_server_response_lcmt* msg);
+  lcm::LCM _responseLCM;
+  robot_server_command_lcmt LCMCommand;
+  lcm::LCM _commandLCM;
 
  private:
   float _ini_yaw;

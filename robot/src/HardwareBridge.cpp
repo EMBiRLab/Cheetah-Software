@@ -655,12 +655,13 @@ void MuadQuadHardwareBridge::run() {
 
   printf("[Hardware Bridge] Got all parameters, starting up!\n");
 
-  //MuadQuad
   _robotRunner =
       new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
 
   //will have to create variables for storing current data and commands to joint position, velocity 
   //and torque data like the ones in spi command for cheetah
+  _robotRunner->LCMData = &_LCMData;
+  _robotRunner->LCMCommand = &_LCMCommand;
   _robotRunner->driverCommand = &_gamepadCommand;
   _robotRunner->robotType = RobotType::MUADQUAD;
   _robotRunner->controlParameters = &_robotParams;
@@ -702,18 +703,17 @@ void MuadQuadHardwareBridge::run() {
   }
 }
 
-//
 void MuadQuadHardwareBridge::runLCM() {
   // ALL of these are yet to be defined....
-  lcm_command_t* cmd = get_lcm_command();
-  lcm_data_t* data = get_lcm_data();
+  //DO not need to subscribe just need to publish the data from _LCMData and _LCMCommand here
 
-  memcpy(cmd, &_LCMCommand, sizeof(lcm_command_t));
-  lcm_driver_run();
-  memcpy(&_LCMData, data, sizeof(lcm_data_t));
+  //memcpy(cmd, &_LCMCommand, sizeof(robot_server_command_lcmt));
+  //lcm_driver_run();
+  //memcpy(&_LCMData, data, sizeof(robot_server_data_lcmt));
 
-  _LCM.publish("lcm_data", data);
-  _LCM.publish("lcm_command", cmd);
+  //Dont think we need to publish the data, cause that is anyway already published by the robot-server
+  //_LCM.publish("lcm_data", data);
+  //_LCM.publish("robot_server_command", lcmcmd);
 }
 
 void MuadQuadHardwareBridge::initHardware() {

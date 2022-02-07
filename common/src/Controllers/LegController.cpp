@@ -124,6 +124,26 @@ void LegController<T>::updateData(const TiBoardData* tiBoardData) {
   }
 }
 
+//Update Data from the robot_server!
+template <typename T>
+void LegController<T>::updateData(const robot_server_response_lcmt* lcmdata) {
+  datas[leg].q(0) = lcmdata.q[0];
+  for(int leg = 0; leg < 4; leg++) {
+        for(int axis = 0; axis < 3; axis++) {
+            int idx = leg*3 + axis;
+            datas[leg].q[axis] = lcmData->q[idx];
+            datas[leg].qd[axis] = lcmData->qd[idx];
+            datas[leg].tauEstimate[axis] = lcmData->tau_est[idx];
+        }
+      // J and p
+      computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J),
+                                     &(datas[leg].p), leg);
+
+      // v
+      datas[leg].v = datas[leg].J * datas[leg].qd;
+    }
+}
+
 /*!
  * Update the "leg command" for the SPIne board message
  */
@@ -216,8 +236,27 @@ void LegController<T>::updateCommand(TiBoardCommand* tiBoardCommand) {
     if(_zeroEncoders) {
       tiBoardCommand[leg].enable = 0;
     }
-
   }
+}
+
+//Update Data for the robot_server!
+template <typename T>
+void LegController<T>::updateCommand(robot_server_command_lcmt* lcmcommand) {
+  for(int leg = 0; leg < 4; leg++) {
+        for(int axis = 0; axis < 3; axis++) {
+            int idx = leg*3 + axis;
+            lcmcommand->tau_ff[idx] = commands[leg].tauFeedForward[axis];
+            //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
+            lcmcommand->q_des[idx] = commands[leg].qDes[axis];
+            lcmcommand->qd_des[idx] = commands[leg].qdDes[axis];
+            //lcmcommand->p_des[idx] = commands[leg].pDes[axis];
+            //lcmcommand->v_des[idx] = commands[leg].vDes[axis];
+            //lcmcommand->kp_cartesian[idx] = commands[leg].kpCartesian(axis, axis);
+            //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
+            lcmcommand->kp_joint[idx] = commands[leg].kpJoint(axis, axis);
+            lcmcommand->kd_joint[idx] = commands[leg].kdJoint(axis, axis);
+        }
+    }
 }
 
 /*!

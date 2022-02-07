@@ -41,6 +41,8 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     gMasterConfig._robot = RobotType::CHEETAH_3;
   } else if (argv[1][0] == 'm') {
     gMasterConfig._robot = RobotType::MINI_CHEETAH;
+  } else if (argv[1][0] == 'mq') {
+    gMasterConfig._robot = RobotType::MUADQUAD;
   } else {
     printUsage();
     return EXIT_FAILURE;
@@ -84,6 +86,9 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
       SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
       simulationBridge.run();
+    } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
+      SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
+      simulationBridge.run();
     } else {
       printf("[ERROR] unknown robot\n");
       assert(false);
@@ -96,6 +101,9 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
       printf("[Quadruped] SimDriver run() has finished!\n");
     } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
       Cheetah3HardwareBridge hw(ctrl);
+      hw.run();
+    } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
+      MuadQuadHardwareBridge hw(ctrl);
       hw.run();
     } else {
       printf("[ERROR] unknown robot\n");

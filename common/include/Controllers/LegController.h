@@ -64,8 +64,10 @@ class LegController {
   void edampCommand(RobotType robot, T gain);
   void updateData(const SpiData* spiData);
   void updateData(const TiBoardData* tiBoardData);
+  void updateData(const robot_server_response_lcmt* lcmdata);
   void updateCommand(SpiCommand* spiCommand);
   void updateCommand(TiBoardCommand* tiBoardCommand);
+  void updateCommand(robot_server_command_lcmt* lcmcommand);
   void setEnabled(bool enabled) { _legsEnabled = enabled; };
   void setLcm(leg_control_data_lcmt* data, leg_control_command_lcmt* command);
 
