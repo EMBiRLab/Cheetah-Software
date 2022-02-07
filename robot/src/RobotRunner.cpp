@@ -12,6 +12,7 @@
 #include "Controllers/OrientationEstimator.h"
 #include "Dynamics/Cheetah3.h"
 #include "Dynamics/MiniCheetah.h"
+#include "Dynamics/MuadQuad.h"
 #include "Utilities/Utilities_print.h"
 #include "ParamHandler.hpp"
 #include "Utilities/Timer.h"
@@ -217,7 +218,7 @@ void RobotRunner::finalizeStep() {
     _legController->updateCommand(tiBoardCommand);
   } else if (robotType == RobotType::MUADQUAD) {
     _legController->updateCommand(LCMCommand);
-    _commandLCM.publish("CORRECT CHANNEL NAME", &LCMCommand);
+    _commandLCM.publish("CORRECT CHANNEL NAME", LCMCommand);
   } else {
     assert(false);
   }
@@ -265,6 +266,6 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
     LCMData->q[i] = msg->q[i];
     LCMData->qd[i] = msg->qd[i];
     LCMData->tau_est[i] = msg->tau_est[i];
-    LCMData->fsm_state = msg->fsm_state;
   }
+  LCMData->fsm_state = msg->fsm_state;
 }

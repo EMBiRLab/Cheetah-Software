@@ -103,7 +103,7 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
       Cheetah3HardwareBridge hw(ctrl);
       hw.run();
     } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
-      MuadQuadHardwareBridge hw(ctrl);
+      MuadQuadHardwareBridge hw(ctrl, gMasterConfig.load_from_file);
       hw.run();
     } else {
       printf("[ERROR] unknown robot\n");
