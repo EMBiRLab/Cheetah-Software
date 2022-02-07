@@ -6,7 +6,7 @@
 #include <ostream>
 
 namespace Color {
-  enum Code {
+  enum Code : int {
     FG_BLACK    = 30,
     FG_RED      = 31,
     FG_GREEN    = 32,
@@ -26,7 +26,7 @@ namespace Color {
     Modifier(Code pCode) : code(pCode) {}
     friend std::ostream&
     operator<<(std::ostream& os, const Modifier& mod) {
-      return os << "\033[" << mod.code << "m";
+      return os << "\033[" << int(mod.code) << "m";
     }
     Modifier& operator=(const Modifier& mod) {
       this->code = mod.code;

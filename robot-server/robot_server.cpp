@@ -3,6 +3,7 @@
 #include <fstream>
 #include <algorithm>
 #include <utility>
+#include <string>
 
 #include <cmath>
 #include <math.h>
@@ -11,6 +12,15 @@
 #include "third-party/rapidcsv/rapidcsv.h"
 
 // #include "Utilities/utilities.h"
+
+// TODO: this is copy/paste from "Utilities/utilities.h" -- change to build with that code
+/*!
+ * Get the LCM URL with desired TTL.
+ */
+std::string getLcmUrl(int64_t ttl) {
+  assert(ttl >= 0 && ttl <= 255);
+  return "udpm://239.255.76.67:7667?ttl=" + std::to_string(ttl);
+}
 
 namespace chron = std::chrono;
 
@@ -135,7 +145,7 @@ void RobotServer::iterate_fsm() {
 			for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
 				if (std::isnan(rc.q_des[a_idx])) {
 					// either velocity or torque
-					if (std::isnan(rc.qd_dex[a_idx])) {
+					if (std::isnan(rc.qd_des[a_idx])) {
 						actuator_ptrs_[a_idx]->make_act_torque(rc.tau_ff[a_idx]);
 					}
 					else {
@@ -305,13 +315,13 @@ bool RobotServer::actuator_fault_check() {
 void RobotServer::publish_LCM_response() {
 	auto& sr = server_response;
 	for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
-		sr[a_idx].q = actuator_ptrs_[a_idx]->get_position_rad();
-		sr[a_idx].qd = actuator_ptrs_[a_idx]->get_velocity_rad_s();
-		sr[a_idx].tau_est = actuator_ptrs_[a_idx]->get_torque_Nm();
+		sr.q[a_idx] = actuator_ptrs_[a_idx]->get_position_rad();
+		sr.qd[a_idx] = actuator_ptrs_[a_idx]->get_velocity_rad_s();
+		sr.tau_est[a_idx] = actuator_ptrs_[a_idx]->get_torque_Nm();
 	}
 	sr.fsm_state = uint8_t(curr_state_);
 
-	auto data = sr;
+	robot_server_response_lcmt* data = &sr;
 	responseLCM_.publish("robot_server_response", data);
 }
 
@@ -365,7 +375,7 @@ RobotServer::RobotServerSettings::RobotServerSettings(cxxopts::ParseResult& rs_o
 		nullptr, true, true); // parse with `//`-led comments
 
 	float frq_override = rs_opts["frequency-override"].as<float>();
-	period_s = frq_override >= 0 ? 1.0/frq_override : 1.0/rs_cfg_j["loop_frequency"];
+	period_s = frq_override >= 0 ? 1.0/frq_override : 1.0/double(rs_cfg_j["loop_frequency"]);
 	duration_s = rs_opts["duration"].as<float>();
 
 	main_cpu = rs_opts["main-cpu"].as<uint8_t>();
