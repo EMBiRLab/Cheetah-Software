@@ -58,7 +58,7 @@ void setup_sigint_catch() {
 void Run(RobotServer& robotserver) {
 	if (robotserver.is_ready_to_quit()) return;
 	// * SETUP *
-	RobotServer::RobotServerSettings& rs_settings = robotserver.get_dynset();
+	RobotServer::RobotServerSettings& rs_settings = robotserver.get_rs_set();
 	
 	setup_sigint_catch();
 

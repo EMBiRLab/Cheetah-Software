@@ -23,6 +23,9 @@
 #include "third-party/cxxopts/cxxopts.hpp"
 #include "third-party/nlohmann/json.hpp"
 
+#include "robot_server_command_lcmt.hpp"
+#include "robot_server_response_lcmt.hpp"
+
 
 class RobotServer {
 public:

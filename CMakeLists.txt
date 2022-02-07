@@ -13,61 +13,80 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
+option(EMBIR_ROBOT_SERVER_BUILD "use compiler flags for EMBiR Lab development" OFF)
 option(MINI_CHEETAH_BUILD "use compiler flags for mini cheetah computer" OFF)
+option(PERMISSIVE "use -fpermissive compiler flag" OFF)
 set(BUILD_TYPE_RELEASE TRUE)
 
 option(NO_SIM "Do not build simulator" OFF)
 
-if(MINI_CHEETAH_BUILD)
+if(EMBIR_ROBOT_SERVER_BUILD)
   SET (THIS_COM "../" )
+  SET(undef_JCQP_USE_AVX2 "#undef JCQP_USE_AVX2")
   CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
     ${CMAKE_BINARY_DIR}/Configuration.h)
   set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -Wall \
   -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
   -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
-  -Wshadow -Wsign-promo -Werror")
+  -Wshadow -Wsign-promo")
   set(CMAKE_C_FLAGS "-O3  -ggdb -std=gnu99 -I.")
-  message("**** Mini-Cheetah build enabled ****")
-else(MINI_CHEETAH_BUILD)
-  SET (THIS_COM "${PROJECT_SOURCE_DIR}/" )
-  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
-    ${CMAKE_BINARY_DIR}/Configuration.h)
+  if(PERMISSIVE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -Wunused-variable -Wreorder")
+  endif()
+  message("**** Robot Server build enabled ****")
+  add_subdirectory(robot-server)
+  # add_subdirectory(common)
+  add_subdirectory(third-party/mjbots/pi3hat)
+  add_subdirectory(third-party/iir)
+  add_subdirectory(third-party/adafruit-sensors)
 
-  if(CMAKE_SYSTEM_NAME MATCHES Linux)
-    set(CMAKE_CXX_FLAGS "-O3 -no-pie -march=native -ggdb -Wall \
+else(EMBIR_ROBOT_SERVER_BUILD)
+  if(MINI_CHEETAH_BUILD)
+    SET (THIS_COM "../" )
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
+      ${CMAKE_BINARY_DIR}/Configuration.h)
+    set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -Wall \
     -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
     -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
     -Wshadow -Wsign-promo -Werror")
-  elseif(APPLE)
-    set(CMAKE_CXX_FLAGS "-O3 -march=native -ggdb -Wall \
-    -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
-    -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
-    -Wshadow -Wsign-promo")
-    include_directories("/usr/local/include/")   # lcm includes
+    set(CMAKE_C_FLAGS "-O3  -ggdb -std=gnu99 -I.")
+    message("**** Mini-Cheetah build enabled ****")
+  else(MINI_CHEETAH_BUILD)
+    SET (THIS_COM "${PROJECT_SOURCE_DIR}/" )
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
+      ${CMAKE_BINARY_DIR}/Configuration.h)
+
+    if(CMAKE_SYSTEM_NAME MATCHES Linux)
+      set(CMAKE_CXX_FLAGS "-O3 -no-pie -march=native -ggdb -Wall \
+      -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
+      -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
+      -Wshadow -Wsign-promo -Werror")
+    elseif(APPLE)
+      set(CMAKE_CXX_FLAGS "-O3 -march=native -ggdb -Wall \
+      -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
+      -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
+      -Wshadow -Wsign-promo")
+      include_directories("/usr/local/include/")   # lcm includes
+    endif()
+
+    set(CMAKE_C_FLAGS "-O3  -ggdb  -march=native -std=gnu99 -I.")
+    message("**** Mini-Cheetah build disabled ****")
+  endif(MINI_CHEETAH_BUILD)
+  add_subdirectory(robot)
+  add_subdirectory(third-party)
+  add_subdirectory(common)
+  if(NO_SIM)
+
+  else(NO_SIM)
+    add_subdirectory(sim)
   endif()
 
-  set(CMAKE_C_FLAGS "-O3  -ggdb  -march=native -std=gnu99 -I.")
-  message("**** Mini-Cheetah build disabled ****")
-endif(MINI_CHEETAH_BUILD)
+  add_subdirectory(user)
+  add_subdirectory(rc_test)
+endif(EMBIR_ROBOT_SERVER_BUILD)
 
 set(CMAKE_CXX_STANDARD 14)
 
 #find_package(lcm)
 
-add_subdirectory(robot)
-add_subdirectory(third-party)
-add_subdirectory(third-party/mjbots/pi3hat)
-add_subdirectory(third-party/iir)
-add_subdirectory(third-party/adafruit-sensors)
-add_subdirectory(common)
 
-if(NO_SIM)
-
-else(NO_SIM)
-  add_subdirectory(sim)
-endif()
-
-add_subdirectory(user)
-add_subdirectory(rc_test)
-
-add_subdirectory(robot-server)

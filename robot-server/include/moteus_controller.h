@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "mjbots/moteus/moteus_protocol.h"
-#include "mjbots/moteus/pi3hat_moteus_interface.h"
+#include "third-party/mjbots/moteus/moteus_protocol.h"
+#include "third-party/mjbots/moteus/pi3hat_moteus_interface.h"
 
 class MoteusController {
 public:
