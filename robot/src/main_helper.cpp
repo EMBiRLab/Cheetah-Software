@@ -41,7 +41,7 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     gMasterConfig._robot = RobotType::CHEETAH_3;
   } else if (argv[1][0] == 'm') {
     gMasterConfig._robot = RobotType::MINI_CHEETAH;
-  } else if (argv[1][0] == 'mq') {
+  } else if (argv[1][0] == 'e') {
     gMasterConfig._robot = RobotType::MUADQUAD;
   } else {
     printUsage();

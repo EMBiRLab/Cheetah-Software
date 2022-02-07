@@ -17,6 +17,8 @@
 #include "Dynamics/Quadruped.h"
 #include "SimUtilities/SpineBoard.h"
 #include "SimUtilities/ti_boardcontrol.h"
+#include "robot_server_command_lcmt.hpp"
+#include "robot_server_response_lcmt.hpp"
 
 /*!
  * Data sent from the control algorithm to the legs.

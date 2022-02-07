@@ -68,7 +68,13 @@ void LegController<T>::edampCommand(RobotType robot, T gain) {
         commands[leg].kdCartesian(axis, axis) = gain;
       }
     }
-  } else {  // mini-cheetah
+  } else if (robot == RobotType::MINI_CHEETAH) {  // mini-cheetah
+    for (int leg = 0; leg < 4; leg++) {
+      for (int axis = 0; axis < 3; axis++) {
+        commands[leg].kdJoint(axis, axis) = gain;
+      }
+    }
+  } else{ //MUADQUAD
     for (int leg = 0; leg < 4; leg++) {
       for (int axis = 0; axis < 3; axis++) {
         commands[leg].kdJoint(axis, axis) = gain;
@@ -127,13 +133,12 @@ void LegController<T>::updateData(const TiBoardData* tiBoardData) {
 //Update Data from the robot_server!
 template <typename T>
 void LegController<T>::updateData(const robot_server_response_lcmt* lcmdata) {
-  datas[leg].q(0) = lcmdata.q[0];
   for(int leg = 0; leg < 4; leg++) {
         for(int axis = 0; axis < 3; axis++) {
             int idx = leg*3 + axis;
-            datas[leg].q[axis] = lcmData->q[idx];
-            datas[leg].qd[axis] = lcmData->qd[idx];
-            datas[leg].tauEstimate[axis] = lcmData->tau_est[idx];
+            datas[leg].q[axis] = lcmdata->q[idx];
+            datas[leg].qd[axis] = lcmdata->qd[idx];
+            datas[leg].tauEstimate[axis] = lcmdata->tau_est[idx];
         }
       // J and p
       computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J),
@@ -242,6 +247,7 @@ void LegController<T>::updateCommand(TiBoardCommand* tiBoardCommand) {
 //Update Data for the robot_server!
 template <typename T>
 void LegController<T>::updateCommand(robot_server_command_lcmt* lcmcommand) {
+  //DEfinetly have to check this command here.....
   for(int leg = 0; leg < 4; leg++) {
         for(int axis = 0; axis < 3; axis++) {
             int idx = leg*3 + axis;

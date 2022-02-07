@@ -592,7 +592,7 @@ void Cheetah3HardwareBridge::run() {
 
 //Section for the MuadQuad Hardware Bridge
 
-MuadQuadHardwareBridge::MuadQuadHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file) : HardwareBridge(robot_ctrl)) {
+MuadQuadHardwareBridge::MuadQuadHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file) : HardwareBridge(robot_ctrl) {
   _load_parameters_from_file = load_parameters_from_file;
 }
 
@@ -678,9 +678,10 @@ void MuadQuadHardwareBridge::run() {
   statusTask.start();
 
   // Should Replace this with some sort of LCM task start 
-  PeriodicMemberFunction<MuadQuadHardwareBridge> LCMTask(
+  /*PeriodicMemberFunction<MuadQuadHardwareBridge> LCMTask(
       &taskManager, .002, "lcm", &MuadQuadHardwareBridge::runLCM, this);
   LCMTask.start();
+  */
 
   // robot controller start
   _robotRunner->start();
@@ -701,19 +702,6 @@ void MuadQuadHardwareBridge::run() {
     usleep(1000000);
     // printf("joy %f\n", _robotRunner->driverCommand->leftStickAnalog[0]);
   }
-}
-
-void MuadQuadHardwareBridge::runLCM() {
-  // ALL of these are yet to be defined....
-  //DO not need to subscribe just need to publish the data from _LCMData and _LCMCommand here
-
-  //memcpy(cmd, &_LCMCommand, sizeof(robot_server_command_lcmt));
-  //lcm_driver_run();
-  //memcpy(&_LCMData, data, sizeof(robot_server_data_lcmt));
-
-  //Dont think we need to publish the data, cause that is anyway already published by the robot-server
-  //_LCM.publish("lcm_data", data);
-  //_LCM.publish("robot_server_command", lcmcmd);
 }
 
 void MuadQuadHardwareBridge::initHardware() {

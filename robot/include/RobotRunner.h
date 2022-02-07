@@ -59,11 +59,11 @@ class RobotRunner : public PeriodicTask {
   
 
   //Updating LCM Data and Command (Robot_server) MUADQUAD
-  robot_server_response_lcmt LCMData;
+  robot_server_response_lcmt* LCMData;
   void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
                         const robot_server_response_lcmt* msg);
   lcm::LCM _responseLCM;
-  robot_server_command_lcmt LCMCommand;
+  robot_server_command_lcmt* LCMCommand;
   lcm::LCM _commandLCM;
 
  private:
