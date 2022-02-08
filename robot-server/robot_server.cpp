@@ -78,6 +78,7 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 			actuator_ptrs_[a_idx]->zero_offset();
 	}
 	std::cout << "\ndone.\n";
+	init_LCM();
 
 }
 
@@ -100,6 +101,7 @@ void RobotServer::handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
 	(void)chan;
 	std::lock_guard<std::mutex> commandguard(commandmutex); // wrapper for mutex
 	requested_command = *msg;
+	// std::cout << "rx cmd; q_des[0] = " << requested_command.q_des[0] << std::endl;
 }
 
 void RobotServer::iterate_fsm() {
@@ -132,15 +134,16 @@ void RobotServer::iterate_fsm() {
 			// ***TODO***: Implement your operation here
 			// feel free to expand into multiple states
 
+			// if (num_actuators() != 12) {
+			// 	std::cout << "ERROR: num_actuators() = " << num_actuators() <<
+			// 		" (only 12 actuator systems currently supported)\n";
+			// 	ready_to_quit = true;
+			// }
+			
 			// extract values from requested command and infer relevant control mode
 			// torque mode: position and velocity NAN
 			// velocity mode: position NAN
 			// position mode: nothing NAN
-			if (num_actuators() != 12) {
-				std::cout << "ERROR: num_actuators() = " << num_actuators() <<
-					" (only 12 actuator systems currently supported)\n";
-				ready_to_quit = true;
-			}
 			auto& rc = requested_command;
 			for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
 				if (std::isnan(rc.q_des[a_idx])) {
@@ -346,7 +349,7 @@ cxxopts::Options rs_opts() {
 	options.add_options()
 		("rs-cfg-path", "path to robot server config JSON", 
 			cxxopts::value<std::string>()->default_value(
-				"/home/pi/quadruped-software/robot-server/robot_server_config.json"))
+				"/home/pi/Quadruped-Software/robot-server/robot_server_config.json"))
 		("c,comment", "enter comment string to be included in output csv.", 
 			cxxopts::value<std::string>())
 		("p,path", "path to output csv.",
@@ -369,6 +372,7 @@ cxxopts::Options rs_opts() {
 RobotServer::RobotServerSettings::RobotServerSettings(cxxopts::ParseResult& rs_opts_in) {
 	rs_opts = rs_opts_in;
 
+	std::cout << "parsing RobotServer config from " << rs_opts["rs-cfg-path"].as<std::string>() << "..." << std::endl;
 	std::ifstream rs_cfg_if(rs_opts["rs-cfg-path"].as<std::string>());
 	nlohmann::json rs_cfg_j = nlohmann::json::parse(
 		rs_cfg_if,

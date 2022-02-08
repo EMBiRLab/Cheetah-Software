@@ -172,7 +172,7 @@ void Run(RobotServer& robotserver) {
 				saved_replies[ii] = replies[ii];
 			}
 		}
-		if(replies.size() < 2) std::cout << "main: incorrect number of replies: " << replies.size() << std::endl;
+		// if(replies.size() < 2) std::cout << "main: incorrect number of replies: " << replies.size() << std::endl;
 
 		// copy the replies over to the member actuators; they look for ID match. If
 		// there's no matching ID response, fault is raised
@@ -197,8 +197,9 @@ void Run(RobotServer& robotserver) {
 
 		// kill loop if we miss all these replies
 		if (reply_miss_count > 20) {
-			std::cout << "missed too many replies in a row! ending..." << std::endl;
-			break;
+			std::cout << " RMC:" << reply_miss_count << " ";
+			// std::cout << "missed too many replies in a row! ending..." << std::endl;
+			// break;
 		}
 
 		if (cycle_count > 1) {
@@ -260,8 +261,8 @@ int main(int argc, char** argv) {
 		(1e6)/10);
 	data_file << "# \n# user comment: " << opts["comment"]
 		.as<std::string>() << "\n# \n";
-	data_file << "# period s: " << 1.0/opts["frequency"].as<float>() << "\n";
-	data_file << "# duration s: " << opts["duration"].as<float>() << "\n";
+	data_file << "# period s: " << rs_settings.period_s << "\n";
+	data_file << "# duration s: " << rs_settings.duration_s << "\n";
 
 	ConfigureRealtime(rs_settings.main_cpu);
 	ConfigureRealtime(rs_settings.can_cpu);

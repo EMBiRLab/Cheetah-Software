@@ -144,7 +144,7 @@ void MoteusController::make_mot_full_pos(float pos_rot, float vel_Hz,
 
 
 void MoteusController::retrieve_reply(std::vector<MoteusInterface::ServoReply>& replies) {
-	if(replies.size() < 2) std::cout << "incorrect number of replies: " << replies.size() << std::endl;
+	// if(replies.size() < 2) std::cout << "incorrect number of replies: " << replies.size() << std::endl;
 	for (auto reply : replies) {
 		if (reply.id == id_) {
 			prev_reply_ = reply;
