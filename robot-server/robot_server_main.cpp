@@ -197,8 +197,9 @@ void Run(RobotServer& robotserver) {
 
 		// kill loop if we miss all these replies
 		if (reply_miss_count > 20) {
-			std::cout << "missed too many replies in a row! ending..." << std::endl;
-			break;
+			std::cout << " RMC:" << reply_miss_count << " ";
+			// std::cout << "missed too many replies in a row! ending..." << std::endl;
+			// break;
 		}
 
 		if (cycle_count > 1) {

@@ -78,6 +78,7 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 			actuator_ptrs_[a_idx]->zero_offset();
 	}
 	std::cout << "\ndone.\n";
+	init_LCM();
 
 }
 
@@ -100,6 +101,7 @@ void RobotServer::handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
 	(void)chan;
 	std::lock_guard<std::mutex> commandguard(commandmutex); // wrapper for mutex
 	requested_command = *msg;
+	// std::cout << "rx cmd; q_des[0] = " << requested_command.q_des[0] << std::endl;
 }
 
 void RobotServer::iterate_fsm() {
@@ -132,15 +134,16 @@ void RobotServer::iterate_fsm() {
 			// ***TODO***: Implement your operation here
 			// feel free to expand into multiple states
 
+			// if (num_actuators() != 12) {
+			// 	std::cout << "ERROR: num_actuators() = " << num_actuators() <<
+			// 		" (only 12 actuator systems currently supported)\n";
+			// 	ready_to_quit = true;
+			// }
+			
 			// extract values from requested command and infer relevant control mode
 			// torque mode: position and velocity NAN
 			// velocity mode: position NAN
 			// position mode: nothing NAN
-			if (num_actuators() != 12) {
-				std::cout << "ERROR: num_actuators() = " << num_actuators() <<
-					" (only 12 actuator systems currently supported)\n";
-				ready_to_quit = true;
-			}
 			auto& rc = requested_command;
 			for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
 				if (std::isnan(rc.q_des[a_idx])) {
