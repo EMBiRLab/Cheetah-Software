@@ -19,7 +19,9 @@ option(PERMISSIVE "use -fpermissive compiler flag" OFF)
 set(BUILD_TYPE_RELEASE TRUE)
 
 option(NO_SIM "Do not build simulator" OFF)
-
+# SET(def_LINUX "#define linux")
+message(STATUS ${CMAKE_SYSTEM_NAME}) 
+set(CMAKE_CXX_STANDARD 14)
 if(EMBIR_ROBOT_SERVER_BUILD)
   SET (THIS_COM "../" )
   SET(undef_JCQP_USE_AVX2 "#undef JCQP_USE_AVX2")
@@ -30,22 +32,19 @@ if(EMBIR_ROBOT_SERVER_BUILD)
   -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
   -Wshadow -Wsign-promo")
   set(CMAKE_C_FLAGS "-O3  -ggdb -std=gnu99 -I.")
-  if(PERMISSIVE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -Wunused-variable -Wreorder")
-  endif()
   message("**** Robot Server build enabled ****")
   add_subdirectory(robot-server)
   # add_subdirectory(common)
   add_subdirectory(third-party/mjbots/pi3hat)
   add_subdirectory(third-party/iir)
   add_subdirectory(third-party/adafruit-sensors)
-
+  
 else(EMBIR_ROBOT_SERVER_BUILD)
   if(MINI_CHEETAH_BUILD)
     SET (THIS_COM "../" )
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
       ${CMAKE_BINARY_DIR}/Configuration.h)
-    set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -Wall \
+    set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -std=c++14 -Wall \
     -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
     -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
     -Wshadow -Wsign-promo -Werror")
@@ -83,10 +82,13 @@ else(EMBIR_ROBOT_SERVER_BUILD)
 
   add_subdirectory(user)
   add_subdirectory(rc_test)
-endif(EMBIR_ROBOT_SERVER_BUILD)
-
-set(CMAKE_CXX_STANDARD 14)
-
-#find_package(lcm)
-
-
+  endif(EMBIR_ROBOT_SERVER_BUILD)
+  
+  
+  #find_package(lcm)
+  
+  if(PERMISSIVE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -Wunused-variable -Wreorder")
+  endif()
+  
+  
