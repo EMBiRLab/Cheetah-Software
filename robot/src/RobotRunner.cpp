@@ -175,7 +175,7 @@ void RobotRunner::setupStep() {
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateData(tiBoardData);
   } else if (robotType == RobotType::MUADQUAD) {
-    _responseLCM.subscribe("FILL IN CORRECT CHANNEL NAME", &RobotRunner::handleresponseLCM, this);
+    _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
     _legController->updateData(LCMData); 
   } else {
     assert(false);
@@ -218,7 +218,7 @@ void RobotRunner::finalizeStep() {
     _legController->updateCommand(tiBoardCommand);
   } else if (robotType == RobotType::MUADQUAD) {
     _legController->updateCommand(LCMCommand);
-    _commandLCM.publish("CORRECT CHANNEL NAME", LCMCommand);
+    _commandLCM.publish("robot_server_command", LCMCommand);
   } else {
     assert(false);
   }
