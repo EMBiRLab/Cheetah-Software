@@ -346,7 +346,7 @@ cxxopts::Options rs_opts() {
 	options.add_options()
 		("rs-cfg-path", "path to robot server config JSON", 
 			cxxopts::value<std::string>()->default_value(
-				"/home/pi/quadruped-software/robot-server/robot_server_config.json"))
+				"/home/pi/Quadruped-Software/robot-server/robot_server_config.json"))
 		("c,comment", "enter comment string to be included in output csv.", 
 			cxxopts::value<std::string>())
 		("p,path", "path to output csv.",
@@ -369,6 +369,7 @@ cxxopts::Options rs_opts() {
 RobotServer::RobotServerSettings::RobotServerSettings(cxxopts::ParseResult& rs_opts_in) {
 	rs_opts = rs_opts_in;
 
+	std::cout << "parsing RobotServer config from " << rs_opts["rs-cfg-path"].as<std::string>() << "..." << std::endl;
 	std::ifstream rs_cfg_if(rs_opts["rs-cfg-path"].as<std::string>());
 	nlohmann::json rs_cfg_j = nlohmann::json::parse(
 		rs_cfg_if,
