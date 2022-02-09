@@ -1,3 +1,5 @@
+// package rslcm;
+
 struct robot_server_command_lcmt {
     float tau_ff[12];
     float q_des[12];

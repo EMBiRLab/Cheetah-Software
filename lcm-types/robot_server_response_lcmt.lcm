@@ -1,3 +1,5 @@
+// package rslcm;
+
 struct robot_server_response_lcmt {
     float q[12];
     float qd[12];
