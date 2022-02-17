@@ -53,11 +53,11 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/libs)
 ############################################################
 
 # warnings are disabled! (qpOASES has many warnings)
-set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -w")
+set(CMAKE_CXX_FLAGS "  -no-pie -ggdb -w")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__NO_COPYRIGHT__ -Wno-error")
 IF ( UNIX )
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wfloat-equal -Wshadow -DLINUX")
-    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O3 -finline-functions")
+    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG}   -finline-functions")
 ELSEIF( WINDOWS )
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nologo -EHsc -DWIN32")
 ENDIF()

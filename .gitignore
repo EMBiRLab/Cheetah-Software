@@ -1,4 +1,5 @@
 build/
+alt_build/
 mc-build/
 rs-build/
 cmake-build-debug/

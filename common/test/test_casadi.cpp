@@ -176,7 +176,7 @@ TEST(casadi, part1) {
     solver = nlpsol("solver", "ipopt", "nlp.c");
   } else {
     // Compile the c-code
-    int flag = system("gcc -fPIC -shared -O3 nlp.c -o nlp.so");
+    int flag = system("gcc -fPIC -shared   nlp.c -o nlp.so");
     casadi_assert(flag == 0, "Compilation failed");
 
     // Create a new NLP solver instance from the compiled code

@@ -56,7 +56,7 @@ else(EMBIR_ROBOT_SERVER_BUILD)
       ${CMAKE_BINARY_DIR}/Configuration.h)
 
     if(CMAKE_SYSTEM_NAME MATCHES Linux)
-      set(CMAKE_CXX_FLAGS "-O3 -no-pie -march=native -ggdb -Wall \
+      set(CMAKE_CXX_FLAGS "-no-pie -march=native -ggdb -Wall \
       -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
       -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
       -Wshadow -Wsign-promo -Werror")
@@ -65,7 +65,7 @@ else(EMBIR_ROBOT_SERVER_BUILD)
       -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
       -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
       -Wshadow -Wsign-promo")
-      include_directories("/usr/local/include/")   # lcm includes
+      include_directories("/usr/include/")   # lcm includes
     endif()
 
     set(CMAKE_C_FLAGS "-O3  -ggdb  -march=native -std=gnu99 -I.")

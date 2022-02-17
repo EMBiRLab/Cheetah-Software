@@ -94,6 +94,9 @@
 		"any": "cpp",
 		"variant": "cpp",
 		"orderingmethods": "cpp",
-		"matrixfunctions": "cpp"
+		"matrixfunctions": "cpp",
+		"complex": "cpp",
+		"memory_resource": "cpp",
+		"string_view": "cpp"
 	}
 }

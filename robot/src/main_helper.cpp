@@ -32,10 +32,14 @@ void printUsage() {
  * Setup and run the given robot controller
  */
 int main_helper(int argc, char** argv, RobotController* ctrl) {
+  printf("Hello user, welcome to main_helper\n");
   if (argc != 3 && argc != 4) {
     printUsage();
     return EXIT_FAILURE;
   }
+
+  std::cout << "Im a cout!\n";
+  printf("Hello user\n");
 
   if (argv[1][0] == '3') {
     gMasterConfig._robot = RobotType::CHEETAH_3;
