@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
+set(CMAKE_CXX_STANDARD 14)
 
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
   message(SEND_ERROR "In-source builds are not allowed.")
@@ -84,8 +85,6 @@ else(EMBIR_ROBOT_SERVER_BUILD)
   add_subdirectory(user)
   add_subdirectory(rc_test)
 endif(EMBIR_ROBOT_SERVER_BUILD)
-
-set(CMAKE_CXX_STANDARD 14)
 
 #find_package(lcm)
 

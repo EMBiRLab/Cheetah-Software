@@ -12,6 +12,7 @@
 #include "Controllers/OrientationEstimator.h"
 #include "Dynamics/Cheetah3.h"
 #include "Dynamics/MiniCheetah.h"
+// #include "Dynamics/MuadQuad.h" // added Muadquad.h file
 #include "Utilities/Utilities_print.h"
 #include "ParamHandler.hpp"
 #include "Utilities/Timer.h"
@@ -37,8 +38,10 @@ void RobotRunner::init() {
   // Build the appropriate Quadruped object
   if (robotType == RobotType::MINI_CHEETAH) {
     _quadruped = buildMiniCheetah<float>();
-  } else {
+  } else if (robotType == RobotType::CHEETAH_3){
     _quadruped = buildCheetah3<float>();
+  } else {
+  //  _quadruped = buildMuadQuad<float>(); //need to write this in a MuadQuad.h file in Dynamics folder
   }
 
   // Initialize the model and robot data
@@ -120,6 +123,10 @@ void RobotRunner::run() {
         } else if (robotType == RobotType::CHEETAH_3) {
           kpMat << 50, 0, 0, 0, 50, 0, 0, 0, 50;
           kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+        } else if (robotType == RobotType::MUADQUAD){
+          //Need to redefine these for MUADQUAD
+          kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
+          kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
         } else {
           assert(false);
         } 
@@ -167,7 +174,10 @@ void RobotRunner::setupStep() {
     _legController->updateData(spiData);
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateData(tiBoardData);
-  } else {
+  } else if (robotType == RobotType::MUADQUAD) {
+    // _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
+    // _legController->updateData(LCMData); 
+  }else {
     assert(false);
   }
 
@@ -206,6 +216,9 @@ void RobotRunner::finalizeStep() {
     _legController->updateCommand(spiCommand);
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateCommand(tiBoardCommand);
+  } else if (robotType == RobotType::MUADQUAD) {
+    // _legController->updateCommand(LCMCommand);
+    // _commandLCM.publish("robot_server_command", LCMCommand);
   } else {
     assert(false);
   }
@@ -243,3 +256,17 @@ RobotRunner::~RobotRunner() {
 }
 
 void RobotRunner::cleanup() {}
+
+//Handling the response LCM
+void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
+                        const robot_server_response_lcmt* msg){
+  (void)rbuf;
+  (void)chan;
+  (void)msg; //TODO: switch with code below
+  // for (int i = 0; i<12;i++){
+  //   LCMData->q[i] = msg->q[i];
+  //   LCMData->qd[i] = msg->qd[i];
+  //   LCMData->tau_est[i] = msg->tau_est[i];
+  // }
+  // LCMData->fsm_state = msg->fsm_state;
+}

@@ -24,6 +24,7 @@
 #include "Utilities/PeriodicTask.h"
 #include "cheetah_visualization_lcmt.hpp"
 #include "state_estimator_lcmt.hpp"
+#include "robot_server_response_lcmt.hpp"
 #include "RobotController.h"
 #include <lcm-cpp.hpp>
 
@@ -36,10 +37,13 @@ class RobotRunner : public PeriodicTask {
   void init() override;
   void run() override;
   void cleanup() override;
+  void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
+                        const robot_server_response_lcmt* msg);
 
   // Initialize the state estimator with default no cheaterMode
   void initializeStateEstimator(bool cheaterMode = false);
   virtual ~RobotRunner();
+
 
   RobotController* _robot_ctrl;
 

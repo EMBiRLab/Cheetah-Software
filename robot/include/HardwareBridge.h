@@ -125,5 +125,22 @@ private:
   ecat_data_t ecatDataLcm;
   // nothing?
 };
+
+//Interface between robot and hardware for MuadQuad
+class MuadQuadHardwareBridge : public HardwareBridge {
+public:
+  MuadQuadHardwareBridge(RobotController* rc, bool load_parameters_from_file);
+  void runLCM();
+  void initHardware();
+  void run();
+  // might need some more functions here...
+
+private:
+  //VectorNav is supposed to be the IMU data
+  VectorNavData _vectorNavData;
+  bool _load_parameters_from_file;
+  lcm::LCM _LCM;
+};
+
 #endif // END of #ifdef linux
 #endif  // PROJECT_HARDWAREBRIDGE_H
