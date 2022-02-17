@@ -67,8 +67,10 @@ struct GamepadCommand {
     leftTriggerAnalog = lcmt->leftTriggerAnalog;
     rightTriggerAnalog = lcmt->rightTriggerAnalog;
     for (int i = 0; i < 2; i++) {
-      leftStickAnalog[i] = lcmt->leftStickAnalog[i];
-      rightStickAnalog[i] = lcmt->rightStickAnalog[i];
+      // leftStickAnalog[i] = lcmt->leftStickAnalog[i];
+      // rightStickAnalog[i] = lcmt->rightStickAnalog[i];
+      leftStickAnalog[i] = 1;
+      rightStickAnalog[i] = 1;
     }
   }
 

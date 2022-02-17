@@ -19,7 +19,7 @@
 template <typename T>
 Quadruped<T> buildMuadQuad() {
   Quadruped<T> muadquad;
-  muadquad._robotType = RobotType::MINI_CHEETAH;
+  muadquad._robotType = RobotType::MUADQUAD;
 
   muadquad._bodyMass = 3.3;
   muadquad._bodyLength = 0.19 * 2;

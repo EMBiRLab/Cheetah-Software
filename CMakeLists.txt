@@ -27,11 +27,11 @@ if(EMBIR_ROBOT_SERVER_BUILD)
   SET(undef_JCQP_USE_AVX2 "#undef JCQP_USE_AVX2")
   CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
     ${CMAKE_BINARY_DIR}/Configuration.h)
-  set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -Wall \
+  set(CMAKE_CXX_FLAGS "-no-pie -ggdb -Wall \
   -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
   -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
   -Wshadow -Wsign-promo")
-  set(CMAKE_C_FLAGS "-O3  -ggdb -std=gnu99 -I.")
+  set(CMAKE_C_FLAGS "-ggdb -std=gnu99 -I.")
   message("**** Robot Server build enabled ****")
   add_subdirectory(robot-server)
   # add_subdirectory(common)
@@ -44,11 +44,11 @@ else(EMBIR_ROBOT_SERVER_BUILD)
     SET (THIS_COM "../" )
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
       ${CMAKE_BINARY_DIR}/Configuration.h)
-    set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -std=c++14 -Wall \
+    set(CMAKE_CXX_FLAGS "-no-pie -ggdb -std=c++14 -Wall \
     -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
     -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
     -Wshadow -Wsign-promo -Werror")
-    set(CMAKE_C_FLAGS "-O3  -ggdb -std=gnu99 -I.")
+    set(CMAKE_C_FLAGS "-ggdb -std=gnu99 -I.")
     message("**** Mini-Cheetah build enabled ****")
   else(MINI_CHEETAH_BUILD)
     SET (THIS_COM "${PROJECT_SOURCE_DIR}/" )
@@ -56,19 +56,21 @@ else(EMBIR_ROBOT_SERVER_BUILD)
       ${CMAKE_BINARY_DIR}/Configuration.h)
 
     if(CMAKE_SYSTEM_NAME MATCHES Linux)
-      set(CMAKE_CXX_FLAGS "-O3 -no-pie -march=native -ggdb -Wall \
+      message("linux general build")
+      set(CMAKE_CXX_FLAGS "-O0 -no-pie -march=native -ggdb -Wall \
       -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
       -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
       -Wshadow -Wsign-promo -Werror")
+      # set(CMAKE_CXX_FLAGS "-march=native -ggdb -Wall")
     elseif(APPLE)
-      set(CMAKE_CXX_FLAGS "-O3 -march=native -ggdb -Wall \
+      set(CMAKE_CXX_FLAGS "-march=native -ggdb -Wall \
       -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
       -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
       -Wshadow -Wsign-promo")
       include_directories("/usr/local/include/")   # lcm includes
     endif()
 
-    set(CMAKE_C_FLAGS "-O3  -ggdb  -march=native -std=gnu99 -I.")
+    set(CMAKE_C_FLAGS "-ggdb  -march=native -std=gnu99 -I.")
     message("**** Mini-Cheetah build disabled ****")
   endif(MINI_CHEETAH_BUILD)
   add_subdirectory(robot)

@@ -32,6 +32,8 @@ void printUsage() {
  * Setup and run the given robot controller
  */
 int main_helper(int argc, char** argv, RobotController* ctrl) {
+//std::cout<<"starting main helper \n"<<std::endl;
+
   if (argc != 3 && argc != 4) {
     printUsage();
     return EXIT_FAILURE;

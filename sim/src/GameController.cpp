@@ -48,7 +48,6 @@ void GameController::findNewController() {
     } else {
       printf("[GameController] Found 1 joystick\n");
     }
-
     _qGamepad = new QGamepad(*gamepadList.begin());
   }
 }
@@ -79,7 +78,26 @@ void GameController::updateGamepadCommand(GamepadCommand &gamepadCommand) {
     gamepadCommand.rightStickAnalog =
         Vec2<float>(_qGamepad->axisRightX(), -_qGamepad->axisRightY());
   } else {
-    gamepadCommand.zero();  // no joystick, return all zeros
+    // gamepadCommand.zero();  // no joystick, return all zeros
+    printf("setting left analog and right analog stick values\n");
+    gamepadCommand.leftBumper = 1;
+    gamepadCommand.rightBumper = 1;
+    gamepadCommand.leftTriggerButton = 1;
+    gamepadCommand.rightTriggerButton = 1;
+    gamepadCommand.back = 1;
+    gamepadCommand.start = 1;
+    gamepadCommand.a = 1;
+    gamepadCommand.b = 1;
+    gamepadCommand.x = 1;
+    gamepadCommand.y = 1;
+    gamepadCommand.leftStickButton = 1;
+    gamepadCommand.rightStickButton = 1;
+    gamepadCommand.leftTriggerAnalog = 1.0;
+    gamepadCommand.rightTriggerAnalog = 1.0;
+    gamepadCommand.leftStickAnalog =
+        Vec2<float>(0.0, 0.5);
+    gamepadCommand.rightStickAnalog =
+        Vec2<float>(0.0, 0.0);
   }
 
   // printf("%s\n", gamepadCommand.toString().c_str());
