@@ -68,7 +68,13 @@ void LegController<T>::edampCommand(RobotType robot, T gain) {
         commands[leg].kdCartesian(axis, axis) = gain;
       }
     }
-  } else {  // mini-cheetah
+  } else if(robot == RobotType::MINI_CHEETAH) {  // mini-cheetah
+    for (int leg = 0; leg < 4; leg++) {
+      for (int axis = 0; axis < 3; axis++) {
+        commands[leg].kdJoint(axis, axis) = gain;
+      }
+    }
+  } else { //MUADQUAD
     for (int leg = 0; leg < 4; leg++) {
       for (int axis = 0; axis < 3; axis++) {
         commands[leg].kdJoint(axis, axis) = gain;
@@ -123,6 +129,26 @@ void LegController<T>::updateData(const TiBoardData* tiBoardData) {
     //printf("%d leg, velocity: %f, %f, %f\n", leg, datas[leg].v[0], datas[leg].v[1], datas[leg].v[2]);
   }
 }
+
+//Update Data from the robot_server!
+template <typename T>
+void LegController<T>::updateData(const robot_server_response_lcmt* lcmdata) {
+  for(int leg = 0; leg < 4; leg++) {
+    for(int axis = 0; axis < 3; axis++) {
+      int idx = leg*3 + axis;
+      datas[leg].q[axis] = lcmdata->q[idx];
+      datas[leg].qd[axis] = lcmdata->qd[idx];
+      datas[leg].tauEstimate[axis] = lcmdata->tau_est[idx];
+    }
+    // J and p
+    computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J),
+                                    &(datas[leg].p), leg);
+
+    // v
+    datas[leg].v = datas[leg].J * datas[leg].qd;
+  }
+}
+
 
 /*!
  * Update the "leg command" for the SPIne board message
@@ -219,6 +245,28 @@ void LegController<T>::updateCommand(TiBoardCommand* tiBoardCommand) {
 
   }
 }
+
+//Update Data for the robot_server!
+template <typename T>
+void LegController<T>::updateCommand(robot_server_command_lcmt* lcmcommand) {
+  //DEfinetly have to check this command here.....
+  for(int leg = 0; leg < 4; leg++) {
+    for(int axis = 0; axis < 3; axis++) {
+      int idx = leg*3 + axis;
+      lcmcommand->tau_ff[idx] = commands[leg].tauFeedForward[axis];
+      //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
+      lcmcommand->q_des[idx] = commands[leg].qDes[axis];
+      lcmcommand->qd_des[idx] = commands[leg].qdDes[axis];
+      //lcmcommand->p_des[idx] = commands[leg].pDes[axis];
+      //lcmcommand->v_des[idx] = commands[leg].vDes[axis];
+      //lcmcommand->kp_cartesian[idx] = commands[leg].kpCartesian(axis, axis);
+      //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
+      lcmcommand->kp_joint[idx] = commands[leg].kpJoint(axis, axis);
+      lcmcommand->kd_joint[idx] = commands[leg].kdJoint(axis, axis);
+    }
+  }
+}
+
 
 /*!
  * Set LCM debug data from leg commands and data

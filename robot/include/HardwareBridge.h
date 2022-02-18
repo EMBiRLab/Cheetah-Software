@@ -40,6 +40,7 @@ class HardwareBridge {
         _visualizationLCM(getLcmUrl(255)) {
     _controller = robot_ctrl;
     _userControlParameters = robot_ctrl->getUserControlParameters();
+    std::cout << "hw bridge ctor" << std::endl;
         }
   void prefaultStack();
   void setupScheduler();
@@ -71,6 +72,12 @@ class HardwareBridge {
 
   TiBoardCommand _tiBoardCommand[4];
   TiBoardData _tiBoardData[4];
+  // For muadquad need to define these in a new file in rt
+  // Need to define these, also defined in hardware bridge.h appropriately
+  // Need to update legcontroller.h also to use the data accordingly (updatedata and updatecommand functions)
+  robot_server_response_lcmt _LCMData;
+  robot_server_command_lcmt _LCMCommand;
+
 
   bool _firstRun = true;
   RobotRunner* _robotRunner = nullptr;
@@ -136,7 +143,6 @@ public:
   // might need some more functions here...
 
 private:
-  //VectorNav is supposed to be the IMU data
   VectorNavData _vectorNavData;
   bool _load_parameters_from_file;
   lcm::LCM _LCM;

@@ -25,6 +25,7 @@
 #include "cheetah_visualization_lcmt.hpp"
 #include "state_estimator_lcmt.hpp"
 #include "robot_server_response_lcmt.hpp"
+#include "robot_server_command_lcmt.hpp"
 #include "RobotController.h"
 #include <lcm-cpp.hpp>
 
@@ -37,8 +38,6 @@ class RobotRunner : public PeriodicTask {
   void init() override;
   void run() override;
   void cleanup() override;
-  void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
-                        const robot_server_response_lcmt* msg);
 
   // Initialize the state estimator with default no cheaterMode
   void initializeStateEstimator(bool cheaterMode = false);
@@ -58,6 +57,19 @@ class RobotRunner : public PeriodicTask {
   RobotControlParameters* controlParameters;
   VisualizationData* visualizationData;
   CheetahVisualization* cheetahMainVisualization;
+
+  // Need to define these, also defined in hardware bridge.h appropriately
+  // Need to update legcontroller.h also to use the data accordingly (updatedata and updatecommand functions)
+  
+
+  //Updating LCM Data and Command (Robot_server) MUADQUAD
+  robot_server_response_lcmt* LCMData;
+  void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
+                        const robot_server_response_lcmt* msg);
+  lcm::LCM _responseLCM;
+  robot_server_command_lcmt* LCMCommand;
+  lcm::LCM _commandLCM;
+
 
  private:
   float _ini_yaw;

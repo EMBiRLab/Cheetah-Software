@@ -589,4 +589,134 @@ void Cheetah3HardwareBridge::run() {
   }
 }
 
+//Section for the MuadQuad Hardware Bridge
+
+MuadQuadHardwareBridge::MuadQuadHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file) 
+  : HardwareBridge(robot_ctrl), _LCM(getLcmUrl(255)) {
+  _load_parameters_from_file = load_parameters_from_file;
+}
+
+//Main method for the MuadQuad Hardware
+void MuadQuadHardwareBridge::run() {
+  initCommon();
+  initHardware();
+
+  //Basically takes robot paramters froma file...
+  //Else Takes it over LCM (Might remove this one)
+
+  if(_load_parameters_from_file) {
+    printf("[Hardware Bridge] Loading parameters from file...\n");
+
+    try {
+      _robotParams.initializeFromYamlFile(THIS_COM "config/MuadQuad-defaults.yaml");
+    } catch(std::exception& e) {
+      printf("Failed to initialize robot parameters from yaml file: %s\n", e.what());
+      exit(1);
+    }
+
+    if(!_robotParams.isFullyInitialized()) {
+      printf("Failed to initialize all robot parameters\n");
+      exit(1);
+    }
+
+    printf("Loaded robot parameters\n");
+
+    if(_userControlParameters) {
+      try {
+        _userControlParameters->initializeFromYamlFile(THIS_COM "config/mc-mit-ctrl-user-parameters.yaml");
+      } catch(std::exception& e) {
+        printf("Failed to initialize user parameters from yaml file: %s\n", e.what());
+        exit(1);
+      }
+
+      if(!_userControlParameters->isFullyInitialized()) {
+        printf("Failed to initialize all user parameters\n");
+        exit(1);
+      }
+
+      printf("Loaded user parameters\n");
+    } else {
+      printf("Did not load user parameters because there aren't any\n");
+    }
+  } else {
+    printf("[Hardware Bridge] Loading parameters over LCM...\n");
+    while (!_robotParams.isFullyInitialized()) {
+      printf("[Hardware Bridge] Waiting for robot parameters...\n");
+      usleep(1000000);
+    }
+
+    if(_userControlParameters) {
+      while (!_userControlParameters->isFullyInitialized()) {
+        printf("[Hardware Bridge] Waiting for user parameters...\n");
+        usleep(1000000);
+      }
+    }
+  }
+
+  printf("[Hardware Bridge] Got all parameters, starting up!\n");
+
+  _robotRunner =
+      new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
+
+  //will have to create variables for storing current data and commands to joint position, velocity 
+  //and torque data like the ones in spi command for cheetah
+  _robotRunner->LCMData = &_LCMData;
+  _robotRunner->LCMCommand = &_LCMCommand;
+  _robotRunner->driverCommand = &_gamepadCommand;
+  _robotRunner->robotType = RobotType::MUADQUAD;
+  _robotRunner->controlParameters = &_robotParams;
+  _robotRunner->vectorNavData = &_vectorNavData;
+  //Below stuff is for visualization (idk exactly what though)!
+  _robotRunner->visualizationData = &_visualizationData;
+  _robotRunner->cheetahMainVisualization = &_mainCheetahVisualization;
+
+  //Not sure if we have to run _robotRunner->init(), done for Cheetah3 but not for mini cheetah
+  _robotRunner->init();
+  _firstRun = false;
+
+  // init control thread
+  statusTask.start();
+
+  // Should Replace this with some sort of LCM task start 
+  /*PeriodicMemberFunction<MuadQuadHardwareBridge> LCMTask(
+      &taskManager, .002, "lcm", &MuadQuadHardwareBridge::runLCM, this);
+  LCMTask.start();
+  */
+
+  // robot controller start
+  _robotRunner->start();
+
+  // visualization start
+  PeriodicMemberFunction<MuadQuadHardwareBridge> visualizationLCMTask(
+      &taskManager, .0167, "lcm-vis",
+      &MuadQuadHardwareBridge::publishVisualizationLCM, this);
+  visualizationLCMTask.start();
+
+  // rc controller
+  _port = init_sbus(false);  // Not Simulation
+  PeriodicMemberFunction<HardwareBridge> sbusTask(
+      &taskManager, .005, "rc_controller", &HardwareBridge::run_sbus, this);
+  sbusTask.start();
+
+  for (;;) {
+    usleep(1000000);
+    // printf("joy %f\n", _robotRunner->driverCommand->leftStickAnalog[0]);
+  }
+}
+
+void MuadQuadHardwareBridge::initHardware() {
+  _vectorNavData.quat << 1, 0, 0, 0;
+  printf("[MuadQuad Hardware] Init vectornav\n");
+  if (!init_vectornav(&_vectorNavData)) {
+    printf("Vectornav failed to initialize\n");
+    printf_color(PrintColor::Red, "****************\n"
+                                  "**  WARNING!  **\n"
+                                  "****************\n"
+                                  "  IMU DISABLED  \n"
+                                  "****************\n\n");
+  }
+}
+
+
+
 #endif
