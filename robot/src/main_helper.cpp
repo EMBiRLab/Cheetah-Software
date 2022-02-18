@@ -39,6 +39,9 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     return EXIT_FAILURE;
   }
 
+  std::cout << "Im a cout!\n";
+  printf("Hello user\n");
+
   if (argv[1][0] == '3') {
     gMasterConfig._robot = RobotType::CHEETAH_3;
   } else if (argv[1][0] == 'm') {

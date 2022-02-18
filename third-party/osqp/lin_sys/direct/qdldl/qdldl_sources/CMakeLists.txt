@@ -44,7 +44,7 @@ if (NOT MSVC)
 	endif(FORTRAN)
     endif()
 
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g")
 endif (NOT MSVC)
 
