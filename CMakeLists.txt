@@ -56,12 +56,8 @@ else(EMBIR_ROBOT_SERVER_BUILD)
       ${CMAKE_BINARY_DIR}/Configuration.h)
 
     if(CMAKE_SYSTEM_NAME MATCHES Linux)
-<<<<<<< HEAD
       message("linux general build")
-      set(CMAKE_CXX_FLAGS "-O0 -no-pie -march=native -ggdb -Wall \
-=======
-      set(CMAKE_CXX_FLAGS "-no-pie -march=native -ggdb -Wall \
->>>>>>> 5feac062bf54133c803947d50092bcdff7b3a56a
+      set(CMAKE_CXX_FLAGS "-O3 -no-pie -march=native -ggdb -Wall \
       -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
       -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
       -Wshadow -Wsign-promo -Werror")

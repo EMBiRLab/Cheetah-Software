@@ -105,8 +105,8 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
       hw.run();
       printf("[Quadruped] SimDriver run() has finished!\n");
     } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
-      Cheetah3HardwareBridge hw(ctrl);
-      hw.run();
+      // Cheetah3HardwareBridge hw(ctrl);
+      // hw.run();
     } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
       MuadQuadHardwareBridge hw(ctrl, gMasterConfig.load_from_file);
       hw.run();
