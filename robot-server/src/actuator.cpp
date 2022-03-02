@@ -23,7 +23,7 @@ std::string Actuator::stringify_actuator() {
     reply_data.torque);
   result << cstr_buffer;
 
-  sprintf(cstr_buffer, "% -f,%3d", reply_data.temperature, (int)fault_code_);
+  sprintf(cstr_buffer, ",% -f,%3d", reply_data.temperature, (int)fault_code_);
   result << cstr_buffer;
   return result.str();
 }
