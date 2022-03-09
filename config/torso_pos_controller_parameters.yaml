@@ -1,0 +1,23 @@
+# Generated on Mon Aug  5 18:20:08 2019
+__collection-name__: user-parameters
+
+Kd_joint          : [1, 0.2, 0.2]
+Kp_joint          : [3, 3, 3]
+
+Kp_body           : [100, 100, 100]
+Kd_body           : [10, 10, 10]
+
+Kp_foot           : [500, 500, 500]
+Kd_foot           : [10, 10, 10]
+
+Kp_ori            : [100, 100, 100]
+Kd_ori            : [10, 10, 10]
+
+# Desired state commands
+des_p             : [0,0,0.26]
+des_theta         : [0,0,0]
+des_dp            : [0,0,0]
+des_dtheta        : [0,0,0]
+des_theta_max     : [0,0.4,0]
+des_dp_max        : [1.0,0.5,0]
+des_dtheta_max    : [0,0,3]
