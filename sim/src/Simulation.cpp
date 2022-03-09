@@ -174,6 +174,18 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
       _tiBoards[leg].reset_ti_board_data();
       _tiBoards[leg].run_ti_board_iteration();
     }
+  } else if (_robot == RobotType::MUADQUAD) {
+    // init LCM "board" (communication)
+    // TODO: @Michael complete this section (and file)
+    for (int leg = 0; leg < 4; leg++) {
+      _tiBoards[leg].init(Quadruped<float>::getSideSign(leg));
+      _tiBoards[leg].set_link_lengths(_quadruped._abadLinkLength,
+                                      _quadruped._hipLinkLength,
+                                      _quadruped._kneeLinkLength);
+      _tiBoards[leg].reset_ti_board_command();
+      _tiBoards[leg].reset_ti_board_data();
+      _tiBoards[leg].run_ti_board_iteration();
+    }
   } else {
     assert(false);
   }
@@ -196,6 +208,9 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
   } else if (_robot == RobotType::CHEETAH_3) {
     _robotParams.initializeFromYamlFile(getConfigDirectoryPath() +
                                         CHEETAH_3_DEFAULT_PARAMETERS);
+  } else if (_robot == RobotType::MUADQUAD) {
+    _robotParams.initializeFromYamlFile(getConfigDirectoryPath() +
+                                        MUADQUAD_DEFAULT_PARAMETERS);
   } else {
     assert(false);
   }

@@ -40,6 +40,7 @@ struct SimulatorToRobotMessage {
   CheaterState<double> cheaterState;
 
   // leg data
+  // spoofed leg data from the simulator to send back to robot controller
   SpiData spiData;
   TiBoardData tiBoardData[4];
   // todo cheetah 3
@@ -53,6 +54,8 @@ struct SimulatorToRobotMessage {
  */
 struct RobotToSimulatorMessage {
   RobotType robotType;
+
+  // Command data for the 4 legs of the robot TODO @Michael - add a new command for lcm to legs plus a return data in the simulator to robot message
   SpiCommand spiCommand;
   TiBoardCommand tiBoardCommand[4];
 

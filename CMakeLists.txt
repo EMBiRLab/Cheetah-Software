@@ -44,11 +44,12 @@ else(EMBIR_ROBOT_SERVER_BUILD)
     SET (THIS_COM "../" )
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
       ${CMAKE_BINARY_DIR}/Configuration.h)
-    set(CMAKE_CXX_FLAGS "-no-pie -ggdb -std=c++14 -Wall \
+      # -std=c++14 
+    set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -Wall \
     -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
     -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
     -Wshadow -Wsign-promo -Werror")
-    set(CMAKE_C_FLAGS "-ggdb -std=gnu99 -I.")
+    set(CMAKE_C_FLAGS "-O3 -ggdb -std=gnu99 -I.")
     message("**** Mini-Cheetah build enabled ****")
   else(MINI_CHEETAH_BUILD)
     SET (THIS_COM "${PROJECT_SOURCE_DIR}/" )
@@ -85,7 +86,6 @@ else(EMBIR_ROBOT_SERVER_BUILD)
   add_subdirectory(user)
   add_subdirectory(rc_test)
   endif(EMBIR_ROBOT_SERVER_BUILD)
-  
   
   #find_package(lcm)
   

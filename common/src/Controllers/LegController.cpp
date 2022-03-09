@@ -74,7 +74,7 @@ void LegController<T>::edampCommand(RobotType robot, T gain) {
         commands[leg].kdJoint(axis, axis) = gain;
       }
     }
-  } else{ //MUADQUAD
+  } else { //MUADQUAD
     for (int leg = 0; leg < 4; leg++) {
       for (int axis = 0; axis < 3; axis++) {
         commands[leg].kdJoint(axis, axis) = gain;

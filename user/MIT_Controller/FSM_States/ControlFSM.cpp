@@ -196,7 +196,7 @@ FSM_OperatingMode ControlFSM<T>::safetyPreCheck() {
   if (currentState->checkSafeOrientation && data.controlParameters->control_mode != K_RECOVERY_STAND) {
     if (!safetyChecker->checkSafeOrientation()) {
       operatingMode = FSM_OperatingMode::ESTOP;
-      std::cout << "broken: Orientation Safety Ceck FAIL" << std::endl;
+      std::cout << "broken: Orientation Safety Check FAIL" << std::endl;
     }
   }
 

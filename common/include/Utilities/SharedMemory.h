@@ -138,7 +138,7 @@ class SharedMemoryObject {
 
     _fd = shm_open(name.c_str(), O_RDWR | O_CREAT, 
                    S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IROTH);
-     if (_fd == -1) {
+    if (_fd == -1) {
       printf("[ERROR] SharedMemoryObject shm_open failed: %s\n",
              strerror(errno));
       throw std::runtime_error("Failed to create shared memory!");

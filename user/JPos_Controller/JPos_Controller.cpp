@@ -6,8 +6,8 @@ void JPos_Controller::runController(){
   Mat3<float> kdMat;
   //kpMat << 20, 0, 0, 0, 20, 0, 0, 0, 20;
   //kdMat << 2.1, 0, 0, 0, 2.1, 0, 0, 0, 2.1;
-  kpMat << userParameters.kp, 0, 0, 0,  userParameters.kp, 0, 0, 0,  userParameters.kp;
-  kdMat <<  userParameters.kd, 0, 0, 0, userParameters.kd, 0, 0, 0, userParameters.kd;
+  kpMat << userParameters.kp, 0, 0, 0, userParameters.kp, 0, 0, 0, userParameters.kp;
+  kdMat << userParameters.kd, 0, 0, 0, userParameters.kd, 0, 0, 0, userParameters.kd;
 
   static int iter(0);
   ++iter;
