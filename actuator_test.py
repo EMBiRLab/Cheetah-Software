@@ -17,7 +17,7 @@ def robot_server_response_handler(channel, data):
 
 lc = lcm.LCM()
 
-tau_feedforward = 0
+tau_feedforward = [0,0,0]
 kp = [20, 20, 20]
 kd = [3, 3, 3]
 cmd = robot_server_command_lcmt()
@@ -38,12 +38,15 @@ try:
     pos_knee =      .2*math.sin(2*math.pi*.002 * iter)
     pos = [pos_hip, pos_shoulder, pos_knee]
 
+    dpos_hip =       2*math.pi*.002*.2*math.cos(2*math.pi*.002 * iter)
+    dpos_shoulder =  2*math.pi*.002*.2*math.cos(2*math.pi*.002 * iter)
+    dpos_knee =      2*math.pi*.002*.2*math.cos(2*math.pi*.002 * iter)
+    dpos = [dpos_hip, dpos_shoulder, dpos_knee]
+
     for leg in range(4):
-        for j_idx in range(3):
-            cmd.tau_ff[3*leg + j_idx] = tau_feedforward
-            # cmd.q_des[3*leg + j_idx] = pos
-            cmd.qd_des[3*leg + j_idx] = 0.
+        cmd.tau_ff[3*leg:3*(leg+1)] = tau_feedforward      
         cmd.q_des[3*leg:3*(leg+1)] = pos
+        cmd.qd_des[3*leg:3*(leg+1)] = dpos
         cmd.kp_joint[3*leg:3*(leg+1)] = kp
         cmd.kd_joint[3*leg:3*(leg+1)] = kd
 
@@ -52,7 +55,7 @@ try:
     iter = iter + 1
     lc.publish("robot_server_command", cmd.encode())
     # print("publishing")
-    print("sending over positions:", pos)
+    print("sending over positions:", pos, "and vels:", dpos)
 
     time.sleep(0.005)
 except KeyboardInterrupt:
