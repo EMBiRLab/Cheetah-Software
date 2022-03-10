@@ -76,8 +76,12 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 		}
 		if (!rs_set_.skip_zero)
 			actuator_ptrs_[a_idx]->zero_offset();
+		requested_command.q_des[a_idx] = std::numeric_limits<float>::quiet_NaN();
+		requested_command.qd_des[a_idx] = std::numeric_limits<float>::quiet_NaN();
+		requested_command.tau_ff[a_idx] = std::numeric_limits<float>::quiet_NaN();
 	}
 	std::cout << "\ndone.\n";
+
 	init_LCM();
 
 }
@@ -101,6 +105,8 @@ void RobotServer::handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
 	(void)chan;
 	std::lock_guard<std::mutex> commandguard(commandmutex); // wrapper for mutex
 	requested_command = *msg;
+	// if (std::isnan(requested_command.q_des[0]))
+	// 	std::cout << "\ngot a nan" << std::endl;
 	// std::cout << "rx cmd; q_des[0] = " << requested_command.q_des[0] << std::endl;
 }
 
@@ -149,7 +155,11 @@ void RobotServer::iterate_fsm() {
 				if (std::isnan(rc.q_des[a_idx])) {
 					// either velocity or torque
 					if (std::isnan(rc.qd_des[a_idx])) {
-						actuator_ptrs_[a_idx]->make_act_torque(rc.tau_ff[a_idx]);
+						if (std::isnan(rc.tau_ff[a_idx])) {
+							actuator_ptrs_[a_idx]->make_stop();
+						}
+						else
+							actuator_ptrs_[a_idx]->make_act_torque(rc.tau_ff[a_idx]);
 					}
 					else {
 						actuator_ptrs_[a_idx]->make_act_velocity(
@@ -162,7 +172,7 @@ void RobotServer::iterate_fsm() {
 				}
 			}
 
-			make_stop_all();
+			// make_stop_all();
 			break;}
 		case FSMState::kRecovery: {
 			// if coming from non-recovery, store the state so we can go back

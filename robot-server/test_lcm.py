@@ -16,7 +16,9 @@ def robot_server_response_handler(channel, data):
 lc = lcm.LCM()
 
 cmd = robot_server_command_lcmt()
-cmd.kp_joint = [0.1 for ii in range(12)]
+# cmd.kp_joint = [0.1 for ii in range(12)]
+cmd.q_des[0] = float("nan")
+cmd.qd_des[0] = 0.1
 
 lc.publish("robot_server_command", cmd.encode())
 
