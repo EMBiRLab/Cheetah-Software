@@ -240,6 +240,8 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
     // Height
     _wbc_data->pBody_des[2] += 
       0.12 * this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[0];
+
+    // TODO: @Michael you should probably clamp these to not break the robot
   }
   _wbc_data->vBody_Ori_des.setZero();
 
