@@ -598,6 +598,7 @@ MuadQuadHardwareBridge::MuadQuadHardwareBridge(RobotController* robot_ctrl, bool
 
 //Main method for the MuadQuad Hardware
 void MuadQuadHardwareBridge::run() {
+
   initCommon();
   initHardware();
 
@@ -608,7 +609,7 @@ void MuadQuadHardwareBridge::run() {
     printf("[Hardware Bridge] Loading parameters from file...\n");
 
     try {
-      _robotParams.initializeFromYamlFile(THIS_COM "config/MuadQuad-defaults.yaml");
+      _robotParams.initializeFromYamlFile(THIS_COM "config/mini-cheetah-defaults.yaml");
     } catch(std::exception& e) {
       printf("Failed to initialize robot parameters from yaml file: %s\n", e.what());
       exit(1);
@@ -671,7 +672,7 @@ void MuadQuadHardwareBridge::run() {
   _robotRunner->cheetahMainVisualization = &_mainCheetahVisualization;
 
   //Not sure if we have to run _robotRunner->init(), done for Cheetah3 but not for mini cheetah
-  _robotRunner->init();
+  // _robotRunner->init();
   _firstRun = false;
 
   // init control thread

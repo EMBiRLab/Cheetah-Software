@@ -41,6 +41,8 @@ void RobotRunner::init() {
   } else if (robotType == RobotType::CHEETAH_3){
     _quadruped = buildCheetah3<float>();
   } else if (robotType == RobotType::MUADQUAD){
+    std::cout<<"-----------------------------SUBSCRIBINGGGGGG!!!--------------------------------------------------";
+    _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
     _quadruped = buildMuadQuad<float>(); //need to write this in a MuadQuad.h file in Dynamics folder
   }
 
@@ -175,8 +177,10 @@ void RobotRunner::setupStep() {
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateData(tiBoardData);
   } else if (robotType == RobotType::MUADQUAD) {
-    _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
-    _legController->updateData(LCMData); 
+    // std::cout<<"Running the setup step!\n";
+    // _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
+    // std::cout<<"Updating the legController!\n";
+    _legController->updateData(LCMData);
   } else {
     assert(false);
   }
@@ -262,10 +266,12 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
                         const robot_server_response_lcmt* msg){
   (void)rbuf;
   (void)chan;
+  std::cout<<"Getting the messages!! \n";
   for (int i = 0; i<12;i++){
     LCMData->q[i] = msg->q[i];
     LCMData->qd[i] = msg->qd[i];
     LCMData->tau_est[i] = msg->tau_est[i];
   }
   LCMData->fsm_state = msg->fsm_state;
+  std::cout<<"fsm_state is "<<LCMData->fsm_state;
 }

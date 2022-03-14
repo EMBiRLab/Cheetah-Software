@@ -17,6 +17,17 @@ DataReader::DataReader(const RobotType& type, FSM_StateName stateNameIn) : _type
       load_control_plan(THIS_COM "config/front_jump_pitchup_v2.dat");
       printf("[Front Jump DataReader] Setup for mini cheetah\n");
     }
+  } else if (_type == RobotType::MUADQUAD){
+    if (stateNameIn == FSM_StateName::BACKFLIP) {
+      //load_control_plan(THIS_COM "user/WBC_Controller/WBC_States/BackFlip/data/mc_flip.dat");
+      load_control_plan(THIS_COM "config/mc_flip.dat");
+      printf("[Backflip DataReader] Setup for MuadQuad\n");
+    }
+    else if (stateNameIn == FSM_StateName::FRONTJUMP) {
+      //load_control_plan(THIS_COM "user/MIT_Controller/Controllers/FrontJump/front_jump_data.dat"); // front_jump_data.dat for succesfull test 1 file
+      load_control_plan(THIS_COM "config/front_jump_pitchup_v2.dat");
+      printf("[Front Jump DataReader] Setup for MuadQuad\n");
+    }
   } else {
     printf("[Backflip DataReader] Setup for cheetah 3\n");
     load_control_plan(THIS_COM "user/WBC_Controller/WBC_States/BackFlip/data/backflip.dat");
