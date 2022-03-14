@@ -28,6 +28,12 @@ RobotRunner::RobotRunner(RobotController* robot_ctrl,
     _robot_ctrl = robot_ctrl;
   }
 
+void RobotRunner::handlelcm() {
+  while (true){
+    _responseLCM.handle();
+  }
+}
+
 /**
  * Initializes the robot model, state estimator, leg controller,
  * robot data, and any control logic specific data.
@@ -41,8 +47,17 @@ void RobotRunner::init() {
   } else if (robotType == RobotType::CHEETAH_3){
     _quadruped = buildCheetah3<float>();
   } else if (robotType == RobotType::MUADQUAD){
-    std::cout<<"-----------------------------SUBSCRIBINGGGGGG!!!--------------------------------------------------";
+    //Running the LCMhandler to recieve the messages from robot_server_response
+    std::cout<<"-----------------------------SUBSCRIBINGGGGGG!!!-----------------------------\n";
+    if (!_responseLCM.good()) {
+      // Need Some error statements here
+      std::cout<<"[RobotRunner] Response LCM is NOT working!\n";
+    } else {
+      std::cout<<"[RobotRunner] Response LCM is working great!\n";
+    }
     _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
+    printf("[RobotRunner] Start Response LCM handler\n");
+    _responselcmthread = std::thread(&RobotRunner::handlelcm, this);
     _quadruped = buildMuadQuad<float>(); //need to write this in a MuadQuad.h file in Dynamics folder
   }
 
@@ -110,9 +125,9 @@ void RobotRunner::run() {
     if( (rc_control.mode == RC_mode::OFF) && controlParameters->use_rc ) {
       if(count_ini%1000 ==0) {
         printf("ESTOP!\n");
-        std::cout << "rc_control.mode=" << rc_control.mode << 
-                      ", controlParameters->use_rc=" << controlParameters->use_rc << 
-                      "\n";
+        // std::cout << "rc_control.mode=" << rc_control.mode << 
+                      // ", controlParameters->use_rc=" << controlParameters->use_rc << 
+                      // "\n";
       }
       for (int leg = 0; leg < 4; leg++) {
         _legController->commands[leg].zero();

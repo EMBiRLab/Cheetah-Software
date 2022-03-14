@@ -137,7 +137,7 @@ void LegController<T>::updateData(const robot_server_response_lcmt* lcmdata) {
     for(int axis = 0; axis < 3; axis++) {
       int idx = leg*3 + axis;
       datas[leg].q[axis] = lcmdata->q[idx];
-      std::cout<<"the value of q for leg "<<leg+1<<" axis "<<axis+1<<" is "<<datas[leg].q[axis]<<std::endl;
+      // std::cout<<"the value of q for leg "<<leg+1<<" axis "<<axis+1<<" is "<<datas[leg].q[axis]<<std::endl;
       datas[leg].qd[axis] = lcmdata->qd[idx];
       datas[leg].tauEstimate[axis] = lcmdata->tau_est[idx];
     }

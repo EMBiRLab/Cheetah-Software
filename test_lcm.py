@@ -35,11 +35,7 @@ lc = lcm.LCM()
 #   cmd.leftStickAnalog[i] = 1
 #   cmd.rightStickAnalog[i] = 1
 cmd = robot_server_response_lcmt()
-for i in range(12):
-  cmd.q[i] = 10
-  cmd.qd[i] = 10
-  cmd.tau_est[i] = 10
-cmd.fsm_state = 1
+
 
 
 # lc.publish("robot_server_response", cmd.encode())
@@ -47,14 +43,20 @@ cmd.fsm_state = 1
 # subscription = lc.subscribe("robot_server_response", robot_server_response_handler)
 
 lc.publish("robot_server_response", cmd.encode())
-# ii = 0
+ii = 0
 try:
   while True:
     print("yes")
-    lc.handle_timeout(100)
-    # ii = ii + 1
-    # if np.mod(ii,2) == 0:
+    for i in range(12):
+      cmd.q[i] = 10+ii
+      cmd.qd[i] = 10+ii
+      cmd.tau_est[i] = 10+ii
+      print("q",i ,"=", cmd.q[i])
+    cmd.fsm_state = 0
     lc.publish("robot_server_response", cmd.encode())
+    lc.handle_timeout(100)
+    ii = ii + 1
+    # if np.mod(ii,2) == 0:
     print("publishing")
 except KeyboardInterrupt:
   pass

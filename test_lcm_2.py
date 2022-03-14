@@ -34,7 +34,7 @@ lc1 = lcm.LCM()
 subscription2 = lc1.subscribe("robot_server_response", my_handler2)
 try:
     while True:
-        # lc.handle()
-        lc1.handle()
+        lc.handle()
+        # lc1.handle()
 except KeyboardInterrupt:
     pass

@@ -673,7 +673,7 @@ void MuadQuadHardwareBridge::run() {
   _robotRunner->visualizationData = &_visualizationData;
   _robotRunner->cheetahMainVisualization = &_mainCheetahVisualization;
 
-  //Not sure if we have to run _robotRunner->init(), done for Cheetah3 but not for mini cheetah
+  //Not sure if we have to run _robotRunner->init(), done for Cheetah3 but not for mini cheetah (UPDATE : Gives an error if this is run)
   // _robotRunner->init();
   _firstRun = false;
 
