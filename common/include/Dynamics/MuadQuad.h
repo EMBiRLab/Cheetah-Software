@@ -1,10 +1,11 @@
-/*! @file MiniCheetah.h
- *  @brief Utility function to build a Mini Cheetah Quadruped object
+/*! @file MuadQuad.h
+ *  @brief Utility function to build a MuadQuad Quadruped object
  *
  * This file is based on MiniCheetahFullRotorModel_mex.m and builds a model
  * of the Mini Cheetah robot.  The inertia parameters of all bodies are
- * determined from CAD.
- *
+ * determined from CAD. <--outdated description. 
+ * 
+ * TODO: update to muadquad constants!!!
  */
 
 #ifndef PROJECT_MUADQUAD_H

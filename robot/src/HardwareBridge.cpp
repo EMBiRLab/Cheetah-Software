@@ -590,13 +590,15 @@ void Cheetah3HardwareBridge::run() {
 }
 
 
-//Section for the MuadQuad Hardware Bridge
+//Implementation of the MuadQuad Hardware Bridge
 
 MuadQuadHardwareBridge::MuadQuadHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file) : HardwareBridge(robot_ctrl) {
   _load_parameters_from_file = load_parameters_from_file;
 }
 
-//Main method for the MuadQuad Hardware
+/*!
+ * Main method for the MuadQuad Hardware
+ */
 void MuadQuadHardwareBridge::run() {
 
   initCommon();

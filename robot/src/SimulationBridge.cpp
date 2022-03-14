@@ -229,7 +229,7 @@ void SimulationBridge::runRobotControl() {
       _simMode = SimulatorMode::RUN_CONTROLLER;
     }
 
-
+    // TODO @Michael this code below seems to be very mini cheetah specific. Itll need reworking for muadquad
     _robotRunner->driverCommand =
         &_sharedMemory().simToRobot.gamepadCommand;
     _robotRunner->spiData = &_sharedMemory().simToRobot.spiData;

@@ -22,7 +22,7 @@ MasterConfig gMasterConfig;
 void printUsage() {
   printf(
       "Usage: robot [robot-id] [sim-or-robot] [parameters-from-file]\n"
-      "\twhere robot-id:     3 for cheetah 3, m for mini-cheetah\n"
+      "\twhere robot-id:     3 for cheetah 3, m for mini-cheetah, e for muadquad\n"
       "\t      sim-or-robot: s for sim, r for robot\n"
       "\t      param-file:   f for loading parameters from file, l (or nothing) for LCM\n"
       "                      this option can only be used in robot mode\n");
@@ -32,15 +32,11 @@ void printUsage() {
  * Setup and run the given robot controller
  */
 int main_helper(int argc, char** argv, RobotController* ctrl) {
-//std::cout<<"starting main helper \n"<<std::endl;
 
   if (argc != 3 && argc != 4) {
     printUsage();
     return EXIT_FAILURE;
   }
-
-  std::cout << "Im a cout!\n";
-  printf("Hello user\n");
 
   if (argv[1][0] == '3') {
     gMasterConfig._robot = RobotType::CHEETAH_3;
@@ -72,8 +68,8 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
 
   printf("[Quadruped] Cheetah Software\n");
   printf("        Quadruped:  %s\n",
-         gMasterConfig._robot == RobotType::MINI_CHEETAH ? "Mini Cheetah"
-                                                         : "Cheetah 3");
+         gMasterConfig._robot == RobotType::MINI_CHEETAH ? "Mini Cheetah" : 
+        (gMasterConfig._robot == RobotType::CHEETAH_3 ? "Cheetah 3" : "MuadQuad"));
   printf("        Driver: %s\n", gMasterConfig.simulated
                                      ? "Development Simulation Driver"
                                      : "Quadruped Driver");
@@ -89,6 +85,8 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
       simulationBridge.run();
       printf("[Quadruped] SimDriver run() has finished!\n");
     } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
+      // Commented out bc we do not have a cheetah 3 and the optimization
+      // pre-allocates space which overflows the default stack size
       SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
       simulationBridge.run();
     } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
@@ -105,6 +103,8 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
       hw.run();
       printf("[Quadruped] SimDriver run() has finished!\n");
     } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
+      // Commented out bc we do not have a cheetah 3 and the optimization
+      // pre-allocates space which overflows the default stack size
       // Cheetah3HardwareBridge hw(ctrl);
       // hw.run();
     } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
