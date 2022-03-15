@@ -152,7 +152,7 @@ void MoteusController::retrieve_reply(std::vector<MoteusInterface::ServoReply>& 
 			prev_reply_ = reply;
 			mode_ = prev_reply_.result.mode;
 			fault_code_ = (errc)prev_reply_.result.fault;
-			if (fault_code_ == errc::kSuccess && outside_limit()) fault_code_ = errc::kOutsideLimit;
+			//if (fault_code_ == errc::kSuccess && outside_limit()) fault_code_ = errc::kOutsideLimit;
 			return;
 		}
 	}
