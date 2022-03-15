@@ -70,31 +70,70 @@ void TorsoPos_Controller::runController(){
   joystickRight = _driverCommand->rightStickAnalog;
   
   //TODO @Michael include the cartesian in addition to pitch,roll,yaw soon
-  desired_torso_qd = Vec6<float>::Zero();
+  desired_torso_qd = Vec12<float>::Zero();
   float vel_gain = 0.5;
   if(fabs(joystickLeft(1)) > 0.1f){
     // We are commanding an angular velocity about the pitch axis
-    desired_torso_qd(0) = vel_gain*joystickLeft(1);
+    desired_torso_qd(2) -= vel_gain*joystickLeft(1);
+    desired_torso_qd(5) -= vel_gain*joystickLeft(1);
+    desired_torso_qd(8) += vel_gain*joystickLeft(1);
+    desired_torso_qd(11) += vel_gain*joystickLeft(1);
   }
   if(fabs(joystickLeft(0)) > 0.1f){
     // We are commanding an angular velocity about the roll axis
-    desired_torso_qd(1) = -vel_gain*joystickLeft(0);
+    desired_torso_qd(2) -= vel_gain*joystickLeft(0);
+    desired_torso_qd(5) += vel_gain*joystickLeft(0);
+    desired_torso_qd(8) -= vel_gain*joystickLeft(0);
+    desired_torso_qd(11) += vel_gain*joystickLeft(0);
   }
   if(fabs(joystickRight(0)) > 0.1f){
     // We are commanding an angular velocity about the yaw axis
-    desired_torso_qd(2) = vel_gain*joystickRight(0);
+    desired_torso_qd(1)  += vel_gain*joystickRight(0);
+    desired_torso_qd(4)  += vel_gain*joystickRight(0);
+    desired_torso_qd(7)  -= vel_gain*joystickRight(0);
+    desired_torso_qd(10) -= vel_gain*joystickRight(0);
   }
   if(_driverCommand->y){
-    // We are commanding a linear velocity along the y axis
-    desired_torso_qd(3) = vel_gain*.5;
-  }
-  if(_driverCommand->b){
-    // We are commanding a linear velocity along the x axis
-    desired_torso_qd(4) = vel_gain*.5;
+    // We are commanding a linear velocity along the (for-aft) x axis
+    desired_torso_qd(0) += vel_gain;
+    desired_torso_qd(3) += vel_gain;
+    desired_torso_qd(6) += vel_gain;
+    desired_torso_qd(9) += vel_gain;
   }
   if(_driverCommand->a){
-    // We are commanding a linear velocity along the z axis
-    desired_torso_qd(5) = vel_gain*.5;
+    // We are commanding a linear velocity along the (for-aft) x axis
+    desired_torso_qd(0) -= vel_gain;
+    desired_torso_qd(3) -= vel_gain;
+    desired_torso_qd(6) -= vel_gain;
+    desired_torso_qd(9) -= vel_gain;
+  }
+  if(_driverCommand->b){
+    // We are commanding a linear velocity along the (left-right) y axis
+    desired_torso_qd(1) += -vel_gain;
+    desired_torso_qd(4) += -vel_gain;
+    desired_torso_qd(7) += -vel_gain;
+    desired_torso_qd(10) += -vel_gain;
+  }
+  if(_driverCommand->x){
+    // We are commanding a linear velocity along the (left-right) y axis
+    desired_torso_qd(1) -= -vel_gain;
+    desired_torso_qd(4) -= -vel_gain;
+    desired_torso_qd(7) -= -vel_gain;
+    desired_torso_qd(10) -= -vel_gain;
+  }
+  if(_driverCommand->rightBumper){
+    // We are commanding a linear velocity along the (up-down) z axis
+    desired_torso_qd(2) += vel_gain;
+    desired_torso_qd(5) += vel_gain;
+    desired_torso_qd(8) += vel_gain;
+    desired_torso_qd(11) += vel_gain;
+  }
+  if(_driverCommand->leftBumper){
+    // We are commanding a linear velocity along the (up-down) z axis
+    desired_torso_qd(2) -= vel_gain;
+    desired_torso_qd(5) -= vel_gain;
+    desired_torso_qd(8) -= vel_gain;
+    desired_torso_qd(11) -= vel_gain;
   }
 
 
@@ -112,6 +151,7 @@ void TorsoPos_Controller::runController(){
       }
       _legController->commands[leg].kpJoint = kpMat;
       _legController->commands[leg].kdJoint = kdMat;
+      std::cout << "Hip location of leg " << leg << " in robot frame is " << _quadruped->getHipLocation(leg) << "\n";
     }
   } else {//if(iter < 3050) {
     // Nominal operation --- joystick commands are used
@@ -120,14 +160,15 @@ void TorsoPos_Controller::runController(){
     for(int leg(0); leg<4; ++leg){
       // Calculate the Jacobian
       // J and p
-      std::cout << "Hip location of leg " << leg << " in robot frame is " << _quadruped->getHipLocation(leg) << "\n";
+      
       computeLegJacobianAndPosition<float>(*_quadruped, _legController->datas[leg].q, &(_legController->datas[leg].J),
                                       &(_legController->datas[leg].p), leg);
       // std::cout << "Desired torso qd\n" << desired_torso_qd << "\n";
-      desired_joint_qd.segment(3*leg,3) =  -_legController->datas[leg].J.inverse()*desired_torso_qd.segment(3,3);
+      // desired_joint_qd.segment(3*leg,3) =  -_legController->datas[leg].J.inverse()*desired_torso_qd.segment(3,3);
+      desired_joint_qd.segment(3*leg,3) =  -_legController->datas[leg].J.inverse()*desired_torso_qd.segment(3*leg,3);
       // std::cout << "Desired joint qd after linear\n" << desired_joint_qd.segment(3*leg,3) << "\n";
 
-      desired_joint_qd.segment(3*leg,3) = desired_joint_qd.segment(3*leg,3) - _legController->datas[leg].J.inverse()*desired_torso_qd.segment(0,3);
+      // desired_joint_qd.segment(3*leg,3) = desired_joint_qd.segment(3*leg,3) - _legController->datas[leg].J.inverse()*desired_torso_qd.segment(0,3);
 
       // std::cout << "Desired joint qd after angular\n" << desired_joint_qd.segment(3*leg,3) << "\n";
 

@@ -23,7 +23,7 @@ public:
 protected:
   Vec12<float> desired_q;
   Vec12<float> desired_joint_qd;
-  Vec6<float> desired_torso_qd;
+  Vec12<float> desired_torso_qd;
   Vec2<float> joystickLeft, joystickRight;
   TorsoPosUserParameters userParameters;
 };
