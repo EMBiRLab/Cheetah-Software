@@ -6,6 +6,8 @@
 #include "third-party/mjbots/moteus/moteus_protocol.h"
 #include "third-party/mjbots/moteus/pi3hat_moteus_interface.h"
 
+//using id_t = uint8_t;
+
 class MoteusController {
 public:
 	enum class errc : int {

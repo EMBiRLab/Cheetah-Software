@@ -63,7 +63,7 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 			1
 		);
 	}
-	std::cout << "done.\n";
+	std::cout << "done; constructed " << num_actuators() <<  " actuators.\n";
 	std::cout << "restoring configs and calibrations...\n";
 	for (size_t a_idx = 0; a_idx < rs_set_.num_actuators; a_idx++) {
 		if (!rs_set_.skip_cal)
@@ -114,11 +114,11 @@ void RobotServer::iterate_fsm() {
 	cycles_++;
 	sample_sensors();
 
-	// immediately respond to fault condition
-	if (!safety_check()) next_state_ = 
-		FSMState::kRecovery;
-
 	curr_state_ = next_state_;
+
+	// immediately respond to fault condition
+	if (!safety_check() && curr_state_ != FSMState::kQuitting) next_state_ = 
+		FSMState::kRecovery;
 
 	auto time_span = chron::steady_clock::now() - time0_s_;
 	time_prog_s_ = double(time_span.count()) * chron::steady_clock::period::num / 
@@ -171,8 +171,8 @@ void RobotServer::iterate_fsm() {
 						rc.q_des[a_idx], rc.qd_des[a_idx], rc.tau_ff[a_idx]);
 				}
 			}
-
-			// make_stop_all();
+			std::cout << "\n" << num_actuators() << " actuators\n";
+			make_stop_all();
 			break;}
 		case FSMState::kRecovery: {
 			// if coming from non-recovery, store the state so we can go back
@@ -183,19 +183,25 @@ void RobotServer::iterate_fsm() {
 			}
 			make_stop_all();
 			recovery_cycle++;
-			
+			std::cout << "\nrc = " << (int)recovery_cycle << " / " << (int)recovery_cycle_thresh << std::endl;
 			// wait at least a few cycles
 			if(recovery_cycle < recovery_cycle_thresh)
 				break;
 
 			// if fault has cleared
-			if(safety_check()) next_state_ = recovery_return_state_;
+			if(safety_check()) {
+				next_state_ = recovery_return_state_;
+				std::cout << "\nfault recovered; returning..\n";
+			}
 
 			// if recovery hasn't occurred, quit
-			if(!safety_check()) next_state_ = FSMState::kQuitting;
+			if(!safety_check()) {
+				next_state_ = FSMState::kQuitting;
+				std::cout << "\nfault not recovered; quitting..\n";
+			}
 			
 			// else, recovery has occurred, and we go back to running
-			else next_state_ = recovery_return_state_;
+			// else next_state_ = recovery_return_state_;
 			break;}
 		case FSMState::kQuitting: {
 			make_stop_all();

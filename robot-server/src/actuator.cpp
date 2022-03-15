@@ -1,6 +1,8 @@
 #include <sstream>
 #include "actuator.h"
 
+//using id_t = uint8_t;
+
 Actuator::Actuator(id_t id, uint8_t bus, float gear_ratio, float trq_efficiency)
   : MoteusController(id, bus), gear_ratio_(gear_ratio),
 	trq_efficiency_(trq_efficiency) {

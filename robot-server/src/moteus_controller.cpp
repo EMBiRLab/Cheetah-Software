@@ -23,6 +23,7 @@
 using namespace mjbots;
 
 using MoteusInterface = moteus::Pi3HatMoteusInterface;
+//using id_t = uint8_t;
 
 MoteusController::MoteusController(id_t id, uint8_t bus) : 
 	id_(id), bus_(bus) {
@@ -147,6 +148,7 @@ void MoteusController::retrieve_reply(std::vector<MoteusInterface::ServoReply>& 
 	// if(replies.size() < 2) std::cout << "incorrect number of replies: " << replies.size() << std::endl;
 	for (auto reply : replies) {
 		if (reply.id == id_) {
+			std::cout << "found id " << (int)id_ << std::endl;
 			prev_reply_ = reply;
 			mode_ = prev_reply_.result.mode;
 			fault_code_ = (errc)prev_reply_.result.fault;

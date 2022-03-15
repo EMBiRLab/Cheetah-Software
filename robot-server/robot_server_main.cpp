@@ -80,6 +80,7 @@ void Run(RobotServer& robotserver) {
 		curr_commands.back().id = pair.first;
 		prev_commands.push_back({});
 		prev_commands.back().id = pair.first;
+		std::cout << pair.first << " ";
 	}
 
 	// ** CONTAINER FOR REPLIES **
@@ -159,7 +160,9 @@ void Run(RobotServer& robotserver) {
 		// robotserver.print_status_update();
 		robotserver.iterate_fsm();
 		// retrieve the commands (copy)
-		for (size_t a_idx = 0; a_idx < curr_commands.size(); a_idx++) {
+		for (size_t a_idx = 0; a_idx < robotserver.num_actuators(); a_idx++) {
+			//curr_commands.size(); a_idx++) {
+			//std::cout <<  
 			curr_commands[a_idx] = robotserver.get_actuator_cmd(a_idx);
 		}
 
@@ -170,9 +173,10 @@ void Run(RobotServer& robotserver) {
 			const auto rx_count = current_values.query_result_size;
 			for (size_t ii = 0; ii < replies.size(); ii++)	{
 				saved_replies[ii] = replies[ii];
+				std::cout << "reply from " << saved_replies[ii].id << "\n";
 			}
 		}
-		// if(replies.size() < 2) std::cout << "main: incorrect number of replies: " << replies.size() << std::endl;
+		std::cout << "main: number of replies: " << replies.size() << std::endl;
 
 		// copy the replies over to the member actuators; they look for ID match. If
 		// there's no matching ID response, fault is raised
@@ -182,6 +186,10 @@ void Run(RobotServer& robotserver) {
 
 		// Then we can immediately ask them to be used again.
 		auto promise = std::make_shared<std::promise<MoteusInterface::Output>>();
+		std::cout << "cycling out " << moteus_data.commands.size() << " commands\n";
+		for (size_t ii = 0; ii < moteus_data.commands.size(); ii++) {
+			std::cout << "sending cmd to id " << moteus_data.commands[ii].id << "\n";
+		}
 		// Cycle out curr_commands to drivers
 		moteus_interface.Cycle(
 				moteus_data,

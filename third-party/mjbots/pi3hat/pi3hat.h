@@ -148,7 +148,7 @@ class Pi3Hat {
     int fast_bitrate = 5000000;
     bool fdcan_frame = true;
     bool bitrate_switch = true;
-    bool automatic_retransmission = false;
+    bool automatic_retransmission = true;
     bool restricted_mode = false;
     bool bus_monitor = false;
 
@@ -202,15 +202,15 @@ class Pi3Hat {
     /// This is not super precise, as the writing process has various
     /// queues, so it will need to encompass some amount of the time
     /// spend writing as well.
-    uint32_t timeout_ns = 0;
+    uint32_t timeout_ns = 80000; //0 originally
 
     /// When waiting for CAN replies, guarantee to wait for at least
     /// this many nanoseconds after the final transmission is sent
     /// over SPI (not necessarily over the CAN bus).
-    uint32_t min_tx_wait_ns = 200000;
+    uint32_t min_tx_wait_ns = 400000; //200000 originally
 
     /// After each succesful receipt, wait this much longer for more.
-    uint32_t rx_extra_wait_ns = 40000;
+    uint32_t rx_extra_wait_ns = 80000; //40000 originally
 
     bool request_attitude = false;
 
