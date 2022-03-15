@@ -208,7 +208,7 @@ private:
 	bool ready_to_quit = false;
 
 	uint8_t recovery_cycle = 0;
-	uint8_t recovery_cycle_thresh = 100;
+	uint8_t recovery_cycle_thresh = 10;
 	size_t num_recoveries = 0;
 
 };

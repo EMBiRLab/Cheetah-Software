@@ -148,7 +148,7 @@ void MoteusController::retrieve_reply(std::vector<MoteusInterface::ServoReply>& 
 	// if(replies.size() < 2) std::cout << "incorrect number of replies: " << replies.size() << std::endl;
 	for (auto reply : replies) {
 		if (reply.id == id_) {
-			std::cout << "found id " << (int)id_ << std::endl;
+			//std::cout << "found id " << (int)id_ << std::endl;
 			prev_reply_ = reply;
 			mode_ = prev_reply_.result.mode;
 			fault_code_ = (errc)prev_reply_.result.fault;

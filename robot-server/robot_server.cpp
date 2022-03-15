@@ -171,8 +171,8 @@ void RobotServer::iterate_fsm() {
 						rc.q_des[a_idx], rc.qd_des[a_idx], rc.tau_ff[a_idx]);
 				}
 			}
-			std::cout << "\n" << num_actuators() << " actuators\n";
-			make_stop_all();
+
+			// make_stop_all();
 			break;}
 		case FSMState::kRecovery: {
 			// if coming from non-recovery, store the state so we can go back
@@ -183,25 +183,19 @@ void RobotServer::iterate_fsm() {
 			}
 			make_stop_all();
 			recovery_cycle++;
-			std::cout << "\nrc = " << (int)recovery_cycle << " / " << (int)recovery_cycle_thresh << std::endl;
+			
 			// wait at least a few cycles
 			if(recovery_cycle < recovery_cycle_thresh)
 				break;
 
 			// if fault has cleared
-			if(safety_check()) {
-				next_state_ = recovery_return_state_;
-				std::cout << "\nfault recovered; returning..\n";
-			}
+			if(safety_check()) next_state_ = recovery_return_state_;
 
 			// if recovery hasn't occurred, quit
-			if(!safety_check()) {
-				next_state_ = FSMState::kQuitting;
-				std::cout << "\nfault not recovered; quitting..\n";
-			}
+			if(!safety_check()) next_state_ = FSMState::kQuitting;
 			
 			// else, recovery has occurred, and we go back to running
-			// else next_state_ = recovery_return_state_;
+			else next_state_ = recovery_return_state_;
 			break;}
 		case FSMState::kQuitting: {
 			make_stop_all();
