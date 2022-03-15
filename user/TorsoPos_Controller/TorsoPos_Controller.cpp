@@ -60,36 +60,47 @@ void TorsoPos_Controller::runController(){
   tau_grav = _model->generalizedGravityForce(); // [base_force ; joint_torques]
   Vec12<float> tau_ff = tau_grav.tail(12); // prune away base force
 
+  // Periodically print out info about the feedforward term to see that it changes
   if (iter % 2000 == 0) {
     std::cout << "tau_ff @ time=" << t << "\n" << tau_ff << "\n";
   }
 
-
-
-  Vec2<float> joystickLeft, joystickRight;
-
-  std::cout << "Read in the gamepad commands\n";
-  joystickLeft = gamepadCommand->leftStickAnalog;
-  joystickRight = gamepadCommand->rightStickAnalog;
-  std::cout << "We read them in!\n";
-  //include the cartesian in addition to pitch,roll,yaw soon
-  if(fabs(joystickLeft(0)) > 0.1f){
-    // We are commanding an angular velocity about the roll axis
-    std::cout << "ROLL\n";
-  }
+  // Read in the gamepad commands
+  joystickLeft = _driverCommand->leftStickAnalog;
+  joystickRight = _driverCommand->rightStickAnalog;
+  
+  //TODO @Michael include the cartesian in addition to pitch,roll,yaw soon
+  desired_torso_qd = Vec6<float>::Zero();
+  float vel_gain = 0.5;
   if(fabs(joystickLeft(1)) > 0.1f){
     // We are commanding an angular velocity about the pitch axis
-    std::cout << "PITCH\n";
+    desired_torso_qd(0) = vel_gain*joystickLeft(1);
+  }
+  if(fabs(joystickLeft(0)) > 0.1f){
+    // We are commanding an angular velocity about the roll axis
+    desired_torso_qd(1) = -vel_gain*joystickLeft(0);
   }
   if(fabs(joystickRight(0)) > 0.1f){
     // We are commanding an angular velocity about the yaw axis
-    std::cout << "YAW\n";
+    desired_torso_qd(2) = vel_gain*joystickRight(0);
+  }
+  if(_driverCommand->y){
+    // We are commanding a linear velocity along the y axis
+    desired_torso_qd(3) = vel_gain*.5;
+  }
+  if(_driverCommand->b){
+    // We are commanding a linear velocity along the x axis
+    desired_torso_qd(4) = vel_gain*.5;
+  }
+  if(_driverCommand->a){
+    // We are commanding a linear velocity along the z axis
+    desired_torso_qd(5) = vel_gain*.5;
   }
 
 
-
-  if (iter < 4000) {
-    // If we are below 3000 iterations, then we don't allow for the gamepad's joystick commands
+  // Set the desired commands for the _legController
+  if (iter < 2000) {
+    // If we are below 2500 iterations, then we don't allow for the gamepad's joystick commands
     // to do anything 
     int dof = 0;
     for(int leg(0); leg<4; ++leg){
@@ -102,31 +113,49 @@ void TorsoPos_Controller::runController(){
       _legController->commands[leg].kpJoint = kpMat;
       _legController->commands[leg].kdJoint = kdMat;
     }
-  } else {
-    // Nominal operation --- joystick commands are interpreted
-    // Vec2<float> joystickLeft, joystickRight;
+  } else {//if(iter < 3050) {
+    // Nominal operation --- joystick commands are used
 
-    joystickLeft = gamepadCommand->leftStickAnalog;
-    joystickRight = gamepadCommand->rightStickAnalog;
-    //include the cartesian in addition to pitch,roll,yaw soon
-    if(fabs(joystickLeft(0)) > 0.1f){
-      // We are commanding an angular velocity about the roll axis
-      std::cout << "ROLL\n";
-    }
-    if(fabs(joystickLeft(1)) > 0.1f){
-      // We are commanding an angular velocity about the pitch axis
-      std::cout << "PITCH\n";
-    }
-    if(fabs(joystickRight(0)) > 0.1f){
-      // We are commanding an angular velocity about the yaw axis
-      std::cout << "YAW\n";
-    }
+    int dof = 0;
+    for(int leg(0); leg<4; ++leg){
+      // Calculate the Jacobian
+      // J and p
+      std::cout << "Hip location of leg " << leg << " in robot frame is " << _quadruped->getHipLocation(leg) << "\n";
+      computeLegJacobianAndPosition<float>(*_quadruped, _legController->datas[leg].q, &(_legController->datas[leg].J),
+                                      &(_legController->datas[leg].p), leg);
+      // std::cout << "Desired torso qd\n" << desired_torso_qd << "\n";
+      desired_joint_qd.segment(3*leg,3) =  -_legController->datas[leg].J.inverse()*desired_torso_qd.segment(3,3);
+      // std::cout << "Desired joint qd after linear\n" << desired_joint_qd.segment(3*leg,3) << "\n";
 
+      desired_joint_qd.segment(3*leg,3) = desired_joint_qd.segment(3*leg,3) - _legController->datas[leg].J.inverse()*desired_torso_qd.segment(0,3);
 
+      // std::cout << "Desired joint qd after angular\n" << desired_joint_qd.segment(3*leg,3) << "\n";
 
-
-
+      // set the commands
+      for(int j_idx(0); j_idx<3; ++j_idx){
+        _legController->commands[leg].qDes[j_idx] = desired_q(dof);//_legController->datas[leg].q[j_idx];//0.;//desired_q(dof);
+        // _legController->commands[leg].qdDes[j_idx] = 0.;
+        _legController->commands[leg].tauFeedForward[j_idx] = tau_ff(dof);
+        dof++;
+      }
+      _legController->commands[leg].qdDes = desired_joint_qd.segment(3*leg,3);
+      _legController->commands[leg].kpJoint = kpMat;
+      _legController->commands[leg].kdJoint = kdMat;
+    } // for leg
   }
+  // } else {
+  //   int dof = 0;
+  //   for(int leg(0); leg<4; ++leg){
+  //     for(int j_idx(0); j_idx<3; ++j_idx){
+  //       _legController->commands[leg].qDes[j_idx] = _legController->datas[leg].q[j_idx];//desired_q(dof);
+  //       _legController->commands[leg].qdDes[j_idx] = 0.;
+  //       _legController->commands[leg].tauFeedForward[j_idx] = tau_ff(dof);
+  //       dof++;
+  //     }
+  //     _legController->commands[leg].kpJoint = kpMat;
+  //     _legController->commands[leg].kdJoint = kdMat;
+  //   }
+  // }
 
 
 
