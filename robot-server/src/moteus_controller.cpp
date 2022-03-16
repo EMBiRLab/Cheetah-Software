@@ -48,7 +48,7 @@ MoteusController::MoteusController(id_t id, uint8_t bus) :
 	prev_cmd_.query.position = mjbots::moteus::Resolution::kFloat;
 	prev_cmd_.query.torque = mjbots::moteus::Resolution::kFloat;
 
-	retrieve_v_per_hz();
+	//retrieve_v_per_hz();
 }
 
 void MoteusController::restore_cal(std::string path) {
