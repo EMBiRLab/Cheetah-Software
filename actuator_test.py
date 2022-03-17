@@ -53,7 +53,7 @@ start = time.time()
 curr_time = 0
 
 try:
-  while curr_time < 5:
+  while curr_time < 20:
     # lc.handle_timeout(10)
 
     curr_time = time.time()-start
@@ -100,6 +100,6 @@ except KeyboardInterrupt:
 cmd.tau_ff = [0 for e in range(12)]
 cmd.q_des = [float("nan") for e in range(12)]
 cmd.qd_des = [0 for e in range(12)]
-lc.publish("robot_server_command", cmd.encode())
-lc.publish("robot_server_command", cmd.encode())
+lc.publish("robot_server_command", nan_cmd.encode())
+lc.publish("robot_server_command", nan_cmd.encode())
 lc.unsubscribe(subscription)
