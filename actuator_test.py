@@ -21,6 +21,10 @@ tau_feedforward = [0,0,0]
 kp = [20, 20, 20]
 kd = [3, 3, 3]
 cmd = robot_server_command_lcmt()
+nan_cmd = robot_server_command_lcmt()
+nan_cmd.q_des = [float("nan") for e in range(12)]
+nan_cmd.qd_des = [float("nan") for e in range(12)]
+nan_cmd.tau_ff = [float("nan") for e in range(12)]
 # cmd.kp_joint = [0.1 for ii in range(12)]
 
 # lc.publish("robot_server_command", cmd.encode())
@@ -31,26 +35,40 @@ subscription = lc.subscribe("robot_server_response", robot_server_response_handl
 iter = 1
 start = time.time()
 frq_Hz = 1.0
-ampl_rad = 0.5
+ampl_rad = 0.3
 speed = 5
 messaging_period = 0.0025
 use_vel_cmd = True
 curr_time = 0
+
 try:
-  while curr_time < 1.25:
+  while curr_time < 1:
+    curr_time = time.time()-start
+    lc.publish("robot_server_command", nan_cmd.encode())
+    print("sending nans; time = ", curr_time)
+except KeyboardInterrupt:
+  pass
+
+start = time.time()
+curr_time = 0
+
+try:
+  while curr_time < 5:
     # lc.handle_timeout(10)
 
     curr_time = time.time()-start
     trig_time = 2*math.pi*curr_time*frq_Hz
     chain_rule =  2*math.pi*frq_Hz
     pos_hip =       ampl_rad*math.sin(trig_time)
+    pos_hip = 0
     pos_shoulder =  ampl_rad*math.sin(trig_time)
-    pos_knee =      ampl_rad*math.sin(trig_time)
+    pos_knee =      -ampl_rad*math.sin(trig_time)
     pos = [pos_hip, pos_shoulder, pos_knee]
 
     dpos_hip =       ampl_rad*chain_rule*math.cos(trig_time)
+    dpos_hip = 0
     dpos_shoulder =  ampl_rad*chain_rule*math.cos(trig_time)
-    dpos_knee =      ampl_rad*chain_rule*math.cos(trig_time)
+    dpos_knee =      -ampl_rad*chain_rule*math.cos(trig_time)
     pos = [pos_hip, pos_shoulder, pos_knee]
     dpos = [dpos_hip, dpos_shoulder, dpos_knee]
     #pos = [float("nan"),float("nan"),float("nan")]
@@ -73,11 +91,11 @@ try:
 
     time.sleep(messaging_period)
 except KeyboardInterrupt:
-    cmd.tau_ff = [0 for e in range(12)]
-    cmd.q_des = [float("nan") for e in range(12)]
-    cmd.qd_des = [0 for e in range(12)]
-    lc.publish("robot_server_command", cmd.encode())
-    pass
+  cmd.tau_ff = [0 for e in range(12)]
+  cmd.q_des = [float("nan") for e in range(12)]
+  cmd.qd_des = [0 for e in range(12)]
+  lc.publish("robot_server_command", cmd.encode())
+  pass
 
 cmd.tau_ff = [0 for e in range(12)]
 cmd.q_des = [float("nan") for e in range(12)]
