@@ -32,4 +32,4 @@ file(GLOB_RECURSE sources
 
 add_executable(robot_server ${sources} robot_server.cpp robot_server_main.cpp)
 
-target_link_libraries(robot_server pthread lcm I2CDevice Adafruit_ADS1X15 Adafruit_INA260 iir pi3hat -lbcm2835 -lbcm_host)
+target_link_libraries(robot_server pthread lcm I2CDevice Adafruit_ADS1X15 Adafruit_INA260 iir pi3hat -lbcm2835 -lbcm_host -lfmt)

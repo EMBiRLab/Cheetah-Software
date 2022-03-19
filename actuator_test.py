@@ -46,13 +46,13 @@ start = time.time()
 frq_Hz = 2.0
 ampl_rad = 0.3
 speed = 5
-messaging_period = 1/500
+messaging_period = 1/750
 use_vel_cmd = True
 curr_time = 0
 
 action1 = SineParams(1, 0.3, 1, 4)
-action2 = SineParams(1, 0.3, -1, 4)
-action3 = SineParams(2, 0.3, -2, 4)
+action2 = SineParams(1, 0.3, -1, 0)
+action3 = SineParams(2, 0.3, -2, 0)
 
 
 try:

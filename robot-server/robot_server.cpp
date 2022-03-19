@@ -8,6 +8,9 @@
 #include <cmath>
 #include <math.h>
 
+#include <fmt/core.h>
+#include <fmt/printf.h>
+
 #include "robot_server.h"
 #include "third-party/rapidcsv/rapidcsv.h"
 
@@ -289,20 +292,20 @@ void RobotServer::sample_sensors() {
 }
 
 std::string RobotServer::stringify_sensor_data() {
-	std::ostringstream result;
+	// std::ostringstream result;
 
-	sprintf(cstr_buffer, "%f,%f,%f,", sd_.ina1_voltage_V, sd_.ina1_current_A, sd_.ina1_power_W);
-	result << cstr_buffer;
-	sprintf(cstr_buffer, "%f,%f,%f", sd_.ina2_voltage_V, sd_.ina2_current_A, sd_.ina2_power_W);
-	result << cstr_buffer;
-	return result.str();
+	return fmt::sprintf("%f,%f,%f,%f,%f,%f",
+		sd_.ina1_voltage_V, sd_.ina1_current_A, sd_.ina1_power_W,
+		sd_.ina2_voltage_V, sd_.ina2_current_A, sd_.ina2_power_W);
+	// result << cstr_buffer;
+	// return result.str();
 }
 
 std::string RobotServer::stringify_sensor_data_headers() {
-	std::ostringstream result;
+	// std::ostringstream result;
 
-	result << ",ina1 voltage [V],ina1 current [A],ina1 power [W],ina2 voltage [V],ina2 current [A],ina2 power [W]";
-	return result.str();
+	return ",ina1 voltage [V],ina1 current [A],ina1 power [W],ina2 voltage [V],ina2 current [A],ina2 power [W]";
+	// return result.str();
 }
 
 
