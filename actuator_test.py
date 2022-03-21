@@ -46,7 +46,7 @@ start = time.time()
 frq_Hz = 2.0
 ampl_rad = 0.3
 speed = 5
-messaging_period = 1/750
+messaging_period = 1/500
 use_vel_cmd = True
 curr_time = 0
 

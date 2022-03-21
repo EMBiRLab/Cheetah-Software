@@ -226,9 +226,8 @@ void RobotServer::log_data() {
 		datastream_ << a_ptr->stringify_actuator() << ",";
 	}
 	// std::cout << " 3.5 " << std::flush;
-	datastream_ << stringify_sensor_data() << ",";
+	// datastream_ << stringify_sensor_data() << ",";
 	datastream_ << (int)curr_state_;
-	
 	datastream_ << "\n";
 	
 	return;
@@ -239,8 +238,9 @@ void RobotServer::log_headers() {
 	for (auto a_ptr : actuator_ptrs_) {
 		datastream_ << a_ptr->stringify_actuator_header() << ",";
 	}
-	datastream_ << stringify_sensor_data_headers() << "," << "robot server fsm state";
-	datastream_ << "\n";
+	// datastream_ << stringify_sensor_data_headers() << "," << "robot server fsm state";
+	datastream_ << "robot server fsm state\n";
+	// datastream_ << "\n";
 	
 	return;
 }
@@ -292,19 +292,15 @@ void RobotServer::sample_sensors() {
 }
 
 std::string RobotServer::stringify_sensor_data() {
-	// std::ostringstream result;
-
 	return fmt::sprintf("%f,%f,%f,%f,%f,%f",
 		sd_.ina1_voltage_V, sd_.ina1_current_A, sd_.ina1_power_W,
 		sd_.ina2_voltage_V, sd_.ina2_current_A, sd_.ina2_power_W);
-	// result << cstr_buffer;
-	// return result.str();
 }
 
 std::string RobotServer::stringify_sensor_data_headers() {
 	// std::ostringstream result;
 
-	return ",ina1 voltage [V],ina1 current [A],ina1 power [W],ina2 voltage [V],ina2 current [A],ina2 power [W]";
+	return "ina1 voltage [V],ina1 current [A],ina1 power [W],ina2 voltage [V],ina2 current [A],ina2 power [W]";
 	// return result.str();
 }
 
