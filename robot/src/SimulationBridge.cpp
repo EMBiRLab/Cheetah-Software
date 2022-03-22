@@ -249,9 +249,13 @@ void SimulationBridge::runRobotControl() {
     _robotRunner->init();
     _firstControllerRun = false;
 
+    printf("SBUS_THREAD STARTING!...\n");
     sbus_thread = new std::thread(&SimulationBridge::run_sbus, this);
+    printf("SBUS_THREAD STARTED!\n");
   }
+  printf("[_robotRunner] run called!\n");
   _robotRunner->run();
+  printf("[_robotRunner] run succeeded!\n");
 }
 
 /*!

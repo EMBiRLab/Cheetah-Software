@@ -91,11 +91,15 @@ void RobotRunner::run() {
   //cheetahMainVisualization->p = _stateEstimate.position;
   visualizationData->clear();
 
+  std::cout << "ENTERING SETUP STEP..\n";
   // Update the data from the robot
   setupStep();
 
   static int count_ini(0);
   ++count_ini;
+
+  std::cout << "count_ini is: " << count_ini << "\n";
+
   if (count_ini < 10) {
     _legController->setEnabled(false);
   } else if (20 < count_ini && count_ini < 30) {
@@ -153,7 +157,7 @@ void RobotRunner::run() {
 
   }
 
-
+  printf("[_robotRunner] above visualization!\n");
 
   // Visualization (will make this into a separate function later)
   for (int leg = 0; leg < 4; leg++) {

@@ -38,6 +38,7 @@ void DrawList::loadFiles() {
   _sphereLoadIndex = 8;
   _cubeLoadIndex = 9;
   _miniCheetahLoadIndex = 4;
+  _muadquadLoadIndex = 3;
   _cheetah3LoadIndex = 0;
 }
 /*!
@@ -145,6 +146,104 @@ size_t DrawList::addMiniCheetah(Vec4<float> color, bool useOld, bool canHide) {
   bodyOffset.setToIdentity();
 
   // abads (todo, check these)
+  abadOffsets[0].setToIdentity();  // n
+  abadOffsets[0].rotate(-90, 0, 0, 1);
+  abadOffsets[0].translate(0, -.0565f, 0);
+  abadOffsets[0].rotate(180, 0, 1, 0);
+
+  abadOffsets[1].setToIdentity();  // p
+  abadOffsets[1].rotate(-90, 0, 0, 1);
+  abadOffsets[1].translate(0, -.0565f, 0);
+  abadOffsets[1].rotate(0, 0, 1, 0);
+
+  abadOffsets[2].setToIdentity();  // n
+  abadOffsets[2].rotate(90, 0, 0, 1);
+  abadOffsets[2].translate(0, -.0565f, 0);
+  abadOffsets[2].rotate(0, 0, 1, 0);
+
+  abadOffsets[3].setToIdentity();  // p
+  abadOffsets[3].rotate(90, 0, 0, 1);
+  abadOffsets[3].translate(0, -.0565f, 0);
+  abadOffsets[3].rotate(180, 0, 1, 0);
+
+  // upper
+  upper.setToIdentity();
+  upper.rotate(-90, 0, 1, 0);
+
+  // lower
+  lower.setToIdentity();
+  lower.rotate(180, 0, 1, 0);
+
+  SolidColor bodyColor, abadColor, link1Color, link2Color;
+  bodyColor.rgba = useOld ? Vec4<float>(.2, .2, .4, .3) : color;
+  bodyColor.useSolidColor = true;
+
+  abadColor.rgba = useOld ? Vec4<float>(.2, .2, .4, .3) : color;
+  abadColor.useSolidColor = true;
+
+  link1Color.rgba = useOld ? Vec4<float>(.2, .2, .4, .3) : color;
+  link1Color.useSolidColor = true;
+
+  link2Color.rgba = useOld ? Vec4<float>(.2, .2, .4, .3) : color;
+  link2Color.useSolidColor = true;
+
+  _canBeHidden.push_back(canHide);
+
+  // add objects
+  _objectMap.push_back(i0 + 0);
+  _modelOffsets.push_back(bodyOffset);
+  _kinematicXform.push_back(eye);
+  _instanceColor.push_back(bodyColor);
+  _nTotal++;
+
+  for (int i = 0; i < 4; i++) {
+    _objectMap.push_back(i0 + 1);
+    _canBeHidden.push_back(canHide);
+    _modelOffsets.push_back(abadOffsets[i]);
+    _kinematicXform.push_back(eye);
+    _instanceColor.push_back(abadColor);
+
+    _objectMap.push_back(i0 + 2);
+    _canBeHidden.push_back(canHide);
+    _modelOffsets.push_back(upper);
+    _kinematicXform.push_back(eye);
+    _instanceColor.push_back(link1Color);
+
+    _objectMap.push_back(i0 + 3);
+    _canBeHidden.push_back(canHide);
+    _modelOffsets.push_back(lower);
+    _kinematicXform.push_back(eye);
+    _instanceColor.push_back(link2Color);
+    _nTotal += 3;
+  }
+
+  // printf("add mini cheetah (%d) id %ld\n", (int)canHide, j0);
+  // for(u32 i = 0; i < _canBeHidden.size(); i++) {
+  //   printf(" [%02d] %d\n", i, _canBeHidden[i]);
+  // }
+  return j0;
+}
+
+/*!
+ * Load the muadquad model and builds the draw list.
+ * Returns an index number that can later be used to update the position of the
+ * robot.
+ * TODO check all this once the muadquad dynamics model exists again
+ */
+size_t DrawList::addMuadQuad(Vec4<float> color, bool useOld, bool canHide) {
+  
+  size_t i0 = _muadquadLoadIndex;  // todo don't hard code this
+  size_t j0 = _nTotal;
+
+  // set model offsets:
+  QMatrix4x4 bodyOffset, upper, lower, eye;
+  QMatrix4x4 abadOffsets[4];
+  eye.setToIdentity();
+
+  // body
+  bodyOffset.setToIdentity();
+
+  // abads (todo, check these) TODO @MICHAEL: COME back and make these accurate
   abadOffsets[0].setToIdentity();  // n
   abadOffsets[0].rotate(-90, 0, 0, 1);
   abadOffsets[0].translate(0, -.0565f, 0);

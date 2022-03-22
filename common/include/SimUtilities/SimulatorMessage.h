@@ -13,6 +13,7 @@
 #include "SimUtilities/GamepadCommand.h"
 #include "SimUtilities/IMUTypes.h"
 #include "SimUtilities/SpineBoard.h"
+#include "SimUtilities/RobServBoard.h"
 #include "SimUtilities/VisualizationData.h"
 #include "SimUtilities/ti_boardcontrol.h"
 #include "Utilities/SharedMemory.h"
@@ -43,6 +44,7 @@ struct SimulatorToRobotMessage {
   // spoofed leg data from the simulator to send back to robot controller
   SpiData spiData;
   TiBoardData tiBoardData[4];
+  RobServData robServData;
   // todo cheetah 3
   ControlParameterRequest controlParameterRequest;
 
@@ -58,6 +60,7 @@ struct RobotToSimulatorMessage {
   // Command data for the 4 legs of the robot TODO @Michael - add a new command for lcm to legs plus a return data in the simulator to robot message
   SpiCommand spiCommand;
   TiBoardCommand tiBoardCommand[4];
+  RobServCommand robServCommand;
 
   VisualizationData visualizationData;
   CheetahVisualization mainCheetahVisualization;

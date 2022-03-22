@@ -10,12 +10,14 @@
 #include "ControlParameters/RobotParameters.h"
 #include "ControlParameters/SimulatorParameters.h"
 #include "Dynamics/Cheetah3.h"
+#include "Dynamics/MuadQuad.h"
 #include "Dynamics/MiniCheetah.h"
 #include "Dynamics/Quadruped.h"
 #include "Graphics3D.h"
 #include "SimUtilities/ImuSimulator.h"
 #include "SimUtilities/SimulatorMessage.h"
 #include "SimUtilities/SpineBoard.h"
+#include "SimUtilities/RobServBoard.h"
 #include "SimUtilities/ti_boardcontrol.h"
 #include "Utilities/SharedMemory.h"
 #include "Utilities/Timer.h"
@@ -139,8 +141,11 @@ class Simulation {
   std::vector<ActuatorModel<double>> _actuatorModels;
   SpiCommand _spiCommand;
   SpiData _spiData;
+  RobServCommand _robServCommand;
+  RobServData _robServData;
   SpineBoard _spineBoards[4];
   TI_BoardControl _tiBoards[4];
+  RobServBoard _robServBoard;
   RobotType _robot;
   lcm::LCM* _lcm = nullptr;
 
