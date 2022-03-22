@@ -134,19 +134,22 @@ void LegController<T>::updateData(const TiBoardData* tiBoardData) {
 template <typename T>
 void LegController<T>::updateData(const robot_server_response_lcmt* lcmdata) {
   for(int leg = 0; leg < 4; leg++) {
-        for(int axis = 0; axis < 3; axis++) {
-            int idx = leg*3 + axis;
-            datas[leg].q[axis] = lcmdata->q[idx];
-            datas[leg].qd[axis] = lcmdata->qd[idx];
-            datas[leg].tauEstimate[axis] = lcmdata->tau_est[idx];
-        }
-      // J and p
-      computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J),
-                                     &(datas[leg].p), leg);
-
-      // v
-      datas[leg].v = datas[leg].J * datas[leg].qd;
+    for(int axis = 0; axis < 3; axis++) {
+      int idx = leg*3 + axis;
+      datas[leg].q[axis] = lcmdata->q[idx];
+      // std::cout<<"the value of q for leg "<<leg+1<<" axis "<<axis+1<<" is "<<datas[leg].q[axis]<<std::endl;
+      datas[leg].qd[axis] = lcmdata->qd[idx];
+      datas[leg].tauEstimate[axis] = lcmdata->tau_est[idx];
     }
+    
+    // J and p
+    computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J),
+                                    &(datas[leg].p), leg);
+
+    // v
+    datas[leg].v = datas[leg].J * datas[leg].qd;
+  }
+  
 }
 
 /*!

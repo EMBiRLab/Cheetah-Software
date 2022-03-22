@@ -28,6 +28,12 @@ RobotRunner::RobotRunner(RobotController* robot_ctrl,
     _robot_ctrl = robot_ctrl;
   }
 
+void RobotRunner::handlelcm() {
+  while (true){
+    _responseLCM.handle();
+  }
+}
+
 /**
  * Initializes the robot model, state estimator, leg controller,
  * robot data, and any control logic specific data.
@@ -41,6 +47,17 @@ void RobotRunner::init() {
   } else if (robotType == RobotType::CHEETAH_3){
     _quadruped = buildCheetah3<float>();
   } else if (robotType == RobotType::MUADQUAD){
+    //Running the LCMhandler to recieve the messages from robot_server_response
+    std::cout<<"-----------------------------SUBSCRIBINGGGGGG!!!-----------------------------\n";
+    if (!_responseLCM.good()) {
+      // Need Some error statements here
+      std::cout<<"[RobotRunner] Response LCM is NOT working!\n";
+    } else {
+      std::cout<<"[RobotRunner] Response LCM is working great!\n";
+    }
+    _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
+    printf("[RobotRunner] Start Response LCM handler\n");
+    _responselcmthread = std::thread(&RobotRunner::handlelcm, this);
     _quadruped = buildMuadQuad<float>(); //need to write this in a MuadQuad.h file in Dynamics folder
   }
 
@@ -112,9 +129,9 @@ void RobotRunner::run() {
     if( (rc_control.mode == RC_mode::OFF) && controlParameters->use_rc ) {
       if(count_ini%1000 ==0) {
         printf("ESTOP!\n");
-        std::cout << "rc_control.mode=" << rc_control.mode << 
-                      ", controlParameters->use_rc=" << controlParameters->use_rc << 
-                      "\n";
+        // std::cout << "rc_control.mode=" << rc_control.mode << 
+                      // ", controlParameters->use_rc=" << controlParameters->use_rc << 
+                      // "\n";
       }
       for (int leg = 0; leg < 4; leg++) {
         _legController->commands[leg].zero();
@@ -184,8 +201,10 @@ void RobotRunner::setupStep() {
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateData(tiBoardData);
   } else if (robotType == RobotType::MUADQUAD) {
-    _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
-    _legController->updateData(LCMData); 
+    // std::cout<<"Running the setup step!\n";
+    // _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
+    // std::cout<<"Updating the legController!\n";
+    _legController->updateData(LCMData);
   } else {
     assert(false);
   }
@@ -271,10 +290,12 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
                         const robot_server_response_lcmt* msg){
   (void)rbuf;
   (void)chan;
+  std::cout<<"Getting the messages!! \n";
   for (int i = 0; i<12;i++){
     LCMData->q[i] = msg->q[i];
     LCMData->qd[i] = msg->qd[i];
     LCMData->tau_est[i] = msg->tau_est[i];
   }
   LCMData->fsm_state = msg->fsm_state;
+  std::cout<<"fsm_state is "<<LCMData->fsm_state;
 }

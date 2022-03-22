@@ -62,6 +62,8 @@ class RobotRunner : public PeriodicTask {
   robot_server_response_lcmt* LCMData;
   void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
                         const robot_server_response_lcmt* msg);
+  void handlelcm();
+  std::thread _responselcmthread;
   lcm::LCM _responseLCM;
   robot_server_command_lcmt* LCMCommand;
   lcm::LCM _commandLCM;
