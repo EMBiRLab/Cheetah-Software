@@ -130,16 +130,41 @@ void LegController<T>::updateData(const TiBoardData* tiBoardData) {
   }
 }
 
+// //Update Data from the robot_server!
+// template <typename T>
+// void LegController<T>::updateData(const robot_server_response_lcmt* lcmdata) {
+//   for(int leg = 0; leg < 4; leg++) {
+//     for(int axis = 0; axis < 3; axis++) {
+//       int idx = leg*3 + axis;
+//       std::cout << "About to access lcmdata..." << std::endl;
+//       datas[leg].q[axis] = lcmdata->q[idx];
+//       std::cout << "Successfully accessed lcmdata" << std::endl;
+//       // std::cout<<"the value of q for leg "<<leg+1<<" axis "<<axis+1<<" is "<<datas[leg].q[axis]<<std::endl;
+//       datas[leg].qd[axis] = lcmdata->qd[idx];
+//       datas[leg].tauEstimate[axis] = lcmdata->tau_est[idx];
+//     }
+    
+//     // J and p
+//     computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J),
+//                                     &(datas[leg].p), leg);
+
+//     // v
+//     datas[leg].v = datas[leg].J * datas[leg].qd;
+//   }
+  
+// }
 //Update Data from the robot_server!
 template <typename T>
-void LegController<T>::updateData(const robot_server_response_lcmt* lcmdata) {
+void LegController<T>::updateData(const RobServData* robservdata) {
   for(int leg = 0; leg < 4; leg++) {
     for(int axis = 0; axis < 3; axis++) {
       int idx = leg*3 + axis;
-      datas[leg].q[axis] = lcmdata->q[idx];
+      std::cout << "About to access robservdata..." << std::endl;
+      datas[leg].q[axis] = robservdata->q[idx];
+      std::cout << "Successfully accessed robservdata" << std::endl;
       // std::cout<<"the value of q for leg "<<leg+1<<" axis "<<axis+1<<" is "<<datas[leg].q[axis]<<std::endl;
-      datas[leg].qd[axis] = lcmdata->qd[idx];
-      datas[leg].tauEstimate[axis] = lcmdata->tau_est[idx];
+      datas[leg].qd[axis] = robservdata->qd[idx];
+      datas[leg].tauEstimate[axis] = robservdata->tau_est[idx];
     }
     
     // J and p
@@ -247,23 +272,43 @@ void LegController<T>::updateCommand(TiBoardCommand* tiBoardCommand) {
   }
 }
 
+// //Update Data for the robot_server!
+// template <typename T>
+// void LegController<T>::updateCommand(robot_server_command_lcmt* lcmcommand) {
+//   //DEfinetly have to check this command here.....
+//   for(int leg = 0; leg < 4; leg++) {
+//         for(int axis = 0; axis < 3; axis++) {
+//             int idx = leg*3 + axis;
+//             lcmcommand->tau_ff[idx] = commands[leg].tauFeedForward[axis];
+//             //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
+//             lcmcommand->q_des[idx] = commands[leg].qDes[axis];
+//             lcmcommand->qd_des[idx] = commands[leg].qdDes[axis];
+//             //lcmcommand->p_des[idx] = commands[leg].pDes[axis];
+//             //lcmcommand->v_des[idx] = commands[leg].vDes[axis];
+//             //lcmcommand->kp_cartesian[idx] = commands[leg].kpCartesian(axis, axis);
+//             //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
+//             lcmcommand->kp_joint[idx] = commands[leg].kpJoint(axis, axis);
+//             lcmcommand->kd_joint[idx] = commands[leg].kdJoint(axis, axis);
+//         }
+//     }
+// }
 //Update Data for the robot_server!
 template <typename T>
-void LegController<T>::updateCommand(robot_server_command_lcmt* lcmcommand) {
+void LegController<T>::updateCommand(RobServCommand* robservcommand) {
   //DEfinetly have to check this command here.....
   for(int leg = 0; leg < 4; leg++) {
         for(int axis = 0; axis < 3; axis++) {
             int idx = leg*3 + axis;
-            lcmcommand->tau_ff[idx] = commands[leg].tauFeedForward[axis];
-            //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
-            lcmcommand->q_des[idx] = commands[leg].qDes[axis];
-            lcmcommand->qd_des[idx] = commands[leg].qdDes[axis];
-            //lcmcommand->p_des[idx] = commands[leg].pDes[axis];
-            //lcmcommand->v_des[idx] = commands[leg].vDes[axis];
-            //lcmcommand->kp_cartesian[idx] = commands[leg].kpCartesian(axis, axis);
-            //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
-            lcmcommand->kp_joint[idx] = commands[leg].kpJoint(axis, axis);
-            lcmcommand->kd_joint[idx] = commands[leg].kdJoint(axis, axis);
+            robservcommand->tau_ff[idx] = commands[leg].tauFeedForward[axis];
+            //robservcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
+            robservcommand->q_des[idx] = commands[leg].qDes[axis];
+            robservcommand->qd_des[idx] = commands[leg].qdDes[axis];
+            //robservcommand->p_des[idx] = commands[leg].pDes[axis];
+            //robservcommand->v_des[idx] = commands[leg].vDes[axis];
+            //robservcommand->kp_cartesian[idx] = commands[leg].kpCartesian(axis, axis);
+            //robservcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
+            robservcommand->kp_joint[idx] = commands[leg].kpJoint(axis, axis);
+            robservcommand->kd_joint[idx] = commands[leg].kdJoint(axis, axis);
         }
     }
 }

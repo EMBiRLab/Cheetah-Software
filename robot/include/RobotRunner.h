@@ -12,6 +12,7 @@
 #include "ControlParameters/RobotParameters.h"
 #include "Controllers/StateEstimatorContainer.h"
 #include "SimUtilities/IMUTypes.h"
+#include "SimUtilities/RobServBoard.h"
 #include "rt/rt_rc_interface.h"
 #include "Controllers/ContactEstimator.h"
 #include "Controllers/DesiredStateCommand.h"
@@ -59,13 +60,15 @@ class RobotRunner : public PeriodicTask {
   
 
   //Updating LCM Data and Command (Robot_server) MUADQUAD
-  robot_server_response_lcmt* LCMData;
+  // robot_server_response_lcmt* LCMData;
+  RobServData* robServData;
   void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
                         const robot_server_response_lcmt* msg);
   void handlelcm();
   std::thread _responselcmthread;
   lcm::LCM _responseLCM;
   robot_server_command_lcmt* LCMCommand;
+  RobServCommand* robServCommand;
   lcm::LCM _commandLCM;
 
  private:

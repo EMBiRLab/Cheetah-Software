@@ -15,6 +15,7 @@
 #include "leg_control_command_lcmt.hpp"
 #include "leg_control_data_lcmt.hpp"
 #include "Dynamics/Quadruped.h"
+#include "SimUtilities/RobServBoard.h"
 #include "SimUtilities/SpineBoard.h"
 #include "SimUtilities/ti_boardcontrol.h"
 #include "robot_server_command_lcmt.hpp"
@@ -66,10 +67,12 @@ class LegController {
   void edampCommand(RobotType robot, T gain);
   void updateData(const SpiData* spiData);
   void updateData(const TiBoardData* tiBoardData);
-  void updateData(const robot_server_response_lcmt* lcmdata);
+  // void updateData(const robot_server_response_lcmt* lcmdata);
+  void updateData(const RobServData* robservdata);
   void updateCommand(SpiCommand* spiCommand);
   void updateCommand(TiBoardCommand* tiBoardCommand);
-  void updateCommand(robot_server_command_lcmt* lcmcommand);
+  // void updateCommand(robot_server_command_lcmt* lcmcommand);
+  void updateCommand(RobServCommand* robservcommand);
   void setEnabled(bool enabled) { _legsEnabled = enabled; };
   void setLcm(leg_control_data_lcmt* data, leg_control_command_lcmt* command);
 

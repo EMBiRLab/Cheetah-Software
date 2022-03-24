@@ -234,12 +234,14 @@ void SimulationBridge::runRobotControl() {
         &_sharedMemory().simToRobot.gamepadCommand;
     _robotRunner->spiData = &_sharedMemory().simToRobot.spiData;
     _robotRunner->tiBoardData = _sharedMemory().simToRobot.tiBoardData;
+    _robotRunner->robServData = &_sharedMemory().simToRobot.robServData;
     _robotRunner->robotType = _robot;
     _robotRunner->vectorNavData = &_sharedMemory().simToRobot.vectorNav;
     _robotRunner->cheaterState = &_sharedMemory().simToRobot.cheaterState;
     _robotRunner->spiCommand = &_sharedMemory().robotToSim.spiCommand;
-    _robotRunner->tiBoardCommand =
-        _sharedMemory().robotToSim.tiBoardCommand;
+    _robotRunner->tiBoardCommand = _sharedMemory().robotToSim.tiBoardCommand;
+    _robotRunner->robServCommand = &_sharedMemory().robotToSim.robServCommand;
+    // _robotRunner->LCMCommand = &_LCMCommand;
     _robotRunner->controlParameters = &_robotParams;
     _robotRunner->visualizationData =
         &_sharedMemory().robotToSim.visualizationData;

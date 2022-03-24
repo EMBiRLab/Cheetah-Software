@@ -26,6 +26,13 @@ RobotRunner::RobotRunner(RobotController* robot_ctrl,
   _lcm(getLcmUrl(255)) {
 
     _robot_ctrl = robot_ctrl;
+
+    // for (int dof = 0; dof < 12; dof++){
+    //   LCMData->q[dof] = std::numeric_limits<float>::quiet_NaN();
+    //   LCMData->qd[dof] = std::numeric_limits<float>::quiet_NaN();
+    //   LCMData->tau_est[dof] = std::numeric_limits<float>::quiet_NaN();
+    // }
+    // LCMData->fsm_state=0;
   }
 
 void RobotRunner::handlelcm() {
@@ -204,7 +211,9 @@ void RobotRunner::setupStep() {
     // std::cout<<"Running the setup step!\n";
     // _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
     // std::cout<<"Updating the legController!\n";
-    _legController->updateData(LCMData);
+    
+    // _legController->updateData(LCMData);
+    _legController->updateData(robServData);
   } else {
     assert(false);
   }
@@ -245,8 +254,35 @@ void RobotRunner::finalizeStep() {
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateCommand(tiBoardCommand);
   } else if (robotType == RobotType::MUADQUAD) {
-    _legController->updateCommand(LCMCommand);
-    _commandLCM.publish("robot_server_command", LCMCommand);
+    // _legController->updateCommand(LCMCommand);
+    // _commandLCM.publish("robot_server_command", LCMCommand);
+    std::cout << "Going to update the command before publishing!" << std::endl;
+    _legController->updateCommand(robServCommand);
+    std::cout << "Updated the command first time!" << std::endl;
+
+    robot_server_command_lcmt LCMCommandfix;
+
+    for(int leg = 0; leg < 4; leg++) {
+      for(int axis = 0; axis < 3; axis++) {
+        int idx = leg*3 + axis;
+        std::cout << "[robServCommand->tau_ff[idx]]----->" << robServCommand->tau_ff[idx] << std::endl;
+        std::cout << "[LCMCommandfix->tau_ff[idx]]----->" << LCMCommandfix.tau_ff[idx] << std::endl;
+        LCMCommandfix.tau_ff[idx] = robServCommand->tau_ff[idx];
+        std::cout << "FF IS GUUUUUUUUUUUUD!" << std::endl;
+        //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
+        LCMCommandfix.q_des[idx]  = robServCommand->q_des[idx];
+        LCMCommandfix.qd_des[idx] = robServCommand->qd_des[idx];
+        //lcmcommand->p_des[idx] = commands[leg].pDes[axis];
+        //lcmcommand->v_des[idx] = commands[leg].vDes[axis];
+        //lcmcommand->kp_cartesian[idx] = commands[leg].kpCartesian(axis, axis);
+        //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
+        LCMCommandfix.kp_joint[idx] = robServCommand->kp_joint[idx];
+        LCMCommandfix.kd_joint[idx] = robServCommand->kd_joint[idx];
+      }
+    }
+    std::cout << "Updated the command second time!" << std::endl;
+    _commandLCM.publish("robot_server_command", &LCMCommandfix);
+    std::cout << "FINALLY PUBLISHED!" << std::endl;
   } else {
     assert(false);
   }
@@ -290,12 +326,20 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
                         const robot_server_response_lcmt* msg){
   (void)rbuf;
   (void)chan;
+  // std::cout<<"Getting the messages!! \n";
+  // for (int i = 0; i<12;i++){
+  //   LCMData->q[i] = msg->q[i];
+  //   LCMData->qd[i] = msg->qd[i];
+  //   LCMData->tau_est[i] = msg->tau_est[i];
+  // }
+  // LCMData->fsm_state = msg->fsm_state;
+  // std::cout<<"fsm_state is "<<LCMData->fsm_state;
   std::cout<<"Getting the messages!! \n";
   for (int i = 0; i<12;i++){
-    LCMData->q[i] = msg->q[i];
-    LCMData->qd[i] = msg->qd[i];
-    LCMData->tau_est[i] = msg->tau_est[i];
+    robServData->q[i] = msg->q[i];
+    robServData->qd[i] = msg->qd[i];
+    robServData->tau_est[i] = msg->tau_est[i];
   }
-  LCMData->fsm_state = msg->fsm_state;
-  std::cout<<"fsm_state is "<<LCMData->fsm_state;
+  robServData->fsm_state = msg->fsm_state;
+  std::cout<<"fsm_state is "<< robServData->fsm_state;
 }

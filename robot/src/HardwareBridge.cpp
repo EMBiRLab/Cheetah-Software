@@ -611,7 +611,7 @@ void MuadQuadHardwareBridge::run() {
     printf("[Hardware Bridge] Loading parameters from file...\n");
 
     try {
-      _robotParams.initializeFromYamlFile(THIS_COM "config/mini-cheetah-defaults.yaml");
+      _robotParams.initializeFromYamlFile(THIS_COM "config/muadquad-defaults.yaml");
     } catch(std::exception& e) {
       printf("Failed to initialize robot parameters from yaml file: %s\n", e.what());
       exit(1);
@@ -626,7 +626,8 @@ void MuadQuadHardwareBridge::run() {
 
     if(_userControlParameters) {
       try {
-        _userControlParameters->initializeFromYamlFile(THIS_COM "config/mc-mit-ctrl-user-parameters.yaml");
+        // _userControlParameters->initializeFromYamlFile(THIS_COM "config/mc-mit-ctrl-user-parameters.yaml");
+        _userControlParameters->initializeFromYamlFile(THIS_COM "config/torso_pos_controller_parameters.yaml");
       } catch(std::exception& e) {
         printf("Failed to initialize user parameters from yaml file: %s\n", e.what());
         exit(1);
@@ -663,8 +664,10 @@ void MuadQuadHardwareBridge::run() {
 
   //will have to create variables for storing current data and commands to joint position, velocity 
   //and torque data like the ones in spi command for cheetah
-  _robotRunner->LCMData = &_LCMData;
+  // _robotRunner->LCMData = &_LCMData;
   _robotRunner->LCMCommand = &_LCMCommand;
+  _robotRunner->robServData = &_robServData;
+  _robotRunner->robServCommand = &_robServCommand;
   _robotRunner->driverCommand = &_gamepadCommand;
   _robotRunner->robotType = RobotType::MUADQUAD;
   _robotRunner->controlParameters = &_robotParams;
