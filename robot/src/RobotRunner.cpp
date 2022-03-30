@@ -265,10 +265,8 @@ void RobotRunner::finalizeStep() {
     for(int leg = 0; leg < 4; leg++) {
       for(int axis = 0; axis < 3; axis++) {
         int idx = leg*3 + axis;
-        std::cout << "[robServCommand->tau_ff[idx]]----->" << robServCommand->tau_ff[idx] << std::endl;
-        std::cout << "[LCMCommandfix->tau_ff[idx]]----->" << LCMCommandfix.tau_ff[idx] << std::endl;
+        std::cout << "[robServCommand->qd_des[" << idx << "]]----->" << robServCommand->qd_des[idx] << std::endl;
         LCMCommandfix.tau_ff[idx] = robServCommand->tau_ff[idx];
-        std::cout << "FF IS GUUUUUUUUUUUUD!" << std::endl;
         //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
         LCMCommandfix.q_des[idx]  = robServCommand->q_des[idx];
         LCMCommandfix.qd_des[idx] = robServCommand->qd_des[idx];
@@ -278,6 +276,7 @@ void RobotRunner::finalizeStep() {
         //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
         LCMCommandfix.kp_joint[idx] = robServCommand->kp_joint[idx];
         LCMCommandfix.kd_joint[idx] = robServCommand->kd_joint[idx];
+        std::cout << "[LCMCommandfix->qd_des[" << idx << "]]----->" << LCMCommandfix.qd_des[idx] << std::endl;
       }
     }
     std::cout << "Updated the command second time!" << std::endl;

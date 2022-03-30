@@ -152,6 +152,14 @@ void TorsoPos_Controller::runController(){
       
       desired_joint_qd.segment(3*leg,3) =  -_legController->datas[leg].J.inverse()*desired_torso_qd.segment(3*leg,3);
 
+      std::cout << "lefto joystick commands are: " << joystickLeft  << std::endl;
+      std::cout << "right joystick commands are: " << joystickRight << std::endl;
+      std::cout << "---------------------------------------------------------" << std::endl;
+      std::cout << "Q variables of leg " << leg << " are:" << _legController->datas[leg].q << std::endl;
+      std::cout << "Positions of leg " << leg << " are:" << _legController->datas[leg].p << std::endl;
+      std::cout << "Jacobian of leg " << leg << " is:" << _legController->datas[leg].J << std::endl;
+      std::cout << "Jacobian inverse of leg " << leg << " is:" << _legController->datas[leg].J.inverse() << std::endl;
+
       // set the commands
       for(int j_idx(0); j_idx<3; ++j_idx){
         _legController->commands[leg].qDes[j_idx] = desired_q(dof);
@@ -159,6 +167,7 @@ void TorsoPos_Controller::runController(){
         dof++;
       }
       _legController->commands[leg].qdDes = desired_joint_qd.segment(3*leg,3);
+      std::cout << "Desired qd of leg " << leg << " is:" << desired_joint_qd.segment(3*leg,3) << std::endl;
       _legController->commands[leg].kpJoint = kpMat;
       _legController->commands[leg].kdJoint = kdMat;
     } // for leg

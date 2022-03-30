@@ -108,6 +108,7 @@ void HardwareBridge::handleGamepadLCM(const lcm::ReceiveBuffer* rbuf,
   (void)rbuf;
   (void)chan;
   _gamepadCommand.set(msg);
+  std::cout << "We received a _gamepadCommand!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 }
 
 /*!

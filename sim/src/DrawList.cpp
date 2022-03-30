@@ -7,6 +7,7 @@
 
 #include "DrawList.h"
 
+//TODO add muadquad files
 void DrawList::loadFiles() {
   printf("[DrawList] Load object files...\n");
   std::vector<std::string> names = {
@@ -38,7 +39,7 @@ void DrawList::loadFiles() {
   _sphereLoadIndex = 8;
   _cubeLoadIndex = 9;
   _miniCheetahLoadIndex = 4;
-  _muadquadLoadIndex = 3;
+  _muadquadLoadIndex = 4;
   _cheetah3LoadIndex = 0;
 }
 /*!
