@@ -87,7 +87,7 @@
   "encoder_filter_bw_hz": 100,
   "encoder_filter_kp": 1256.6370614359173,
   "encoder_filter_ki": 394784.17604357435,
-  "v_per_hz": 0.3263323271598084,
-  "kv": 91.93082481622693,
+  "v_per_hz": 0.403,
+  "kv": 74.44,
   "unwrapped_position_scale": 1.0
 }
