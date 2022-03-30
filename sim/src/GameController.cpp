@@ -12,6 +12,10 @@
 
 #include <QtCore/QObject>
 #include <QtGamepad/QGamepad>
+#include <lcm/lcm-cpp.hpp>
+#include "Utilities/utilities.h"
+#include <iostream>
+// #include <unistd.h>
 
 /*!
  * By default, the game controller selects the "first" joystick, printing a
@@ -19,8 +23,20 @@
  * no joystick is found, it will print an error message, and will return zero.
  * It is possible to change/add a joystick later with findNewController
  */
-GameController::GameController(QObject *parent) : QObject(parent) {
+GameController::GameController(QObject *parent, int sim) : QObject(parent), _lcm(getLcmUrl(255)) {
+// GameController::GameController(QObject *parent) : QObject(parent) {
   findNewController();
+  std::cout << "<sim> value is " << sim << "***********************************" << std::endl;
+  if (!sim){
+  // if (1){
+    // We are not calling this object from the simulator, so we want to periodically
+    // send LCMs for the hardwarebridge to see
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateGamepadCommandLCM()));
+    // connect(timer, SIGNAL(timeout()), this, &GameController::updateGamepadCommandLCM());
+    timer->start(2);
+    std::cout << "<sim> value is " << sim << "***********************************" << std::endl;
+  }
 }
 
 /*!
@@ -103,4 +119,54 @@ void GameController::updateGamepadCommand(GamepadCommand &gamepadCommand) {
   // printf("%s\n", gamepadCommand.toString().c_str());
 }
 
-GameController::~GameController() { delete _qGamepad; }
+void GameController::updateGamepadCommandLCM(){
+  std::cout << "HELOOOOOOOOOOOOOOOOOOO***********************************" << std::endl;
+  if (_qGamepad) {
+    gamepadCmd.leftBumper = _qGamepad->buttonL1();
+    gamepadCmd.rightBumper = _qGamepad->buttonR1();
+    gamepadCmd.leftTriggerButton = _qGamepad->buttonL2() != 0.;
+    gamepadCmd.rightTriggerButton = _qGamepad->buttonR2() != 0.;
+    gamepadCmd.back = _qGamepad->buttonSelect();
+    gamepadCmd.start = _qGamepad->buttonStart();
+    gamepadCmd.a = _qGamepad->buttonA();
+    gamepadCmd.b = _qGamepad->buttonB();
+    gamepadCmd.x = _qGamepad->buttonX();
+    gamepadCmd.y = _qGamepad->buttonY();
+    gamepadCmd.leftStickButton = _qGamepad->buttonL3();
+    gamepadCmd.rightStickButton = _qGamepad->buttonR3();
+    gamepadCmd.leftTriggerAnalog = (float)_qGamepad->buttonL2();
+    gamepadCmd.rightTriggerAnalog = (float)_qGamepad->buttonR2();
+    gamepadCmd.leftStickAnalog =
+        Vec2<float>(_qGamepad->axisLeftX(), -_qGamepad->axisLeftY());
+    gamepadCmd.rightStickAnalog =
+        Vec2<float>(_qGamepad->axisRightX(), -_qGamepad->axisRightY());
+  } else {
+    // gamepadCmd.zero();  // no joystick, return all zeros
+    printf("setting left analog and right analog stick values\n");
+    gamepadCmd.leftBumper = 1;
+    gamepadCmd.rightBumper = 1;
+    gamepadCmd.leftTriggerButton = 1;
+    gamepadCmd.rightTriggerButton = 1;
+    gamepadCmd.back = 1;
+    gamepadCmd.start = 1;
+    gamepadCmd.a = 1;
+    gamepadCmd.b = 1;
+    gamepadCmd.x = 1;
+    gamepadCmd.y = 1;
+    gamepadCmd.leftStickButton = 1;
+    gamepadCmd.rightStickButton = 1;
+    gamepadCmd.leftTriggerAnalog = 1.0;
+    gamepadCmd.rightTriggerAnalog = 1.0;
+    gamepadCmd.leftStickAnalog =
+        Vec2<float>(0.0, 0.5);
+    gamepadCmd.rightStickAnalog =
+        Vec2<float>(0.0, 0.0);
+  }
+  gamepadCmd.get(&_gamepad_lcmt);
+  _lcm.publish(INTERFACE_LCM_NAME, &_gamepad_lcmt);
+}
+
+GameController::~GameController() { 
+  delete _qGamepad;
+  delete timer;
+}

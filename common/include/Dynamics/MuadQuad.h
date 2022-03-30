@@ -23,26 +23,27 @@ Quadruped<T> buildMuadQuad() {
   muadquad._robotType = RobotType::MUADQUAD;
 
   muadquad._bodyMass = 3.3;
-  muadquad._bodyLength = 0.19 * 2;
-  muadquad._bodyWidth = 0.049 * 2;
-  muadquad._bodyHeight = 0.05 * 2;
-  muadquad._abadGearRatio = 6;
-  muadquad._hipGearRatio = 6;
-  muadquad._kneeGearRatio = 9.33;
-  muadquad._abadLinkLength = 0.062;
-  muadquad._hipLinkLength = 0.209;
+  muadquad._bodyLength = 0.2 * 2;
+  muadquad._bodyWidth = 0.1 * 2;
+  muadquad._bodyHeight = 0.035;
+
+  muadquad._abadGearRatio = 7.5;
+  muadquad._hipGearRatio = 7.5;
+  muadquad._kneeGearRatio = 7.5;
+  muadquad._abadLinkLength = 0.025;
+  muadquad._hipLinkLength = 0.20;
   //muadquad._kneeLinkLength = 0.175;
   //muadquad._maxLegLength = 0.384;
-  muadquad._kneeLinkY_offset = 0.004;
+  muadquad._kneeLinkY_offset = 0.0095;
   //muadquad._kneeLinkLength = 0.20;
-  muadquad._kneeLinkLength = 0.195;
-  muadquad._maxLegLength = 0.409;
+  muadquad._kneeLinkLength = 0.2;
+  muadquad._maxLegLength = 0.38; // we think this is maybe safety to avoid singularities
 
 
-  muadquad._motorTauMax = 3.f;
-  muadquad._batteryV = 24;
-  muadquad._motorKT = .05;  // this is flux linkage * pole pairs
-  muadquad._motorR = 0.173;
+  muadquad._motorTauMax = 1.6f;
+  muadquad._batteryV = 31;
+  muadquad._motorKT = .105;  // this is flux linkage * pole pairs
+  muadquad._motorR = 0.7;
   muadquad._jointDamping = .01;
   muadquad._jointDryFriction = .2;
   //muadquad._jointDamping = .0;
@@ -51,7 +52,7 @@ Quadruped<T> buildMuadQuad() {
 
   // rotor inertia if the rotor is oriented so it spins around the z-axis
   Mat3<T> rotorRotationalInertiaZ;
-  rotorRotationalInertiaZ << 33, 0, 0, 0, 33, 0, 0, 0, 63;
+  rotorRotationalInertiaZ << 3, 0, 0, 0, 3, 0, 0, 0, 6;
   rotorRotationalInertiaZ = 1e-6 * rotorRotationalInertiaZ;
 
   Mat3<T> RY = coordinateRotation<T>(CoordinateAxis::Y, M_PI / 2);
@@ -101,11 +102,11 @@ Quadruped<T> buildMuadQuad() {
   muadquad._bodyInertia = bodyInertia;
 
   // locations
-  muadquad._abadRotorLocation = Vec3<T>(0.125, 0.049, 0);
-  muadquad._abadLocation =
-      Vec3<T>(muadquad._bodyLength, muadquad._bodyWidth, 0) * 0.5;
+  muadquad._abadRotorLocation = Vec3<T>(muadquad._bodyLength, muadquad._bodyWidth, -0.068)*0.5;
+  muadquad._abadLocation = Vec3<T>(muadquad._bodyLength, muadquad._bodyWidth, -0.068) * 0.5;
+//   muadquad._hipLocation = Vec3<T>(-muadquad._abadLinkLength, 0, 0);
   muadquad._hipLocation = Vec3<T>(0, muadquad._abadLinkLength, 0);
-  muadquad._hipRotorLocation = Vec3<T>(0, 0.04, 0);
+  muadquad._hipRotorLocation = Vec3<T>(0, 0, 0);
   muadquad._kneeLocation = Vec3<T>(0, 0, -muadquad._hipLinkLength);
   muadquad._kneeRotorLocation = Vec3<T>(0, 0, 0);
 

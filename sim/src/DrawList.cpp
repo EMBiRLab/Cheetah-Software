@@ -11,11 +11,13 @@
 void DrawList::loadFiles() {
   printf("[DrawList] Load object files...\n");
   std::vector<std::string> names = {
-      "c3_body.obj",         "mini_abad.obj",
-      "c3_upper_link.obj",   "c3_lower_link.obj",
-      "mini_body.obj",       "mini_abad.obj",
-      "mini_upper_link.obj", "mini_lower_link.obj",
-      "sphere.obj",          "cube.obj"};
+      "c3_body.obj",                      "mini_abad.obj",
+      "c3_upper_link.obj",                "c3_lower_link.obj",
+      "mini_body.obj",                    "mini_abad.obj",
+      "mini_upper_link.obj",              "mini_lower_link.obj",
+      "sphere.obj",                       "cube.obj",
+      "MuadQuad_body_reorient.obj",       "MuadQuad_abad_reorient.obj",
+      "MuadQuad_upper_link_reorient.obj", "MuadQuad_lower_link_reorient.obj"};
   for (const auto& name : names) {
     std::string filename = _baseFileName + name;
     _vertexData.emplace_back();
@@ -39,7 +41,7 @@ void DrawList::loadFiles() {
   _sphereLoadIndex = 8;
   _cubeLoadIndex = 9;
   _miniCheetahLoadIndex = 4;
-  _muadquadLoadIndex = 4;
+  _muadquadLoadIndex = 10;
   _cheetah3LoadIndex = 0;
 }
 /*!
@@ -237,8 +239,8 @@ size_t DrawList::addMuadQuad(Vec4<float> color, bool useOld, bool canHide) {
   size_t j0 = _nTotal;
 
   // set model offsets:
-  QMatrix4x4 bodyOffset, upper, lower, eye;
-  QMatrix4x4 abadOffsets[4];
+  QMatrix4x4 bodyOffset, lower, eye;
+  QMatrix4x4 abadOffsets[4], upper[4];
   eye.setToIdentity();
 
   // body
@@ -247,27 +249,40 @@ size_t DrawList::addMuadQuad(Vec4<float> color, bool useOld, bool canHide) {
   // abads (todo, check these) TODO @MICHAEL: COME back and make these accurate
   abadOffsets[0].setToIdentity();  // n
   abadOffsets[0].rotate(-90, 0, 0, 1);
-  abadOffsets[0].translate(0, -.0565f, 0);
+  abadOffsets[0].translate(0, 0, 0);
   abadOffsets[0].rotate(180, 0, 1, 0);
+  abadOffsets[0].rotate(180, 1, 0, 0);
 
   abadOffsets[1].setToIdentity();  // p
   abadOffsets[1].rotate(-90, 0, 0, 1);
-  abadOffsets[1].translate(0, -.0565f, 0);
+  abadOffsets[1].translate(0, 0, 0);
   abadOffsets[1].rotate(0, 0, 1, 0);
 
   abadOffsets[2].setToIdentity();  // n
   abadOffsets[2].rotate(90, 0, 0, 1);
-  abadOffsets[2].translate(0, -.0565f, 0);
+  abadOffsets[2].translate(0, 0, 0);
   abadOffsets[2].rotate(0, 0, 1, 0);
 
   abadOffsets[3].setToIdentity();  // p
   abadOffsets[3].rotate(90, 0, 0, 1);
-  abadOffsets[3].translate(0, -.0565f, 0);
+  abadOffsets[3].translate(0, 0, 0);
   abadOffsets[3].rotate(180, 0, 1, 0);
+  abadOffsets[3].rotate(180, 1, 0, 0);
 
   // upper
-  upper.setToIdentity();
-  upper.rotate(-90, 0, 1, 0);
+  upper[0].setToIdentity();
+  upper[0].rotate(180, 1, 0, 0);
+  upper[0].rotate(90, 0, 1, 0);
+  
+  upper[1].setToIdentity();
+  upper[1].rotate(-90, 0, 1, 0);
+  
+  upper[2].setToIdentity();
+  upper[2].rotate(180, 1, 0, 0);
+  upper[2].rotate(90, 0, 1, 0);
+  
+  upper[3].setToIdentity();
+  upper[3].rotate(-90, 0, 1, 0);
 
   // lower
   lower.setToIdentity();
@@ -304,7 +319,7 @@ size_t DrawList::addMuadQuad(Vec4<float> color, bool useOld, bool canHide) {
 
     _objectMap.push_back(i0 + 2);
     _canBeHidden.push_back(canHide);
-    _modelOffsets.push_back(upper);
+    _modelOffsets.push_back(upper[i]);
     _kinematicXform.push_back(eye);
     _instanceColor.push_back(link1Color);
 
