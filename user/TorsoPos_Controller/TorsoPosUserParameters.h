@@ -7,6 +7,7 @@ class TorsoPosUserParameters : public ControlParameters {
 public:
   TorsoPosUserParameters()
       : ControlParameters("user-parameters"),
+        INIT_PARAMETER(use_gravity_comp),
         INIT_PARAMETER(Kp_femur),
         INIT_PARAMETER(Kd_femur),
         INIT_PARAMETER(Kp_tibia),
@@ -18,6 +19,8 @@ public:
         INIT_PARAMETER(vert_gain)
 
   {}
+
+  DECLARE_PARAMETER(double, use_gravity_comp);
 
   DECLARE_PARAMETER(double, Kp_femur);
   DECLARE_PARAMETER(double, Kd_femur);

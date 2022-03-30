@@ -44,9 +44,12 @@ void TorsoPos_Controller::runController(){
 
 
   // Once we have desired orientation, we must calculate the desired actuator positions and the tau_ff to compensate for gravity
-  Vec18<float> tau_grav;
-  tau_grav = _model->generalizedGravityForce(); // [base_force ; joint_torques]
-  Vec12<float> tau_ff = tau_grav.tail(12); // prune away base force
+  Vec12<float> tau_ff = Vec12<float>::Zero();
+  if(userParameters.use_gravity_comp){
+    Vec18<float> tau_grav;
+    tau_grav = _model->generalizedGravityForce(); // [base_force ; joint_torques]
+    tau_ff = tau_grav.tail(12); // prune away base force
+  }
 
   // Periodically print out info about the feedforward term to see that it changes
   if (iter % 2000 == 0) {
