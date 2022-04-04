@@ -2,6 +2,7 @@
 #include <ControlParameters/ControlParameterInterface.h>
 #include <Dynamics/Cheetah3.h>
 #include <Dynamics/MiniCheetah.h>
+#include <Dynamics/MuadQuad.h>
 #include <unistd.h>
 #include "ControlParameters/SimulatorParameters.h"
 
@@ -20,6 +21,9 @@ RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
   } else if (_robotType == RobotType::CHEETAH_3) {
     _controlParameters.initializeFromYamlFile(getConfigDirectoryPath() +
                                               CHEETAH_3_DEFAULT_PARAMETERS);
+  } else if (_robotType == RobotType::MUADQUAD) {
+    _controlParameters.initializeFromYamlFile(getConfigDirectoryPath() +
+                                              MUADQUAD_DEFAULT_PARAMETERS);                                              
   } else {
     assert(false);
   }
@@ -34,7 +38,9 @@ RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
   Vec4<float> robotColor;
   robotColor << 0.6, 0.2, 0.2, 1.0;
   _robotID = _robotType == RobotType::MINI_CHEETAH ? gfx->setupMiniCheetah(robotColor, true, false)
-                                                   : gfx->setupCheetah3(robotColor, true, false);
+                                                   : _robotType == RobotType::MUADQUAD ? 
+                                                      gfx->setupMuadQuad(robotColor, true, false) 
+                                                      : gfx->setupCheetah3(robotColor, true, false);
   printf("draw list has %lu items\n", _gfx->_drawList._kinematicXform.size());
   _gfx->_drawList._visualizationData = &_visualizationData;
   Checkerboard checker(10, 10, 10, 10);
@@ -48,8 +54,10 @@ RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
                  &RobotInterface::handleVisualizationData, this);
 
   printf("[RobotInterface] Init dynamics\n");
-  _quadruped = robotType == RobotType::MINI_CHEETAH ? buildMiniCheetah<double>()
-                                                    : buildCheetah3<double>();
+  _quadruped = _robotType == RobotType::MINI_CHEETAH ? buildMiniCheetah<double>()
+                                                    : _robotType == RobotType::MUADQUAD ? 
+                                                        buildMuadQuad<double>()
+                                                        : buildCheetah3<double>();
   _model = _quadruped.buildModel();
   _simulator = new DynamicsSimulator<double>(_model, false);
   DVec<double> zero12(12);
@@ -66,9 +74,12 @@ void RobotInterface::handleVisualizationData(
     const cheetah_visualization_lcmt *msg) {
   (void)rbuf;
   (void)chan;
+  std::cout << "VISUALIZATION DATA body position is: ";
   for (int i = 0; i < 3; i++) {
     _fwdKinState.bodyPosition[i] = msg->x[i];
+    std::cout << msg->x[i] << " | ";
   }
+  std::cout << std::endl;
 
   for (int i = 0; i < 4; i++) {
     _fwdKinState.bodyOrientation[i] = msg->quat[i];
