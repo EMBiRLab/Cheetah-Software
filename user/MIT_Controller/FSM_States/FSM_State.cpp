@@ -4,6 +4,7 @@
  */
 
 #include "FSM_State.h"
+// #include "user/MIT_Controller/FSM_States/FSM_State.h"
 
 /**
  * Constructor for the FSM State class.
@@ -169,14 +170,14 @@ void FSM_State<T>::runControls() {
 
   } else if (CONTROLLER_OPTION == 3) {
     // cMPC
-    runConvexModelPredictiveController();
+    runConvexModelPredictiveController(); // this appears to be unimplemented... -ursk
 
     // Swing foot landing positions are calculated with heuristics
     // footstepHeuristicPlacement();
 
   } else if (CONTROLLER_OPTION == 4) {
     // RPC
-    runRegularizedPredictiveController();
+    runRegularizedPredictiveController(); // this appears to be unimplemented... -ursk
 
   } else {
     // Zero out the commands if a controller was not selected
