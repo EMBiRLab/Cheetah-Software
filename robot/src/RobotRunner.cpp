@@ -115,14 +115,14 @@ void RobotRunner::run() {
   //cheetahMainVisualization->p = _stateEstimate.position;
   visualizationData->clear();
 
-  std::cout << "ENTERING SETUP STEP..\n";
+  // std::cout << "ENTERING SETUP STEP..\n";
   // Update the data from the robot
   setupStep();
 
   static int count_ini(0);
   ++count_ini;
 
-  std::cout << "count_ini is: " << count_ini << "\n";
+  // std::cout << "count_ini is: " << count_ini << "\n";
 
   if (count_ini < 10) {
     _legController->setEnabled(false);
@@ -256,16 +256,16 @@ void RobotRunner::finalizeStep() {
   } else if (robotType == RobotType::MUADQUAD) {
     // _legController->updateCommand(LCMCommand);
     // _commandLCM.publish("robot_server_command", LCMCommand);
-    std::cout << "Going to update the command before publishing!" << std::endl;
+    // std::cout << "Going to update the command before publishing!" << std::endl;
     _legController->updateCommand(robServCommand);
-    std::cout << "Updated the command first time!" << std::endl;
+    // std::cout << "Updated the command first time!" << std::endl;
 
     robot_server_command_lcmt LCMCommandfix;
 
     for(int leg = 0; leg < 4; leg++) {
       for(int axis = 0; axis < 3; axis++) {
         int idx = leg*3 + axis;
-        std::cout << "[robServCommand->qd_des[" << idx << "]]----->" << robServCommand->qd_des[idx] << std::endl;
+        // std::cout << "[robServCommand->qd_des[" << idx << "]]----->" << robServCommand->qd_des[idx] << std::endl;
         LCMCommandfix.tau_ff[idx] = robServCommand->tau_ff[idx];
         //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
         LCMCommandfix.q_des[idx]  = robServCommand->q_des[idx];
@@ -276,12 +276,12 @@ void RobotRunner::finalizeStep() {
         //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
         LCMCommandfix.kp_joint[idx] = robServCommand->kp_joint[idx];
         LCMCommandfix.kd_joint[idx] = robServCommand->kd_joint[idx];
-        std::cout << "[LCMCommandfix->qd_des[" << idx << "]]----->" << LCMCommandfix.qd_des[idx] << std::endl;
+        // std::cout << "[LCMCommandfix->qd_des[" << idx << "]]----->" << LCMCommandfix.qd_des[idx] << std::endl;
       }
     }
-    std::cout << "Updated the command second time!" << std::endl;
+    // std::cout << "Updated the command second time!" << std::endl;
     _commandLCM.publish("robot_server_command", &LCMCommandfix);
-    std::cout << "FINALLY PUBLISHED!" << std::endl;
+    // std::cout << "FINALLY PUBLISHED!" << std::endl;
   } else {
     assert(false);
   }
