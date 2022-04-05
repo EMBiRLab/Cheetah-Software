@@ -8,19 +8,25 @@ public:
   TorsoPosUserParameters()
       : ControlParameters("user-parameters"),
         INIT_PARAMETER(use_gravity_comp),
+        INIT_PARAMETER(Kp_abad),
+        INIT_PARAMETER(Kd_abad),
         INIT_PARAMETER(Kp_femur),
         INIT_PARAMETER(Kd_femur),
         INIT_PARAMETER(Kp_tibia),
         INIT_PARAMETER(Kd_tibia),
-        INIT_PARAMETER(Kp_tarsus),
-        INIT_PARAMETER(Kd_tarsus),
         INIT_PARAMETER(lon_gain),
         INIT_PARAMETER(lat_gain),
-        INIT_PARAMETER(vert_gain)
+        INIT_PARAMETER(vert_gain),
+        INIT_PARAMETER(pitch_gain),
+        INIT_PARAMETER(roll_gain),
+        INIT_PARAMETER(yaw_gain)
 
   {}
 
   DECLARE_PARAMETER(double, use_gravity_comp);
+
+  DECLARE_PARAMETER(double, Kp_abad);
+  DECLARE_PARAMETER(double, Kd_abad);
 
   DECLARE_PARAMETER(double, Kp_femur);
   DECLARE_PARAMETER(double, Kd_femur);
@@ -28,12 +34,12 @@ public:
   DECLARE_PARAMETER(double, Kp_tibia);
   DECLARE_PARAMETER(double, Kd_tibia);
 
-  DECLARE_PARAMETER(double, Kp_tarsus);
-  DECLARE_PARAMETER(double, Kd_tarsus);
-
   DECLARE_PARAMETER(double, lon_gain);
   DECLARE_PARAMETER(double, lat_gain);
   DECLARE_PARAMETER(double, vert_gain);
+  DECLARE_PARAMETER(double, pitch_gain);
+  DECLARE_PARAMETER(double, roll_gain);
+  DECLARE_PARAMETER(double, yaw_gain);
 
   // // Desired intial states - maybe add these back in later
   // DECLARE_PARAMETER(Vec3<double>, des_p);

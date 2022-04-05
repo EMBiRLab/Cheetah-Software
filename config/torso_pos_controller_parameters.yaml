@@ -3,18 +3,21 @@ __collection-name__: user-parameters
 
 use_gravity_comp    : 1
 
+Kp_abad             : 40
+Kd_abad             : 5
+
 Kp_femur            : 40
 Kd_femur            : 5
 
 Kp_tibia            : 40
 Kd_tibia            : 5
 
-Kp_tarsus           : 40
-Kd_tarsus           : 5
-
-lon_gain            : .5
-lat_gain            : .2
-vert_gain           : .6
+lon_gain            : .05
+lat_gain            : .02
+vert_gain           : .06
+pitch_gain          : .05
+roll_gain           : .02
+yaw_gain            : .06
 
 # # Desired state commands - maybe add these back in later
 # des_p             : [0,0,0.26]

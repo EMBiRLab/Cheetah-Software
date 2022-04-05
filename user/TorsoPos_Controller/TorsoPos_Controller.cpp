@@ -4,8 +4,8 @@
 void TorsoPos_Controller::runController(){
   Mat3<float> kpMat;
   Mat3<float> kdMat;
-  kpMat << userParameters.Kp_femur, 0, 0, 0, userParameters.Kp_tibia, 0, 0, 0, userParameters.Kp_tarsus;
-  kdMat << userParameters.Kd_femur, 0, 0, 0, userParameters.Kd_tibia, 0, 0, 0, userParameters.Kd_tarsus;
+  kpMat << userParameters.Kp_abad, 0, 0, 0, userParameters.Kp_femur, 0, 0, 0, userParameters.Kp_tibia;
+  kdMat << userParameters.Kd_abad, 0, 0, 0, userParameters.Kd_femur, 0, 0, 0, userParameters.Kd_tibia;
   
   static int iter = 0;
   iter++;
@@ -64,24 +64,24 @@ void TorsoPos_Controller::runController(){
   desired_torso_qd = Vec12<float>::Zero();
   if(fabs(joystickLeft(1)) > 0.1f){
     // We are commanding an angular velocity about the pitch axis
-    desired_torso_qd(2) -= userParameters.lon_gain*joystickLeft(1);
-    desired_torso_qd(5) -= userParameters.lon_gain*joystickLeft(1);
-    desired_torso_qd(8) += userParameters.lon_gain*joystickLeft(1);
-    desired_torso_qd(11) += userParameters.lon_gain*joystickLeft(1);
+    desired_torso_qd(2) -= userParameters.pitch_gain*joystickLeft(1);
+    desired_torso_qd(5) -= userParameters.pitch_gain*joystickLeft(1);
+    desired_torso_qd(8) += userParameters.pitch_gain*joystickLeft(1);
+    desired_torso_qd(11) += userParameters.pitch_gain*joystickLeft(1);
   }
   if(fabs(joystickLeft(0)) > 0.1f){
     // We are commanding an angular velocity about the roll axis
-    desired_torso_qd(2) -= userParameters.lat_gain*joystickLeft(0);
-    desired_torso_qd(5) += userParameters.lat_gain*joystickLeft(0);
-    desired_torso_qd(8) -= userParameters.lat_gain*joystickLeft(0);
-    desired_torso_qd(11) += userParameters.lat_gain*joystickLeft(0);
+    desired_torso_qd(2) -= userParameters.roll_gain*joystickLeft(0);
+    desired_torso_qd(5) += userParameters.roll_gain*joystickLeft(0);
+    desired_torso_qd(8) -= userParameters.roll_gain*joystickLeft(0);
+    desired_torso_qd(11) += userParameters.roll_gain*joystickLeft(0);
   }
   if(fabs(joystickRight(0)) > 0.1f){
     // We are commanding an angular velocity about the yaw axis
-    desired_torso_qd(1)  += userParameters.lat_gain*joystickRight(0);
-    desired_torso_qd(4)  += userParameters.lat_gain*joystickRight(0);
-    desired_torso_qd(7)  -= userParameters.lat_gain*joystickRight(0);
-    desired_torso_qd(10) -= userParameters.lat_gain*joystickRight(0);
+    desired_torso_qd(1)  += userParameters.yaw_gain*joystickRight(0);
+    desired_torso_qd(4)  += userParameters.yaw_gain*joystickRight(0);
+    desired_torso_qd(7)  -= userParameters.yaw_gain*joystickRight(0);
+    desired_torso_qd(10) -= userParameters.yaw_gain*joystickRight(0);
   }
   if(_driverCommand->y){
     // We are commanding a linear velocity along the (for-aft) x axis
@@ -127,6 +127,12 @@ void TorsoPos_Controller::runController(){
   }
 
 
+  // Include safety bounds here
+  // if (1) {
+  //   d;
+  // }
+
+
   // Set the desired commands for the _legController
   if (iter < 2000) {
     // If we are below 2500 iterations, then we don't allow for the gamepad's joystick commands
@@ -155,22 +161,23 @@ void TorsoPos_Controller::runController(){
       
       desired_joint_qd.segment(3*leg,3) =  -_legController->datas[leg].J.inverse()*desired_torso_qd.segment(3*leg,3);
 
-      std::cout << "lefto joystick commands are: " << joystickLeft  << std::endl;
-      std::cout << "right joystick commands are: " << joystickRight << std::endl;
-      std::cout << "---------------------------------------------------------" << std::endl;
-      std::cout << "Q variables of leg " << leg << " are:" << _legController->datas[leg].q << std::endl;
-      std::cout << "Positions of leg " << leg << " are:" << _legController->datas[leg].p << std::endl;
-      std::cout << "Jacobian of leg " << leg << " is:" << _legController->datas[leg].J << std::endl;
-      std::cout << "Jacobian inverse of leg " << leg << " is:" << _legController->datas[leg].J.inverse() << std::endl;
+      // std::cout << "left  joystick commands are: " << joystickLeft  << std::endl;
+      // std::cout << "right joystick commands are: " << joystickRight << std::endl;
+      // std::cout << "---------------------------------------------------------" << std::endl;
+      // std::cout << "Q variables of leg " << leg << " are:" << _legController->datas[leg].q << std::endl;
+      // std::cout << "Positions of leg " << leg << " are:" << _legController->datas[leg].p << std::endl;
+      // std::cout << "Jacobian of leg " << leg << " is:" << _legController->datas[leg].J << std::endl;
+      // std::cout << "Jacobian inverse of leg " << leg << " is:" << _legController->datas[leg].J.inverse() << std::endl;
 
       // set the commands
       for(int j_idx(0); j_idx<3; ++j_idx){
-        _legController->commands[leg].qDes[j_idx] = desired_q(dof);
+        _legController->commands[leg].qDes[j_idx] = desired_q(dof) + desired_joint_qd(dof);
         _legController->commands[leg].tauFeedForward[j_idx] = tau_ff(dof);
+        _legController->commands[leg].qdDes[j_idx] = 0;
         dof++;
       }
-      _legController->commands[leg].qdDes = desired_joint_qd.segment(3*leg,3);
-      std::cout << "Desired qd of leg " << leg << " is:" << desired_joint_qd.segment(3*leg,3) << std::endl;
+      // _legController->commands[leg].qdDes = desired_joint_qd.segment(3*leg,3);
+      // std::cout << "Desired qd of leg " << leg << " is:" << desired_joint_qd.segment(3*leg,3) << std::endl;
       _legController->commands[leg].kpJoint = kpMat;
       _legController->commands[leg].kdJoint = kdMat;
     } // for leg
