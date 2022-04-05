@@ -45,12 +45,12 @@ iter = 1
 start = time.time()
 frq_Hz = 2.0
 ampl_rad = 0.3
-speed = 5
+speed = -18
 messaging_period = 1/500
 use_vel_cmd = True
 curr_time = 0
 
-action1 = SineParams(1, 0.3, 1, 4)
+action1 = SineParams(1, 0.3, 1, 600)
 action2 = SineParams(1, 0.3, -1, 0)
 action3 = SineParams(2, 0.3, -2, 0)
 
@@ -91,8 +91,8 @@ try:
       dpos_knee =      ca.knee_gain*ca.ampl_rad*chain_rule*math.cos(trig_time)
       pos = [pos_hip, pos_shoulder, pos_knee]
       dpos = [dpos_hip, dpos_shoulder, dpos_knee]
-      #pos = [float("nan"),float("nan"),float("nan")]
-      #dpos = [speed, speed, speed]
+      pos = [float("nan"),float("nan"),float("nan")]
+      dpos = [speed, speed, speed]
       if not use_vel_cmd:
           dpos = [0,0,0]
 
