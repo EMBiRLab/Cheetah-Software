@@ -65,7 +65,7 @@ void RobotRunner::init() {
     _responseLCM.subscribe("robot_server_response", &RobotRunner::handleresponseLCM, this);
     printf("[RobotRunner] Start Response LCM handler\n");
     _responselcmthread = std::thread(&RobotRunner::handlelcm, this);
-    _quadruped = buildMuadQuad<float>(); //need to write this in a MuadQuad.h file in Dynamics folder
+    _quadruped = buildMuadQuad<float>();
   }
 
   // Initialize the model and robot data
@@ -334,11 +334,17 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   // LCMData->fsm_state = msg->fsm_state;
   // std::cout<<"fsm_state is "<<LCMData->fsm_state;
   std::cout<<"Getting the messages!! \n";
-  for (int i = 0; i<12;i++){
+  for (int i = 0; i<12; i++){
     robServData->q[i] = msg->q[i];
     robServData->qd[i] = msg->qd[i];
     robServData->tau_est[i] = msg->tau_est[i];
   }
   robServData->fsm_state = msg->fsm_state;
   std::cout<<"fsm_state is "<< robServData->fsm_state;
+
+  // Populate vectorNavData here from the lcm bc we receive IMU 
+  // updates via lcm from robot_server
+  vectorNavData->accelerometer = msg->accelerometer;
+  vectorNavData->gyro = msg->gyro;
+  vectorNavData->quat = msg->quat;
 }
