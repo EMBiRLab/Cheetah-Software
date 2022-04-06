@@ -344,7 +344,11 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
 
   // Populate vectorNavData here from the lcm bc we receive IMU 
   // updates via lcm from robot_server
-  vectorNavData->accelerometer = msg->accelerometer;
-  vectorNavData->gyro = msg->gyro;
-  vectorNavData->quat = msg->quat;
+  for (int i = 0; i < 3; i++){
+    vectorNavData->accelerometer(i) = msg->accelerometer[i];
+    vectorNavData->gyro(i) = msg->gyro[i];
+    vectorNavData->quat(i) = msg->quat[i];
+  }
+  // get the last bit of the quaternion haha
+  vectorNavData->quat(3) = msg->quat[3];
 }
