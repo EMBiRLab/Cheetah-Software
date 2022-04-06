@@ -136,6 +136,7 @@ void RobotServer::iterate_fsm() {
 			// }
 			
 			// extract values from requested command and infer relevant control mode
+			// stopped mode: all of position, velocity, and torque NAN
 			// torque mode: position and velocity NAN
 			// velocity mode: position NAN
 			// position mode: nothing NAN
@@ -339,6 +340,18 @@ void RobotServer::publish_LCM_response() {
 		sr.tau_est[a_idx] = actuator_ptrs_[a_idx]->get_torque_Nm();
 	}
 	sr.fsm_state = uint8_t(curr_state_);
+	sr.accelerometer[0] = pi3hat_attitude_.accel_mps2.x;
+	sr.accelerometer[1] = pi3hat_attitude_.accel_mps2.y;
+	sr.accelerometer[2] = pi3hat_attitude_.accel_mps2.z;
+
+	sr.gyro[0] = pi3hat_attitude_.rate_dps.x * (M_PI/180.0);
+	sr.gyro[1] = pi3hat_attitude_.rate_dps.y * (M_PI/180.0);
+	sr.gyro[2] = pi3hat_attitude_.rate_dps.z * (M_PI/180.0);
+
+	sr.quat[0] = pi3hat_attitude_.attitude.w;
+	sr.quat[1] = pi3hat_attitude_.attitude.x;
+	sr.quat[2] = pi3hat_attitude_.attitude.y;
+	sr.quat[3] = pi3hat_attitude_.attitude.z;
 
 	robot_server_response_lcmt* data = &sr;
 	responseLCM_.publish("robot_server_response", data);

@@ -177,10 +177,10 @@ void Run(RobotServer& robotserver) {
 			robotserver.set_pi3hat_attitude(moteus_data.attitude);
 			if (current_values.attitude_present) { // copy out new IMU attitude data if it exists
 				robotserver.set_pi3hat_attitude(moteus_data.attitude);
-				std::cout << "\nw x y z = " << moteus_data.attitude->attitude.w << ", " 
-					<< moteus_data.attitude->attitude.x << ", "
-					<< moteus_data.attitude->attitude.y << ", "
-					<< moteus_data.attitude->attitude.z << "\n" << std::endl;
+				// std::cout << "\nw x y z = " << moteus_data.attitude->attitude.w << ", " 
+				// 	<< moteus_data.attitude->attitude.x << ", "
+				// 	<< moteus_data.attitude->attitude.y << ", "
+				// 	<< moteus_data.attitude->attitude.z << "\n" << std::endl;
 			}
 		}
 		// if(replies.size() < 2) std::cout << "main: incorrect number of replies: " << replies.size() << std::endl;

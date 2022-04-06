@@ -1,8 +1,9 @@
-// package rslcm;
-
 struct robot_server_response_lcmt {
     float q[12];
     float qd[12];
     float tau_est[12];
     byte fsm_state;
+    float accelerometer[3];
+    float gyro[3];
+    float quat[4];
 }
