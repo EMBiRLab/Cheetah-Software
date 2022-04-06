@@ -85,12 +85,14 @@ void Run(RobotServer& robotserver) {
 	// ** CONTAINER FOR REPLIES **
 	std::vector<MoteusInterface::ServoReply> replies{curr_commands.size()};
 	std::vector<MoteusInterface::ServoReply> saved_replies{curr_commands.size()};
+	pi3hat::Attitude attitude;
 
 	// ** PACKAGE COMMANDS AND REPLIES IN moteus_data **
 	std::cout << "setting up moteus_data container... ";
 	MoteusInterface::Data moteus_data;
 	moteus_data.commands = { curr_commands.data(), curr_commands.size() };
 	moteus_data.replies = { replies.data(), replies.size() };
+	moteus_data.attitude = &attitude;
 	std::cout << "done.\n" << std::flush;
 
 	std::future<MoteusInterface::Output> can_result;
@@ -142,6 +144,7 @@ void Run(RobotServer& robotserver) {
 				std::cout << "too many skipped cycles, exiting..." << std::endl;
 				std::exit(EXIT_FAILURE);
 			}
+			// robotserver.flush_data();
 		}
 		
 		// Sleep current thread until next control interval, per the period setting.
@@ -170,6 +173,14 @@ void Run(RobotServer& robotserver) {
 			const auto rx_count = current_values.query_result_size;
 			for (size_t ii = 0; ii < replies.size(); ii++)	{
 				saved_replies[ii] = replies[ii];
+			}
+			robotserver.set_pi3hat_attitude(moteus_data.attitude);
+			if (current_values.attitude_present) { // copy out new IMU attitude data if it exists
+				robotserver.set_pi3hat_attitude(moteus_data.attitude);
+				std::cout << "\nw x y z = " << moteus_data.attitude->attitude.w << ", " 
+					<< moteus_data.attitude->attitude.x << ", "
+					<< moteus_data.attitude->attitude.y << ", "
+					<< moteus_data.attitude->attitude.z << "\n" << std::endl;
 			}
 		}
 		// if(replies.size() < 2) std::cout << "main: incorrect number of replies: " << replies.size() << std::endl;
@@ -211,6 +222,7 @@ void Run(RobotServer& robotserver) {
 		// robotserver->safety_check(saved_replies);
 	}
 	// IF INTERRUPTED
+	robotserver.flush_data();
 	std::cout << std::endl << "exiting..." << std::endl;
 
 	std::exit(EXIT_SUCCESS);

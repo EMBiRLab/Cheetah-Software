@@ -89,6 +89,11 @@
 		"xstddef": "cpp",
 		"xstring": "cpp",
 		"xtr1common": "cpp",
-		"xtree": "cpp"
+		"xtree": "cpp",
+		"any": "cpp",
+		"complex": "cpp",
+		"memory_resource": "cpp",
+		"string_view": "cpp",
+		"variant": "cpp"
 	}
 }

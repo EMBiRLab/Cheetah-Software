@@ -22,6 +22,7 @@
 
 #include "third-party/cxxopts/cxxopts.hpp"
 #include "third-party/nlohmann/json.hpp"
+#include "third-party/mjbots/pi3hat/pi3hat.h"
 
 #include "robot_server_command_lcmt.hpp"
 #include "robot_server_response_lcmt.hpp"
@@ -148,8 +149,14 @@ public:
 	float filtered_random();
 
 	void sample_sensors();
+
+  inline void flush_data() {datastream_.flush();}
+
 	std::string stringify_sensor_data();
 	std::string stringify_sensor_data_headers();
+
+	std::string stringify_attitude_data();
+	std::string stringify_attitude_data_headers();
 
 	bool safety_check();
 
@@ -158,6 +165,8 @@ public:
 	std::map<int, int> create_servo_bus_map();
 
 	inline size_t num_actuators() {return actuator_ptrs_.size();}
+
+	inline void set_pi3hat_attitude(mjbots::pi3hat::Attitude* attitude) {pi3hat_attitude_ = *attitude;}
 
 private:
 	char cstr_buffer[128];
@@ -171,6 +180,7 @@ private:
 	// Adafruit_INA260 ina2_;
 
 	SensorData sd_;
+	mjbots::pi3hat::Attitude pi3hat_attitude_;
 
 	// *** LCM ***
 

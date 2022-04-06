@@ -41,20 +41,6 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 	commandLCM_(getLcmUrl(255)),
 	responseLCM_(getLcmUrl(255)) {
 
-	// std::cout << "setting up sensors... ";
-	// ads_.begin(0x48);
-	// ads_.setGain(adsGain_t::GAIN_ONE);
-	// ads_.setDataRate(RATE_ADS1015_3300SPS);
-	// ina1_.begin(0x40);
-	// ina1_.prime_i2c();
-	// ina1_.setCurrentConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
-	// ina1_.setVoltageConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
-	// ina2_.begin(0x41);
-	// ina2_.prime_i2c();
-	// ina2_.setCurrentConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
-	// ina2_.setVoltageConversionTime(INA260_ConversionTime::INA260_TIME_204_us);
-	// std::cout << "done.\n";
-
 	std::cout << "constructing actuator objects... ";
 	actuator_ptrs_.resize(rs_set_.num_actuators);
 	for (size_t a_idx = 0; a_idx < rs_set_.num_actuators; a_idx++) {
@@ -225,6 +211,7 @@ void RobotServer::log_data() {
 	for (auto a_ptr : actuator_ptrs_) {
 		datastream_ << a_ptr->stringify_actuator() << ",";
 	}
+	datastream_ << stringify_attitude_data() << ",";
 	// std::cout << " 3.5 " << std::flush;
 	// datastream_ << stringify_sensor_data() << ",";
 	datastream_ << (int)curr_state_;
@@ -234,13 +221,17 @@ void RobotServer::log_data() {
 }
 
 void RobotServer::log_headers() {
+	std::cout << "creating log headers... ";
 	datastream_ << "time [s],";
 	for (auto a_ptr : actuator_ptrs_) {
 		datastream_ << a_ptr->stringify_actuator_header() << ",";
 	}
+	datastream_ << stringify_attitude_data_headers() << ",";
 	// datastream_ << stringify_sensor_data_headers() << "," << "robot server fsm state";
 	datastream_ << "robot server fsm state\n";
+	datastream_.flush();
 	// datastream_ << "\n";
+	std::cout << "   done. " << std::endl;
 	
 	return;
 }
@@ -301,6 +292,22 @@ std::string RobotServer::stringify_sensor_data_headers() {
 	// std::ostringstream result;
 
 	return "ina1 voltage [V],ina1 current [A],ina1 power [W],ina2 voltage [V],ina2 current [A],ina2 power [W]";
+	// return result.str();
+}
+
+std::string RobotServer::stringify_attitude_data() {
+	auto& pa = pi3hat_attitude_;
+	return fmt::sprintf("%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
+		pa.attitude.w, pa.attitude.x, pa.attitude.y, pa.attitude.z,
+		pa.accel_mps2.x, pa.accel_mps2.y, pa.accel_mps2.z,
+		pa.rate_dps.x*(M_PI/180), pa.rate_dps.y*(M_PI/180), pa.rate_dps.z*(M_PI/180),
+		pa.bias_dps.x*(M_PI/180), pa.bias_dps.y*(M_PI/180), pa.bias_dps.z*(M_PI/180));
+}
+
+std::string RobotServer::stringify_attitude_data_headers() {
+	// std::ostringstream result;
+
+	return "IMU quat w [],IMU quat x [],IMU quat y [],IMU quat z [],IMU accel x [m/s/s],IMU accel y [m/s/s],IMU accel z [m/s/s],IMU omega x [rad/s],IMU omega y [rad/s],IMU omega z [rad/s],IMU bias x [rad/s],IMU bias y [rad/s],IMU bias z [rad/s]";
 	// return result.str();
 }
 
