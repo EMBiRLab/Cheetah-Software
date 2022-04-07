@@ -1,5 +1,6 @@
 #include "TorsoPos_Controller.hpp"
 #include <iostream>
+#include <cmath>
 
 void TorsoPos_Controller::runController(){
   Mat3<float> kpMat;
@@ -147,7 +148,7 @@ void TorsoPos_Controller::runController(){
       }
       _legController->commands[leg].kpJoint = kpMat;
       _legController->commands[leg].kdJoint = kdMat;
-      std::cout << "Hip location of leg " << leg << " in robot frame is " << _quadruped->getHipLocation(leg) << "\n";
+      // std::cout << "Hip location of leg " << leg << " in robot frame is " << _quadruped->getHipLocation(leg) << "\n";
     }
   } else {
     // Nominal operation --- joystick commands are used
@@ -172,7 +173,11 @@ void TorsoPos_Controller::runController(){
       // set the commands
       for(int j_idx(0); j_idx<3; ++j_idx){
         _legController->commands[leg].qDes[j_idx] = desired_q(dof) + desired_joint_qd(dof);
+        if(std::isnan(tau_ff(dof))){
+          _legController->commands[leg].tauFeedForward[j_idx] = 0.0;
+        }else{
         _legController->commands[leg].tauFeedForward[j_idx] = tau_ff(dof);
+        }
         _legController->commands[leg].qdDes[j_idx] = 0;
         dof++;
       }

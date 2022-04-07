@@ -120,7 +120,7 @@ void GameController::updateGamepadCommand(GamepadCommand &gamepadCommand) {
 }
 
 void GameController::updateGamepadCommandLCM(){
-  std::cout << "HELOOOOOOOOOOOOOOOOOOO***********************************" << std::endl;
+  std::cout << "*new gamepad cmd*" << std::endl;
   if (_qGamepad) {
     gamepadCmd.leftBumper = _qGamepad->buttonL1();
     gamepadCmd.rightBumper = _qGamepad->buttonR1();

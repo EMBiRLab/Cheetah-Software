@@ -6,6 +6,7 @@
  */
 
 #include <unistd.h>
+#include <eigen3/Eigen/Geometry>
 
 #include "RobotRunner.h"
 #include "Controllers/ContactEstimator.h"
@@ -70,7 +71,7 @@ void RobotRunner::init() {
 
   // Initialize the model and robot data
   _model = _quadruped.buildModel();
-  _jpos_initializer = new JPosInitializer<float>(3., controlParameters->controller_dt);
+  _jpos_initializer = new JPosInitializer<float>(3., controlParameters->controller_dt); //TODO @MICHAEL: Give a reasonable power-on trajectory for muadquad
 
   // Always initialize the leg controller and state entimator
   _legController = new LegController<float>(_quadruped);
@@ -181,7 +182,7 @@ void RobotRunner::run() {
 
   }
 
-  printf("[_robotRunner] above visualization!\n");
+  // printf("[_robotRunner] above visualization!\n");
 
   // Visualization (will make this into a separate function later)
   for (int leg = 0; leg < 4; leg++) {
@@ -262,25 +263,35 @@ void RobotRunner::finalizeStep() {
 
     robot_server_command_lcmt LCMCommandfix;
 
+    // static int leg_reordering[12] = {3,4,5,0,1,2,9,10,11,6,7,8};
+    std::cout << "[robot_server_command->q_des[";
     for(int leg = 0; leg < 4; leg++) {
       for(int axis = 0; axis < 3; axis++) {
         int idx = leg*3 + axis;
+        idx = muadquad_leg_reordering[idx];
+        int sign = 1;
         // std::cout << "[robServCommand->qd_des[" << idx << "]]----->" << robServCommand->qd_des[idx] << std::endl;
-        LCMCommandfix.tau_ff[idx] = robServCommand->tau_ff[idx];
+        if (leg%2 == 0)
+          sign = -1;
+        if (axis == 0)
+          sign *= -1;
+        LCMCommandfix.tau_ff[idx] = sign*robServCommand->tau_ff[idx];
         //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
-        LCMCommandfix.q_des[idx]  = robServCommand->q_des[idx];
-        LCMCommandfix.qd_des[idx] = robServCommand->qd_des[idx];
+        LCMCommandfix.q_des[idx]  = sign*robServCommand->q_des[idx];
+        LCMCommandfix.qd_des[idx] = sign*robServCommand->qd_des[idx];
         //lcmcommand->p_des[idx] = commands[leg].pDes[axis];
         //lcmcommand->v_des[idx] = commands[leg].vDes[axis];
         //lcmcommand->kp_cartesian[idx] = commands[leg].kpCartesian(axis, axis);
         //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
         LCMCommandfix.kp_joint[idx] = robServCommand->kp_joint[idx];
         LCMCommandfix.kd_joint[idx] = robServCommand->kd_joint[idx];
-        // std::cout << "[LCMCommandfix->qd_des[" << idx << "]]----->" << LCMCommandfix.qd_des[idx] << std::endl;
+        std::cout << LCMCommandfix.q_des[idx] << ", ";
       }
     }
+    std::cout << "]" << std::endl;
     // std::cout << "Updated the command second time!" << std::endl;
-    _commandLCM.publish("robot_server_command", &LCMCommandfix);
+    _lcm.publish("robot_server_command", &LCMCommandfix);
+    // _commandLCM.publish("robot_server_command", &LCMCommandfix);
     // std::cout << "FINALLY PUBLISHED!" << std::endl;
   } else {
     assert(false);
@@ -333,22 +344,39 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   // }
   // LCMData->fsm_state = msg->fsm_state;
   // std::cout<<"fsm_state is "<<LCMData->fsm_state;
-  std::cout<<"Getting the messages!! \n";
+  // std::cout<<"Getting the messages!! \n";
+  int sign = 0;
+  std::cout << "robServData->q[";
   for (int i = 0; i<12; i++){
-    robServData->q[i] = msg->q[i];
-    robServData->qd[i] = msg->qd[i];
-    robServData->tau_est[i] = msg->tau_est[i];
+    sign = 1;
+    if ((i / 3) % 2 == 0)
+      sign = -1;
+    if ((i % 3) == 0)
+      sign *= -1;
+    int idx = muadquad_leg_reordering[i];
+    robServData->q[i] = sign*msg->q[idx];
+    robServData->qd[i] = sign*msg->qd[idx];
+    robServData->tau_est[i] = sign*msg->tau_est[idx];
+    std::cout << robServData->q[i] << ", ";
   }
+  std::cout << "]\n";
   robServData->fsm_state = msg->fsm_state;
-  std::cout<<"fsm_state is "<< robServData->fsm_state;
+  std::cout<<"fsm_state is "<< (int)robServData->fsm_state;
 
   // Populate vectorNavData here from the lcm bc we receive IMU 
   // updates via lcm from robot_server
+  // Firstly, rotate the quaternion by 180 about y bc its mounted
+  // upside-down
+  static Eigen::Quaternionf y_180(0,0,1,0);
+  Eigen::Quaternionf robserv_quat(msg->quat[0],msg->quat[1],msg->quat[2],msg->quat[3]);
+  robserv_quat = y_180 * robserv_quat;
+
   for (int i = 0; i < 3; i++){
     vectorNavData->accelerometer(i) = msg->accelerometer[i];
     vectorNavData->gyro(i) = msg->gyro[i];
-    vectorNavData->quat(i) = msg->quat[i];
+    // vectorNavData->quat(i) = robserv_quat(i);
   }
   // get the last bit of the quaternion haha
-  vectorNavData->quat(3) = msg->quat[3];
+  vectorNavData->quat(0) = robserv_quat.w();
+  vectorNavData->quat.segment(1,3) = robserv_quat.vec();
 }

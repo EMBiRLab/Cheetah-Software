@@ -60,6 +60,7 @@ class RobotRunner : public PeriodicTask {
   
 
   //Updating LCM Data and Command (Robot_server) MUADQUAD
+  int muadquad_leg_reordering[12] = {3,4,5,0,1,2,9,10,11,6,7,8};
   // robot_server_response_lcmt* LCMData;
   RobServData* robServData;
   void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,

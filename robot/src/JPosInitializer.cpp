@@ -23,6 +23,7 @@ JPosInitializer<T>::~JPosInitializer() {}
 
 template <typename T>
 bool JPosInitializer<T>::IsInitialized(LegController<T>* ctrl) {
+  return true; // TODO @MICHAEL: REMOVE THIS WHEN NEW POWER-ON TRAJ IS READY
   _curr_time += _dt;
   // Initial Setup
   if (_b_first_visit) {

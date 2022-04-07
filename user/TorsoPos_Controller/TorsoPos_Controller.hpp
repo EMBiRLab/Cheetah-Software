@@ -7,7 +7,7 @@
 class TorsoPos_Controller : public RobotController {
 public:
   TorsoPos_Controller():RobotController(){
-    desired_q << -0.05, -0.8, 1.7, 0.05, -0.8, 1.7, -0.05, -0.8, 1.7, 0.05, -0.8, 1.7;
+    desired_q << -0.05, -0.5, 1.0, 0.05, -0.5, 1.0, -0.05, -0.5, 1.0, 0.05, -0.5, 1.0;
     // computeLegJacobianAndPosition
   }
   virtual ~TorsoPos_Controller(){}
