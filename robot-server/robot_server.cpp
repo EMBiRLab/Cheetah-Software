@@ -157,8 +157,18 @@ void RobotServer::iterate_fsm() {
 					}
 				}
 				else {
+					// clamps position set points to valid angle range
+					// kill velocity setpoint if attempting to operate outside
+					// (does not prevent actuators from being backdriven out of range)
+					// (does not kill torque ff... may need to)
+					float q_clamped = rc.q_des[a_idx];
+					float qd_clamped = rc.qd_des[a_idx];
+					float ul = rs_set_.upper_limits_rad[a_idx];
+					float ll = rs_set_.lower_limits_rad[a_idx];
+					if (q_clamped > ul) {q_clamped = ul; qd_clamped = 0;}
+					if (q_clamped < ll) {q_clamped = ll; qd_clamped = 0;}
 					actuator_ptrs_[a_idx]->make_act_full_pos(
-						rc.q_des[a_idx], rc.qd_des[a_idx], rc.tau_ff[a_idx]);
+						q_clamped, qd_clamped, rc.tau_ff[a_idx]);
 				}
 			}
 
@@ -333,28 +343,29 @@ bool RobotServer::actuator_fault_check() {
 }
 
 void RobotServer::publish_LCM_response() {
-	auto& sr = server_response;
+	// auto& server_response = server_response;
 	for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
-		sr.q[a_idx] = actuator_ptrs_[a_idx]->get_position_rad();
-		sr.qd[a_idx] = actuator_ptrs_[a_idx]->get_velocity_rad_s();
-		sr.tau_est[a_idx] = actuator_ptrs_[a_idx]->get_torque_Nm();
+		server_response.q[a_idx] = actuator_ptrs_[a_idx]->get_position_rad();
+		server_response.qd[a_idx] = actuator_ptrs_[a_idx]->get_velocity_rad_s();
+		server_response.tau_est[a_idx] = actuator_ptrs_[a_idx]->get_torque_Nm();
 	}
-	sr.fsm_state = uint8_t(curr_state_);
-	sr.accelerometer[0] = pi3hat_attitude_.accel_mps2.x;
-	sr.accelerometer[1] = pi3hat_attitude_.accel_mps2.y;
-	sr.accelerometer[2] = pi3hat_attitude_.accel_mps2.z;
+	server_response.fsm_state = uint8_t(curr_state_);
+	server_response.accelerometer[0] = pi3hat_attitude_.accel_mps2.x;
+	server_response.accelerometer[1] = pi3hat_attitude_.accel_mps2.y;
+	server_response.accelerometer[2] = pi3hat_attitude_.accel_mps2.z;
 
-	sr.gyro[0] = pi3hat_attitude_.rate_dps.x * (M_PI/180.0);
-	sr.gyro[1] = pi3hat_attitude_.rate_dps.y * (M_PI/180.0);
-	sr.gyro[2] = pi3hat_attitude_.rate_dps.z * (M_PI/180.0);
+	server_response.gyro[0] = pi3hat_attitude_.rate_dps.x * (M_PI/180.0);
+	server_response.gyro[1] = pi3hat_attitude_.rate_dps.y * (M_PI/180.0);
+	server_response.gyro[2] = pi3hat_attitude_.rate_dps.z * (M_PI/180.0);
 
-	sr.quat[0] = pi3hat_attitude_.attitude.w;
-	sr.quat[1] = pi3hat_attitude_.attitude.x;
-	sr.quat[2] = pi3hat_attitude_.attitude.y;
-	sr.quat[3] = pi3hat_attitude_.attitude.z;
+	server_response.quat[0] = pi3hat_attitude_.attitude.w;
+	server_response.quat[1] = pi3hat_attitude_.attitude.x;
+	server_response.quat[2] = pi3hat_attitude_.attitude.y;
+	server_response.quat[3] = pi3hat_attitude_.attitude.z;
 
-	robot_server_response_lcmt* data = &sr;
+	robot_server_response_lcmt* data = &server_response;
 	responseLCM_.publish("robot_server_response", data);
+	// commandLCM_.publish("robot_server_response", data);
 }
 
 void RobotServer::make_stop_all() {
@@ -431,6 +442,9 @@ RobotServer::RobotServerSettings::RobotServerSettings(cxxopts::ParseResult& rs_o
 	moteus_cfg_filenames = rs_cfg_j["moteus_cfg_filenames"].get<std::vector<std::string>>();
 	moteus_cal_path_prefix = rs_cfg_j["moteus_cal_path_prefix"];
 	moteus_cal_filenames = rs_cfg_j["moteus_cal_filenames"].get<std::vector<std::string>>();
+
+	upper_limits_rad = rs_cfg_j["upper_limits_rad"].get<std::vector<float>>();
+	lower_limits_rad = rs_cfg_j["lower_limits_rad"].get<std::vector<float>>();
 
 	gear_ratios = rs_cfg_j["gear_ratios"].get<std::vector<float>>();
 	if (

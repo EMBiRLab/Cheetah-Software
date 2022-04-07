@@ -79,6 +79,9 @@ public:
 		std::string moteus_cal_path_prefix;
 		std::vector<std::string> moteus_cal_filenames;
 
+		std::vector<float> upper_limits_rad;
+		std::vector<float> lower_limits_rad;
+
 		std::vector<float> gear_ratios;
 
 		bool load_success = false;
