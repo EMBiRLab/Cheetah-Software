@@ -374,9 +374,13 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   for (int i = 0; i < 3; i++){
     vectorNavData->accelerometer(i) = msg->accelerometer[i];
     vectorNavData->gyro(i) = msg->gyro[i];
-    // vectorNavData->quat(i) = robserv_quat(i);
   }
   // get the last bit of the quaternion haha
   vectorNavData->quat(0) = robserv_quat.w();
   vectorNavData->quat.segment(1,3) = robserv_quat.vec();
+
+  vectorNavData->accelerometer(0) = -vectorNavData->accelerometer(0);
+  vectorNavData->accelerometer(2) = -vectorNavData->accelerometer(2);
+  vectorNavData->gyro(0) = -vectorNavData->gyro(0);
+  vectorNavData->gyro(2) = -vectorNavData->gyro(2);
 }
