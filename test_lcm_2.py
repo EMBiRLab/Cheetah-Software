@@ -39,15 +39,15 @@ desired_q = [-0.05, -0.8, 1.7, 0.05, -0.8, 1.7, -0.05, -0.8, 1.7, 0.05, -0.8, 1.
 try:
     while True:
         lc.handle_timeout(10)
-        # lc1.handle()
-        for i in range(12):
-          cmd.q[i] = desired_q[i] + 0.01*(random.random()-.5)
-          cmd.qd[i] = 0.01*(random.random()-.5)
-          cmd.tau_est[i] = 1*(random.random()-.5)
-          print("q",i ,"=", cmd.q[i])
-        cmd.fsm_state = 0
-        lc.publish("robot_server_response", cmd.encode())
-        # if np.mod(ii,2) == 0:
-        print("publishing")
+        lc1.handle_timeout(10)
+        # for i in range(12):
+        #   cmd.q[i] = desired_q[i] + 0.01*(random.random()-.5)
+        #   cmd.qd[i] = 0.01*(random.random()-.5)
+        #   cmd.tau_est[i] = 1*(random.random()-.5)
+        #   # print("q",i ,"=", cmd.q[i])
+        # cmd.fsm_state = 0
+        # lc.publish("robot_server_response", cmd.encode())
+        # # if np.mod(ii,2) == 0:
+        # print("iteration of while loop is complete")
 except KeyboardInterrupt:
     pass
