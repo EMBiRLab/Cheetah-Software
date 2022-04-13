@@ -375,10 +375,11 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
     vectorNavData->accelerometer(i) = msg->accelerometer[i];
     vectorNavData->gyro(i) = msg->gyro[i];
   }
-  // get the last bit of the quaternion haha
+  // get the quaternion
   vectorNavData->quat(0) = robserv_quat.w();
   vectorNavData->quat.segment(1,3) = robserv_quat.vec();
 
+  // negate the linear and angular data to match account for mounting of IMU
   vectorNavData->accelerometer(0) = -vectorNavData->accelerometer(0);
   vectorNavData->accelerometer(2) = -vectorNavData->accelerometer(2);
   vectorNavData->gyro(0) = -vectorNavData->gyro(0);

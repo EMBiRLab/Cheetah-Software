@@ -19,7 +19,8 @@ public:
         INIT_PARAMETER(vert_gain),
         INIT_PARAMETER(pitch_gain),
         INIT_PARAMETER(roll_gain),
-        INIT_PARAMETER(yaw_gain)
+        INIT_PARAMETER(yaw_gain),
+        INIT_PARAMETER(home_max_dq)
 
   {}
 
@@ -40,6 +41,7 @@ public:
   DECLARE_PARAMETER(double, pitch_gain);
   DECLARE_PARAMETER(double, roll_gain);
   DECLARE_PARAMETER(double, yaw_gain);
+  DECLARE_PARAMETER(double, home_max_dq);
 
   // // Desired intial states - maybe add these back in later
   // DECLARE_PARAMETER(Vec3<double>, des_p);

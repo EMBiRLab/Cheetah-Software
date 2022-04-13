@@ -71,6 +71,8 @@ class Quadruped {
   T _jointDamping, _jointDryFriction;
   SpatialInertia<T> _abadInertia, _hipInertia, _kneeInertia, _abadRotorInertia,
       _hipRotorInertia, _kneeRotorInertia, _bodyInertia;
+  Vec4<T> _abadMax_q, _hipMax_q, _kneeMax_q;
+  Vec4<T> _abadMin_q, _hipMin_q, _kneeMin_q;
   Vec3<T> _abadLocation, _abadRotorLocation, _hipLocation, _hipRotorLocation,
       _kneeLocation, _kneeRotorLocation;
   FloatingBaseModel<T> buildModel();

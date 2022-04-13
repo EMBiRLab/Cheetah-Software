@@ -846,14 +846,16 @@ void SimControlPanel::on_saveUserButton_clicked() {
   _userParameters.writeToYamlFile(fileName.toStdString());
 }
 
-void SimControlPanel::on_goHomeButton_clicked() {
+void SimControlPanel::on_goHomeButton_clicked() { //TODO @MICHAEL: THIS IS WHERE GO HOME WAS HARDCODED -- CHANGE
   printf("go home\n");
+  // _simulation->_quadruped->
   FBModelState<double> homeState;
   homeState.bodyOrientation << 1, 0, 0, 0;
   homeState.bodyPosition = Vec3<double>(0, 0, 0.5);
   homeState.bodyVelocity = SVec<double>::Zero();
   homeState.q = DVec<double>(12);
-  homeState.q << -0.05, -0.8, 1.7, 0.05, -0.8, 1.7, -0.05, -0.8, 1.7, 0.05, -0.8, 1.7;
+  homeState.q << -0.05, -0.5, 1.0, 0.05, -0.5, 1.0, -0.05, -0.5, 1.0, 0.05, -0.5, 1.0;
+  // homeState.q << -0.05, -0.8, 1.7, 0.05, -0.8, 1.7, -0.05, -0.8, 1.7, 0.05, -0.8, 1.7;
   homeState.qd = homeState.q;
 
   _simulation->setRobotState(homeState);

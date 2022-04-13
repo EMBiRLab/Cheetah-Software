@@ -39,6 +39,18 @@ Quadruped<T> buildMuadQuad() {
   muadquad._kneeLinkLength = 0.2;
   muadquad._maxLegLength = 0.38; // we think this is maybe safety to avoid singularities
 
+  // muadquad._abadMax_q = Vec4<T>(0.49,-0.49,0.49,-0.49);
+  // muadquad._abadMin_q = Vec4<T>(-0.8,0.8,-0.8,0.8);
+  // muadquad._hipMax_q  = Vec4<T>(-0.85,0.85,-0.85,0.85);
+  // muadquad._hipMin_q  = Vec4<T>(0.85,-0.85,0.85,-0.85);
+  // muadquad._kneeMax_q = Vec4<T>(-1.75,0.002,-1.75,0.002);
+  // muadquad._kneeMin_q = Vec4<T>(0.002,-1.75,0.002,-1.75);
+  muadquad._abadMax_q = Vec4<T>(0.49,0.49,0.49,0.49);
+  muadquad._abadMin_q = Vec4<T>(-0.8,-0.8,-0.8,-0.8);
+  muadquad._hipMax_q  = Vec4<T>(0.85,0.85,0.85,0.85);
+  muadquad._hipMin_q  = Vec4<T>(-0.85,-0.85,-0.85,-0.85);
+  muadquad._kneeMax_q = Vec4<T>(1.75,-0.002,1.75,-0.002);
+  muadquad._kneeMin_q = Vec4<T>(-0.002,1.75,-0.002,1.75);
 
   muadquad._motorTauMax = 1.6f;
   muadquad._batteryV = 31;
