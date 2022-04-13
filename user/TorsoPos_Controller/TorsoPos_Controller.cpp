@@ -15,6 +15,8 @@ Vec2<float> TorsoPos_Controller::clamp_setpoints(float nominal_qdes_rad, float n
     q_qd(0) = direction*max_setpoint_delta_mag_rad + cur_q;
     q_qd(1) = direction*max_setpoint_speed_mag_rad_s;
   }
+
+  return q_qd;
 }
 
 
@@ -150,8 +152,11 @@ void TorsoPos_Controller::runController(){
   // Set the desired commands for the _legController
   // first go through a homing sequence to move towards the hard-coded home position
   // from robot starting position on a joint-by-joint basis
+  std::cout << "Location 1" << std::endl;
   auto delta_q = state.q - home;
+  std::cout << "Location 2" << std::endl;
   if (delta_q.norm() < 0.05) home_pos_initialized = true; // check if home position has been reached
+  std::cout << "Location 3" << std::endl;
   if (!home_pos_initialized) {
     // If we aren't close enough to home, limit how much setpoint can change towards home
     // in order to gracefully get there. 
@@ -160,6 +165,7 @@ void TorsoPos_Controller::runController(){
     for(int leg(0); leg<4; ++leg){
       for(int j_idx(0); j_idx<3; ++j_idx){
         clamped_q_qd = clamp_setpoints(home(dof), 0, state.q(dof));
+        std::cout << "Location 4" << std::endl;
         _legController->commands[leg].qDes[j_idx] = clamped_q_qd(0);
         _legController->commands[leg].qdDes[j_idx] = clamped_q_qd(1);
         _legController->commands[leg].tauFeedForward[j_idx] = tau_ff(dof);

@@ -19,7 +19,7 @@ public:
     max_setpoint_speed_mag_rad_s = 0.05;
     max_setpoint_delta_mag_rad
       = max_setpoint_speed_mag_rad_s * _controlParameters->controller_dt;
-
+    std::cout << "ayo we constructed" << std::endl;
   }
   virtual ~TorsoPos_Controller(){}
 

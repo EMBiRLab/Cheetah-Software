@@ -12,8 +12,8 @@ include_directories("../third-party/rapidcsv/") # header only lib
 include_directories("../third-party/rapidxml/") # header only lib
 
 include_directories("../lcm-types/cpp")
-# include_directories("/usr/include/lcm/")   # lcm includes
-include_directories("/usr/local/include/lcm/")   # lcm includes
+include_directories("/usr/include/lcm/")   # lcm includes
+# include_directories("/usr/local/include/lcm/")   # lcm includes
 include_directories("/usr/include/eigen3")   # lcm includes
 include_directories("/opt/vc/include/") # bcm_host
 include_directories(${CMAKE_BINARY_DIR})
