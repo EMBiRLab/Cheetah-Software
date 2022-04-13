@@ -3,6 +3,21 @@
 #include <cmath>
 #include <algorithm>
 
+Vec2<float> TorsoPos_Controller::clamp_setpoints(float nominal_qdes_rad, float nominal_qddes_rad, float cur_q) {
+  Vec2<float> q_qd; 
+
+  q_qd(0) = nominal_qdes_rad;
+  q_qd(1) = nominal_qddes_rad;
+
+  float direction = (nominal_qdes_rad - cur_q)/fabs(nominal_qdes_rad - cur_q);
+
+  if(fabs(nominal_qdes_rad - cur_q) > max_setpoint_delta_mag_rad) {
+    q_qd(0) = direction*max_setpoint_delta_mag_rad + cur_q;
+    q_qd(1) = direction*max_setpoint_speed_mag_rad_s;
+  }
+}
+
+
 void TorsoPos_Controller::runController(){
   Mat3<float> kpMat;
   Mat3<float> kdMat;
@@ -133,14 +148,20 @@ void TorsoPos_Controller::runController(){
   }
 
   // Set the desired commands for the _legController
-  if (iter < 2000) {
-    // If we are below 2000 iterations, then we don't allow for the gamepad's joystick commands
-    // to do anything 
+  // first go through a homing sequence to move towards the hard-coded home position
+  // from robot starting position on a joint-by-joint basis
+  auto delta_q = state.q - home;
+  if (delta_q.norm() < 0.05) home_pos_initialized = true; // check if home position has been reached
+  if (!home_pos_initialized) {
+    // If we aren't close enough to home, limit how much setpoint can change towards home
+    // in order to gracefully get there. 
     int dof = 0;
+    Vec2<float> clamped_q_qd;
     for(int leg(0); leg<4; ++leg){
       for(int j_idx(0); j_idx<3; ++j_idx){
-        _legController->commands[leg].qDes[j_idx] = home(dof);
-        _legController->commands[leg].qdDes[j_idx] = 0.;
+        clamped_q_qd = clamp_setpoints(home(dof), 0, state.q(dof));
+        _legController->commands[leg].qDes[j_idx] = clamped_q_qd(0);
+        _legController->commands[leg].qdDes[j_idx] = clamped_q_qd(1);
         _legController->commands[leg].tauFeedForward[j_idx] = tau_ff(dof);
         dof++;
       }

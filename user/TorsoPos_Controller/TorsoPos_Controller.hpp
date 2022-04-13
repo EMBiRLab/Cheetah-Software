@@ -7,9 +7,19 @@
 class TorsoPos_Controller : public RobotController {
 public:
   TorsoPos_Controller():RobotController(){
+// <<<<<<< HEAD
     home << -0.05, -0.5, 1.0, 0.05, -0.5, 1.0, -0.05, -0.5, 1.0, 0.05, -0.5, 1.0;
     desired_q = home;
+// =======
+//     desired_q << -0.05, -0.5, 1.0, 0.05, -0.5, 1.0, -0.05, -0.5, 1.0, 0.05, -0.5, 1.0;
+//     home_q = desired_q;
+// >>>>>>> fe8a1cc96059ba3635097f3e12b68a41f75accb3
     // computeLegJacobianAndPosition
+
+    max_setpoint_speed_mag_rad_s = 0.05;
+    max_setpoint_delta_mag_rad
+      = max_setpoint_speed_mag_rad_s * _controlParameters->controller_dt;
+
   }
   virtual ~TorsoPos_Controller(){}
 
@@ -32,8 +42,19 @@ protected:
   Vec12<float> manipulator_dq_des;
   // Vec6<float> torso_q;
   Vec6<float> torso_dq_des;
+  Vec12<float> desired_torso_qd;
+
+  // Vec12<float> clamped_q;
+  // Vec12<float> home_q;
+  bool home_pos_initialized = false;
+
+  float max_setpoint_speed_mag_rad_s = 0;
+  float max_setpoint_delta_mag_rad = 0;
+  
   Vec2<float> joystickLeft, joystickRight;
   TorsoPosUserParameters userParameters;
+
+  Vec2<float> clamp_setpoints(float nominal_qdes_rad, float nominal_qddes_rad, float cur_q);
 };
 
 #endif
