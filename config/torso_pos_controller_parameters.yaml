@@ -12,13 +12,13 @@ Kd_femur            : 5
 Kp_tibia            : 40
 Kd_tibia            : 5
 
-lon_gain            : .0005
-lat_gain            : .0002
-vert_gain           : .0006
+lon_gain            : .00001
+lat_gain            : .00001
+vert_gain           : .00001
 pitch_gain          : .0005
 roll_gain           : .0002
 yaw_gain            : .0006
-home_max_dq         : .001
+home_max_dq         : .0002
 
 # # Desired state commands - maybe add these back in later
 # des_p             : [0,0,0.26]
