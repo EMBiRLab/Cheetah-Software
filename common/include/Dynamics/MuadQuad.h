@@ -49,8 +49,8 @@ Quadruped<T> buildMuadQuad() {
   muadquad._abadMin_q = Vec4<T>(-0.8,-0.8,-0.8,-0.8);
   muadquad._hipMax_q  = Vec4<T>(0.85,0.85,0.85,0.85);
   muadquad._hipMin_q  = Vec4<T>(-0.85,-0.85,-0.85,-0.85);
-  muadquad._kneeMax_q = Vec4<T>(1.75,-0.002,1.75,-0.002);
-  muadquad._kneeMin_q = Vec4<T>(-0.002,1.75,-0.002,1.75);
+  muadquad._kneeMax_q = Vec4<T>(1.75,-0.002,1.75,-0.002); //unused rn
+  muadquad._kneeMin_q = Vec4<T>(-0.002,1.75,-0.002,1.75); //unused rn
 
   muadquad._motorTauMax = 1.6f;
   muadquad._batteryV = 31;

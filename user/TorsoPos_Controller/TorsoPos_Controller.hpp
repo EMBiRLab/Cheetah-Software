@@ -10,15 +10,10 @@ public:
 // <<<<<<< HEAD
     home << -0.05, -0.5, 1.0, 0.05, -0.5, 1.0, -0.05, -0.5, 1.0, 0.05, -0.5, 1.0;
     desired_q = home;
-// =======
-//     desired_q << -0.05, -0.5, 1.0, 0.05, -0.5, 1.0, -0.05, -0.5, 1.0, 0.05, -0.5, 1.0;
-//     home_q = desired_q;
-// >>>>>>> fe8a1cc96059ba3635097f3e12b68a41f75accb3
-    // computeLegJacobianAndPosition
 
-    max_setpoint_speed_mag_rad_s = 0.05;
+    max_setpoint_speed_mag_rad_s = 1.0;
     max_setpoint_delta_mag_rad
-      = max_setpoint_speed_mag_rad_s * _controlParameters->controller_dt;
+      = max_setpoint_speed_mag_rad_s * 0.002;//_controlParameters->controller_dt;
     std::cout << "ayo we constructed" << std::endl;
   }
   virtual ~TorsoPos_Controller(){}

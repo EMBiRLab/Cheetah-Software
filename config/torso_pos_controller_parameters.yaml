@@ -18,7 +18,7 @@ vert_gain           : .0006
 pitch_gain          : .0005
 roll_gain           : .0002
 yaw_gain            : .0006
-home_max_dq         : .005
+home_max_dq         : .001
 
 # # Desired state commands - maybe add these back in later
 # des_p             : [0,0,0.26]

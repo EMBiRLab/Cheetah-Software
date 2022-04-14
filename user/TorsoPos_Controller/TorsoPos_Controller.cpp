@@ -155,7 +155,7 @@ void TorsoPos_Controller::runController(){
   std::cout << "Location 1" << std::endl;
   auto delta_q = state.q - home;
   std::cout << "Location 2" << std::endl;
-  if (delta_q.norm() < 0.05) home_pos_initialized = true; // check if home position has been reached
+  if (delta_q.norm() < 5*0.05) home_pos_initialized = true; // check if home position has been reached
   std::cout << "Location 3" << std::endl;
   if (!home_pos_initialized) {
     // If we aren't close enough to home, limit how much setpoint can change towards home
@@ -166,9 +166,15 @@ void TorsoPos_Controller::runController(){
       for(int j_idx(0); j_idx<3; ++j_idx){
         clamped_q_qd = clamp_setpoints(home(dof), 0, state.q(dof));
         std::cout << "Location 4" << std::endl;
+        // _legController->commands[leg].qDes[j_idx] = home(dof);
         _legController->commands[leg].qDes[j_idx] = clamped_q_qd(0);
+        // _legController->commands[leg].qdDes[j_idx] = 0.0;
         _legController->commands[leg].qdDes[j_idx] = clamped_q_qd(1);
+        if(std::isnan(tau_ff(dof))){
+          _legController->commands[leg].tauFeedForward[j_idx] = 0.0;
+        }else{
         _legController->commands[leg].tauFeedForward[j_idx] = tau_ff(dof);
+        }
         dof++;
       }
       _legController->commands[leg].kpJoint = kpMat;
@@ -200,7 +206,7 @@ void TorsoPos_Controller::runController(){
       desired_q.segment(3*leg,3) += desired_joint_qd.segment(3*leg,3);
       
       // Clamp the desired joint angles according to their hardware limits
-      // clamp_joint_limits(leg);
+      clamp_joint_limits(leg);
 
       // set the commands
       for(int j_idx(0); j_idx<3; ++j_idx){
@@ -247,22 +253,46 @@ void TorsoPos_Controller::convert_from_torso_to_abad(Vec6<float> &torso_des){
   manipulator_dq_des(11) = torso_des(2);
 
   // angular x axis motion (only use "major-axis", not tangent of circle)
-  manipulator_dq_des(2)   -= torso_des(3);
-  manipulator_dq_des(5)   += torso_des(3);
-  manipulator_dq_des(8)   -= torso_des(3);
-  manipulator_dq_des(11)  += torso_des(3);
+  // manipulator_dq_des(2)   -= torso_des(3);
+  // manipulator_dq_des(5)   += torso_des(3);
+  // manipulator_dq_des(8)   -= torso_des(3);
+  // manipulator_dq_des(11)  += torso_des(3);
+  manipulator_dq_des(2)   -= torso_des(3)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(5)   += torso_des(3)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(8)   -= torso_des(3)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(11)  += torso_des(3)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(1)   += torso_des(3)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(4)   += torso_des(3)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(7)   -= torso_des(3)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(10)  -= torso_des(3)*_quadruped->_bodyWidth/2.0;
 
   // angular y axis motion (only use "major-axis", not tangent of circle)
-  manipulator_dq_des(2)  -= torso_des(4);
-  manipulator_dq_des(5)  -= torso_des(4);
-  manipulator_dq_des(8)  += torso_des(4);
-  manipulator_dq_des(11) += torso_des(4);
+  // manipulator_dq_des(2)  -= torso_des(4);
+  // manipulator_dq_des(5)  -= torso_des(4);
+  // manipulator_dq_des(8)  += torso_des(4);
+  // manipulator_dq_des(11) += torso_des(4);
+  manipulator_dq_des(2)  -= torso_des(4)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(5)  -= torso_des(4)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(8)  += torso_des(4)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(11) += torso_des(4)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(0)  -= torso_des(4)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(3)  -= torso_des(4)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(6)  += torso_des(4)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(9)  += torso_des(4)*_quadruped->_bodyLength/2.0;
 
   // angular z axis motion (only use "major-axis", not tangent of circle)
-  manipulator_dq_des(1)  += torso_des(5);
-  manipulator_dq_des(4)  += torso_des(5);
-  manipulator_dq_des(7)  -= torso_des(5);
-  manipulator_dq_des(10) -= torso_des(5);
+  // manipulator_dq_des(1)  += torso_des(5);
+  // manipulator_dq_des(4)  += torso_des(5);
+  // manipulator_dq_des(7)  -= torso_des(5);
+  // manipulator_dq_des(10) -= torso_des(5);
+  manipulator_dq_des(1)  += torso_des(5)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(4)  += torso_des(5)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(7)  -= torso_des(5)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(10) -= torso_des(5)*_quadruped->_bodyLength/2.0;
+  manipulator_dq_des(0)  += torso_des(5)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(3)  -= torso_des(5)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(6)  += torso_des(5)*_quadruped->_bodyWidth/2.0;
+  manipulator_dq_des(9)  -= torso_des(5)*_quadruped->_bodyWidth/2.0;
 
 }
 
@@ -282,11 +312,11 @@ void::TorsoPos_Controller::clamp_joint_limits(int leg){
     if(j_idx == 1 && desired_q(3*leg+j_idx) < _quadruped->_hipMin_q(leg))
       desired_q(3*leg+j_idx) = _quadruped->_hipMin_q(leg);
 
-    // Clamp knee
-    if(j_idx == 2 && desired_q(3*leg+j_idx) > _quadruped->_kneeMax_q(leg))
-      desired_q(3*leg+j_idx) = _quadruped->_kneeMax_q(leg);
-    if(j_idx == 2 && desired_q(3*leg+j_idx) < _quadruped->_kneeMin_q(leg))
-      desired_q(3*leg+j_idx) = _quadruped->_kneeMin_q(leg);
+    // // Clamp knee
+    // if(j_idx == 2 && desired_q(3*leg+j_idx) > _quadruped->_kneeMax_q(leg))
+    //   desired_q(3*leg+j_idx) = _quadruped->_kneeMax_q(leg);
+    // if(j_idx == 2 && desired_q(3*leg+j_idx) < _quadruped->_kneeMin_q(leg))
+    //   desired_q(3*leg+j_idx) = _quadruped->_kneeMin_q(leg);
       
   }
 }
@@ -301,8 +331,14 @@ void::TorsoPos_Controller::find_dq_towards_home(){
   // We want to move incrementally back towards home position if this was called
   Vec12<float> error = desired_q - home;
 
-  for(int dof(0); dof<12; dof++){
-    error(dof) = std::max(-(float)userParameters.home_max_dq, std::min(error(dof), (float)userParameters.home_max_dq));
+  for(int leg(0); leg<4; leg++){
+    for(int j_idx(0); j_idx<3; j_idx++){
+      if(j_idx == 2){
+        error(3*leg+j_idx) = std::max(-2*(float)userParameters.home_max_dq, std::min(error(3*leg+j_idx), 2*(float)userParameters.home_max_dq));
+      } else {
+        error(3*leg+j_idx) = std::max(-(float)userParameters.home_max_dq, std::min(error(3*leg+j_idx), (float)userParameters.home_max_dq));
+      }
+    }
   }
 
   desired_q = desired_q - error;
