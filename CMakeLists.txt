@@ -17,6 +17,13 @@ option(EMBIR_ROBOT_SERVER_BUILD "use compiler flags for EMBiR Lab development" O
 option(EMBIR_ROBOT_CONTROL_BUILD "use compiler flags for EMBiR Lab development" OFF)
 option(MINI_CHEETAH_BUILD "use compiler flags for mini cheetah computer" OFF)
 option(PERMISSIVE "use -fpermissive compiler flag" OFF)
+option(PI_INCLUDE "use include paths for raspberry pi" OFF)
+
+set(lib_include_path "/usr/include")
+if(PI_INCLUDE)
+  set(lib_include_path "/usr/local/include")
+endif()
+
 set(BUILD_TYPE_RELEASE TRUE)
 
 option(NO_SIM "Do not build simulator" OFF)
@@ -88,8 +95,9 @@ else()
       -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
       -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
       -Wshadow -Wsign-promo")
-      # include_directories("/usr/include/")   # lcm includes
-      include_directories("/usr/local/include/")   # lcm includes
+      # include_directories("/usr/include/lcm/")   # lcm includes
+      # include_directories("/usr/local/include/lcm/")   # lcm includes
+      include_directories("${lib_include_path}/lcm/")   # lcm includes
     endif()
 
     set(CMAKE_C_FLAGS "-ggdb  -march=native -std=gnu99 -I.")
