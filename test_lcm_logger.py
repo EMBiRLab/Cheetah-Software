@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import random
 import csv
+import time
 sys.path.append('../')
 sys.path.append('./lcm-types/python/')
 from leg_control_command_lcmt import leg_control_command_lcmt
@@ -82,17 +83,17 @@ def state_estim_handler(channel, data):
     # do nothing for now
 
 buffer = [0 for x in range(132)]
-header = ['cmd_tau_ff[0]','cmd_tau_ff[1]','cmd_tau_ff[2]','cmd_tau_ff[3]','cmd_tau_ff[4]','cmd_tau_ff[5]','cmd_tau_ff[6]','cmd_tau_ff[7]','cmd_tau_ff[8]','cmd_tau_ff[9]','cmd_tau_ff[10]','cmd_tau_ff[11]',
-          'cmd_f_ff[0]','cmd_f_ff[1]','cmd_f_ff[2]','cmd_f_ff[3]','cmd_f_ff[4]','cmd_f_ff[5]','cmd_f_ff[6]','cmd_f_ff[7]','cmd_f_ff[8]','cmd_f_ff[9]','cmd_f_ff[10]','cmd_f_ff[11]',
-          'cmd_q_des[0]','cmd_q_des[1]','cmd_q_des[2]','cmd_q_des[3]','cmd_q_des[4]','cmd_q_des[5]','cmd_q_des[6]','cmd_q_des[7]','cmd_q_des[8]','cmd_q_des[9]','cmd_q_des[10]','cmd_q_des[11]',
-          'cmd_qd_des[0]','cmd_qd_des[1]','cmd_qd_des[2]','cmd_qd_des[3]','cmd_qd_des[4]','cmd_qd_des[5]','cmd_qd_des[6]','cmd_qd_des[7]','cmd_qd_des[8]','cmd_qd_des[9]','cmd_qd_des[10]','cmd_qd_des[11]',
-          'cmd_p_des[0]','cmd_p_des[1]','cmd_p_des[2]','cmd_p_des[3]','cmd_p_des[4]','cmd_p_des[5]','cmd_p_des[6]','cmd_p_des[7]','cmd_p_des[8]','cmd_p_des[9]','cmd_p_des[10]','cmd_p_des[11]',
-          'cmd_v_des[0]','cmd_v_des[1]','cmd_v_des[2]','cmd_v_des[3]','cmd_v_des[4]','cmd_v_des[5]','cmd_v_des[6]','cmd_v_des[7]','cmd_v_des[8]','cmd_v_des[9]','cmd_v_des[10]','cmd_v_des[11]',
-          'data_q[0]','data_q[1]','data_q[2]','data_q[3]','data_q[4]','data_q[5]','data_q[6]','data_q[7]','data_q[8]','data_q[9]','data_q[10]','data_q[11]',
-          'data_qd[0]','data_qd[1]','data_qd[2]','data_qd[3]','data_qd[4]','data_qd[5]','data_qd[6]','data_qd[7]','data_qd[8]','data_qd[9]','data_qd[10]','data_qd[11]',
-          'data_p[0]','data_p[1]','data_p[2]','data_p[3]','data_p[4]','data_p[5]','data_p[6]','data_p[7]','data_p[8]','data_p[9]','data_p[10]','data_p[11]',
-          'data_v[0]','data_v[1]','data_v[2]','data_v[3]','data_v[4]','data_v[5]','data_v[6]','data_v[7]','data_v[8]','data_v[9]','data_v[10]','data_v[11]',
-          'data_tau_est[0]','data_tau_est[1]','data_tau_est[2]','data_tau_est[3]','data_tau_est[4]','data_tau_est[5]','data_tau_est[6]','data_tau_est[7]','data_tau_est[8]','data_tau_est[9]','data_tau_est[10]','data_tau_est[11]']
+header = ['time','cmd_tau_ff_0','cmd_tau_ff_1','cmd_tau_ff_2','cmd_tau_ff_3','cmd_tau_ff_4','cmd_tau_ff_5','cmd_tau_ff_6','cmd_tau_ff_7','cmd_tau_ff_8','cmd_tau_ff_9','cmd_tau_ff_10','cmd_tau_ff_11',
+          'cmd_f_ff_0','cmd_f_ff_1','cmd_f_ff_2','cmd_f_ff_3','cmd_f_ff_4','cmd_f_ff_5','cmd_f_ff_6','cmd_f_ff_7','cmd_f_ff_8','cmd_f_ff_9','cmd_f_ff_10','cmd_f_ff_11',
+          'cmd_q_des_0','cmd_q_des_1','cmd_q_des_2','cmd_q_des_3','cmd_q_des_4','cmd_q_des_5','cmd_q_des_6','cmd_q_des_7','cmd_q_des_8','cmd_q_des_9','cmd_q_des_10','cmd_q_des_11',
+          'cmd_qd_des_0','cmd_qd_des_1','cmd_qd_des_2','cmd_qd_des_3','cmd_qd_des_4','cmd_qd_des_5','cmd_qd_des_6','cmd_qd_des_7','cmd_qd_des_8','cmd_qd_des_9','cmd_qd_des_10','cmd_qd_des_11',
+          'cmd_p_des_0','cmd_p_des_1','cmd_p_des_2','cmd_p_des_3','cmd_p_des_4','cmd_p_des_5','cmd_p_des_6','cmd_p_des_7','cmd_p_des_8','cmd_p_des_9','cmd_p_des_10','cmd_p_des_11',
+          'cmd_v_des_0','cmd_v_des_1','cmd_v_des_2','cmd_v_des_3','cmd_v_des_4','cmd_v_des_5','cmd_v_des_6','cmd_v_des_7','cmd_v_des_8','cmd_v_des_9','cmd_v_des_10','cmd_v_des_11',
+          'data_q_0','data_q_1','data_q_2','data_q_3','data_q_4','data_q_5','data_q_6','data_q_7','data_q_8','data_q_9','data_q_10','data_q_11',
+          'data_qd_0','data_qd_1','data_qd_2','data_qd_3','data_qd_4','data_qd_5','data_qd_6','data_qd_7','data_qd_8','data_qd_9','data_qd_10','data_qd_11',
+          'data_p_0','data_p_1','data_p_2','data_p_3','data_p_4','data_p_5','data_p_6','data_p_7','data_p_8','data_p_9','data_p_10','data_p_11',
+          'data_v_0','data_v_1','data_v_2','data_v_3','data_v_4','data_v_5','data_v_6','data_v_7','data_v_8','data_v_9','data_v_10','data_v_11',
+          'data_tau_est_0','data_tau_est_1','data_tau_est_2','data_tau_est_3','data_tau_est_4','data_tau_est_5','data_tau_est_6','data_tau_est_7','data_tau_est_8','data_tau_est_9','data_tau_est_10','data_tau_est_11']
           
 f = open('test1.csv','w')
 writer = csv.writer(f)
@@ -107,14 +108,17 @@ subscription = lc.subscribe("leg_control_data", ctrl_data_handler)
 # subscription = lc.subscribe("state_estimator", state_estim_handler)
 
 iter = 0
+start_time = time.time()
 try:
     while True:
         lc.handle_timeout(10)
         
         if ctrl_cmd_ready and ctrl_data_ready:
-          writer.writerow(buffer)
-          ctrl_cmd_ready = False
-          ctrl_data_ready = False
+            cur_time = time.time() - start_time
+            buf2 = [cur_time] + buffer
+            writer.writerow([round(e, 4) for e in buf2])
+            ctrl_cmd_ready = False
+            ctrl_data_ready = False
 
         if iter % 300 == 0:
             print("logging is still alive")
