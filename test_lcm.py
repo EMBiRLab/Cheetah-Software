@@ -48,9 +48,9 @@ try:
   while True:
     print("yes")
     for i in range(12):
-      cmd.q[i] = 10+ii
-      cmd.qd[i] = 10+ii
-      cmd.tau_est[i] = 10+ii
+      cmd.q[i] = 0
+      cmd.qd[i] = 0
+      cmd.tau_est[i] = 0
       print("q",i ,"=", cmd.q[i])
     cmd.fsm_state = 0
     lc.publish("robot_server_response", cmd.encode())

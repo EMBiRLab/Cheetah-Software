@@ -312,8 +312,9 @@ void LegController<T>::updateCommand(RobServCommand* robservcommand) {
     std::cout << "muadquad leg " << leg << " cartesian des_pos: " << commands[leg].pDes << std::endl;
     std::cout << "muadquad leg " << leg << " cartesian pos: " << datas[leg].p << std::endl;
 
+    std::cout << "muadquad leg " << leg << " footForce is: " << footForce << std::endl;
     // Torque
-    legTorque += datas[leg].J.transpose() * footForce;
+    legTorque = datas[leg].J.transpose() * footForce;
 
     // set command:
     robservcommand->tau_ff[leg*3+0] = legTorque(0);

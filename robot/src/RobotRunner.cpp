@@ -273,8 +273,8 @@ void RobotRunner::finalizeStep() {
         // std::cout << "[robServCommand->qd_des[" << idx << "]]----->" << robServCommand->qd_des[idx] << std::endl;
         if (leg%2 == 0)
           sign = -1;
-        if (axis == 0)
-          sign *= -1;
+        // if (axis == 0)
+        //   sign *= -1;
         LCMCommandfix.tau_ff[idx] = sign*robServCommand->tau_ff[idx];
         //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
         LCMCommandfix.q_des[idx]  = sign*robServCommand->q_des[idx];
@@ -353,8 +353,8 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
     sign = 1;
     if ((i / 3) % 2 == 0)
       sign = -1;
-    if ((i % 3) == 0)
-      sign *= -1;
+    // if ((i % 3) == 0)
+    //   sign *= -1;
     int idx = muadquad_leg_reordering[i];
     robServData->q[i] = sign*msg->q[idx];
     robServData->qd[i] = sign*msg->qd[idx];
@@ -369,21 +369,32 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   // updates via lcm from robot_server
   // Firstly, rotate the quaternion by 180 about y bc its mounted
   // upside-down
-  static Eigen::Quaternionf y_180(0,0,1,0);
+  // static Eigen::Quaternionf y_180(0,0,1,0);
+  static Eigen::Quaternionf y_90(std::sqrt(2)/2.0,0,std::sqrt(2)/2.0,0);
   Eigen::Quaternionf robserv_quat(msg->quat[0],msg->quat[1],msg->quat[2],msg->quat[3]);
-  robserv_quat = y_180 * robserv_quat;
+  // robserv_quat = y_180 * robserv_quat;
+  robserv_quat = y_90 * robserv_quat;
 
-  for (int i = 0; i < 3; i++){
-    vectorNavData->accelerometer(i) = msg->accelerometer[i];
-    vectorNavData->gyro(i) = msg->gyro[i];
-  }
+  vectorNavData->accelerometer(2) =  msg->accelerometer[0];
+  vectorNavData->accelerometer(1) =  msg->accelerometer[1];
+  vectorNavData->accelerometer(0) = -msg->accelerometer[2];
+
+  vectorNavData->gyro(2) =  msg->gyro[0];
+  vectorNavData->gyro(1) =  msg->gyro[1];
+  vectorNavData->gyro(0) = -msg->gyro[2];
+
+
+  // for (int i = 0; i < 3; i++){
+  //   vectorNavData->accelerometer(i) = msg->accelerometer[i];
+  //   vectorNavData->gyro(i) = msg->gyro[i];
+  // }
   // get the quaternion
   vectorNavData->quat(0) = robserv_quat.w();
   vectorNavData->quat.segment(1,3) = robserv_quat.vec();
 
-  // negate the linear and angular data to match account for mounting of IMU
-  vectorNavData->accelerometer(0) = -vectorNavData->accelerometer(0);
-  vectorNavData->accelerometer(2) = -vectorNavData->accelerometer(2);
-  vectorNavData->gyro(0) = -vectorNavData->gyro(0);
-  vectorNavData->gyro(2) = -vectorNavData->gyro(2);
+  // // negate the linear and angular data to match account for mounting of IMU
+  // vectorNavData->accelerometer(0) = -vectorNavData->accelerometer(0);
+  // vectorNavData->accelerometer(2) = -vectorNavData->accelerometer(2);
+  // vectorNavData->gyro(0) = -vectorNavData->gyro(0);
+  // vectorNavData->gyro(2) = -vectorNavData->gyro(2);
 }
