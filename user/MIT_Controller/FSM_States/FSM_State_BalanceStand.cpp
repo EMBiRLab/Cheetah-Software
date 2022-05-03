@@ -34,6 +34,7 @@ FSM_State_BalanceStand<T>::FSM_State_BalanceStand(
 
 template <typename T>
 void FSM_State_BalanceStand<T>::onEnter() {
+  std::cout << "Enterred BalanceStand\n";
   // Default is to not transition
   this->nextStateName = this->stateName;
 

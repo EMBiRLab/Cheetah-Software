@@ -117,6 +117,8 @@ void ControlFSM<T>::runFSM() {
     //std::cout<< "control mode: "<<data.controlParameters->control_mode<<std::endl;
   }
 
+  // std::cout << "Current Operating Mode: " << (int)operatingMode << std::endl;
+
   // Run the robot control code if operating mode is not unsafe
   if (operatingMode != FSM_OperatingMode::ESTOP) {
     // Run normal controls if no transition is detected
@@ -133,7 +135,7 @@ void ControlFSM<T>::runFSM() {
         nextState = getNextState(nextStateName);
 
         // Print transition initialized info
-        //printInfo(1);
+        printInfo(1);
 
       } else {
         // Run the iteration for the current state normally
@@ -154,7 +156,7 @@ void ControlFSM<T>::runFSM() {
         currentState->onExit();
 
         // Print finalizing transition info
-        //printInfo(2);
+        printInfo(2);
 
         // Complete the transition
         currentState = nextState;
@@ -293,7 +295,7 @@ void ControlFSM<T>::printInfo(int opt) {
       printIter++;
 
       // Print at commanded frequency
-      if (printIter == printNum) {
+      if ((printIter == printNum) || first_time) {
         std::cout << "[CONTROL FSM] Printing FSM Info...\n";
         std::cout
             << "---------------------------------------------------------\n";
@@ -316,6 +318,7 @@ void ControlFSM<T>::printInfo(int opt) {
 
         // Reset iteration counter
         printIter = 0;
+        first_time = false;
       }
 
       // Print robot info about the robot's status

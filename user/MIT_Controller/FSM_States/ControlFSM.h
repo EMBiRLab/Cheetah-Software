@@ -106,13 +106,14 @@ class ControlFSM {
   FSM_OperatingMode operatingMode;
 
   // Choose how often to print info, every N iterations
-  int printNum = 10000;  // N*(0.001s) in simulation time
+  int printNum = 1000;  // N*(0.001s) in simulation time
 
   // Track the number of iterations since last info print
   int printIter = 0;  // make larger than printNum to not print
 
   int iter = 0;
 
+  bool first_time = true;
   //lcm::LCM state_estimator_lcm;
   //state_estimator_lcmt _state_estimator;
 };

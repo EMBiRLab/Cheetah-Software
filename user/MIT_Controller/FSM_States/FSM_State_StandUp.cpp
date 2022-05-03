@@ -61,6 +61,27 @@ void FSM_State_StandUp<T>::run() {
       this->_data->_legController->commands[i].pDes[2] = 
         progress*(-hMax) + (1. - progress) * _ini_foot_pos[i][2];
     }
+  } else if(this->_data->_quadruped->_robotType == RobotType::MUADQUAD) {
+    T hMax = 0.25;
+    T progress = 2 * iter * this->_data->controlParameters->controller_dt;
+
+    if (progress > 1.){ progress = 1.; }
+
+    for(int i = 0; i < 4; i++) {
+      this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
+      this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
+
+      // this->_data->_legController->commands[i].qDes = Vec3<T>(std::numeric_limits<float>::quiet_NaN,
+      //                                                         std::numeric_limits<float>::quiet_NaN,
+      //                                                         std::numeric_limits<float>::quiet_NaN);
+      this->_data->_legController->commands[i].qDes[0] = nan("");
+      this->_data->_legController->commands[i].qDes[1] = nan("");
+      this->_data->_legController->commands[i].qDes[2] = nan("");
+      this->_data->_legController->commands[i].pDes = _ini_foot_pos[i];
+      this->_data->_legController->commands[i].pDes[2] = 
+        progress*(-hMax) + (1. - progress) * _ini_foot_pos[i][2];
+    }
+    std::cout << "desired z of foot 0 is " << this->_data->_legController->commands[0].pDes[2] << std::endl;
   }
 }
 

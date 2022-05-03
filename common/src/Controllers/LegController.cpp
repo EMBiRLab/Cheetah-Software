@@ -297,9 +297,39 @@ template <typename T>
 void LegController<T>::updateCommand(RobServCommand* robservcommand) {
   //DEfinetly have to check this command here.....
   for(int leg = 0; leg < 4; leg++) {
+    // tauFF
+    Vec3<T> legTorque = 0 * commands[leg].tauFeedForward;
+
+    // forceFF
+    Vec3<T> footForce = 0 * commands[leg].forceFeedForward;
+
+    // cartesian PD
+    footForce +=
+        commands[leg].kpCartesian * (commands[leg].pDes - datas[leg].p);
+    footForce +=
+        commands[leg].kdCartesian * (commands[leg].vDes - datas[leg].v);
+
+    std::cout << "muadquad leg " << leg << " cartesian des_pos: " << commands[leg].pDes << std::endl;
+    std::cout << "muadquad leg " << leg << " cartesian pos: " << datas[leg].p << std::endl;
+
+    // Torque
+    legTorque += datas[leg].J.transpose() * footForce;
+
+    // set command:
+    robservcommand->tau_ff[leg*3+0] = legTorque(0);
+    robservcommand->tau_ff[leg*3+1] = legTorque(1);
+    robservcommand->tau_ff[leg*3+2] = legTorque(2);
+  }
+
+  // // set command:
+  //   spiCommand->tau_abad_ff[leg] = legTorque(0);
+  //   spiCommand->tau_hip_ff[leg] = legTorque(1);
+  //   spiCommand->tau_knee_ff[leg] = legTorque(2);
+
+  for(int leg = 0; leg < 4; leg++) {
     for(int axis = 0; axis < 3; axis++) {
         int idx = leg*3 + axis;
-        robservcommand->tau_ff[idx] = commands[leg].tauFeedForward[axis];
+        // robservcommand->tau_ff[idx] = commands[leg].tauFeedForward[axis];
         //robservcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
         robservcommand->q_des[idx] = commands[leg].qDes[axis];
         robservcommand->qd_des[idx] = commands[leg].qdDes[axis];

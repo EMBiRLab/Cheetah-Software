@@ -108,7 +108,7 @@ void HardwareBridge::handleGamepadLCM(const lcm::ReceiveBuffer* rbuf,
   (void)rbuf;
   (void)chan;
   _gamepadCommand.set(msg);
-  std::cout << "rx _gamepadCommand\n";
+  //std::cout << "rx _gamepadCommand\n";
   // std::cout << _gamepadCommand.toString() << std::endl;
 
 }
@@ -628,8 +628,8 @@ void MuadQuadHardwareBridge::run() {
 
     if(_userControlParameters) {
       try {
-        // _userControlParameters->initializeFromYamlFile(THIS_COM "config/mc-mit-ctrl-user-parameters.yaml");
-        _userControlParameters->initializeFromYamlFile(THIS_COM "config/torso_pos_controller_parameters.yaml");
+        _userControlParameters->initializeFromYamlFile(THIS_COM "config/mc-mit-ctrl-user-parameters.yaml");
+        // _userControlParameters->initializeFromYamlFile(THIS_COM "config/torso_pos_controller_parameters.yaml");
       } catch(std::exception& e) {
         printf("Failed to initialize user parameters from yaml file: %s\n", e.what());
         exit(1);

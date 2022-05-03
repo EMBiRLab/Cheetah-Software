@@ -264,7 +264,7 @@ void RobotRunner::finalizeStep() {
     robot_server_command_lcmt LCMCommandfix;
 
     // static int leg_reordering[12] = {3,4,5,0,1,2,9,10,11,6,7,8};
-    std::cout << "[robot_server_command->q_des[";
+    std::cout << "[robot_server_command->tau_ff[";
     for(int leg = 0; leg < 4; leg++) {
       for(int axis = 0; axis < 3; axis++) {
         int idx = leg*3 + axis;
@@ -285,9 +285,11 @@ void RobotRunner::finalizeStep() {
         //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
         LCMCommandfix.kp_joint[idx] = robServCommand->kp_joint[idx];
         LCMCommandfix.kd_joint[idx] = robServCommand->kd_joint[idx];
-        std::cout << LCMCommandfix.q_des[idx] << ", ";
+        // std::cout << LCMCommandfix.q_des[idx] << ", ";
       }
     }
+    std::cout << LCMCommandfix.tau_ff[muadquad_leg_reordering[1]] << ", ";
+    std::cout << LCMCommandfix.tau_ff[muadquad_leg_reordering[2]];
     std::cout << "]" << std::endl;
     // std::cout << "Updated the command second time!" << std::endl;
     _lcm.publish("robot_server_command", &LCMCommandfix);
@@ -346,7 +348,7 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   // std::cout<<"fsm_state is "<<LCMData->fsm_state;
   // std::cout<<"Getting the messages!! \n";
   int sign = 0;
-  std::cout << "robServData->q[";
+  // std::cout << "robServData->q[";
   for (int i = 0; i<12; i++){
     sign = 1;
     if ((i / 3) % 2 == 0)
@@ -357,11 +359,11 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
     robServData->q[i] = sign*msg->q[idx];
     robServData->qd[i] = sign*msg->qd[idx];
     robServData->tau_est[i] = sign*msg->tau_est[idx];
-    std::cout << robServData->q[i] << ", ";
+    // std::cout << robServData->q[i] << ", ";
   }
-  std::cout << "]\n";
+  // std::cout << "]\n";
   robServData->fsm_state = msg->fsm_state;
-  std::cout<<"fsm_state is "<< (int)robServData->fsm_state;
+  // std::cout<<"fsm_state is "<< (int)robServData->fsm_state;
 
   // Populate vectorNavData here from the lcm bc we receive IMU 
   // updates via lcm from robot_server
