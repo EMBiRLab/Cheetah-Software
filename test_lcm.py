@@ -3,8 +3,10 @@ import numpy as np
 import sys
 sys.path.append('../')
 sys.path.append('./lcm-types/python/')
-from gamepad_lcmt import gamepad_lcmt
-from robot_server_response_lcmt import robot_server_response_lcmt
+# from gamepad_lcmt import gamepad_lcmt
+from leg_control_command_lcmt import leg_control_command_lcmt
+from leg_control_data_lcmt import leg_control_data_lcmt
+
 # import robot_server_command_lcmt.py
 # import ../lcm-types/python/robot_server_response_lcmt.py
 # import robot_server_response_lcmt.py
@@ -34,7 +36,8 @@ lc = lcm.LCM()
 # for i in range(0,2):
 #   cmd.leftStickAnalog[i] = 1
 #   cmd.rightStickAnalog[i] = 1
-cmd = robot_server_response_lcmt()
+ctrl_cmd = leg_control_command_lcmt()
+ctrl_dat = leg_control_data_lcmt()
 
 
 
@@ -42,23 +45,31 @@ cmd = robot_server_response_lcmt()
 
 # subscription = lc.subscribe("robot_server_response", robot_server_response_handler)
 
-lc.publish("robot_server_response", cmd.encode())
 ii = 0
 try:
   while True:
-    print("yes")
+
     for i in range(12):
-      cmd.q[i] = 0
-      cmd.qd[i] = 0
-      cmd.tau_est[i] = 0
-      print("q",i ,"=", cmd.q[i])
-    cmd.fsm_state = 0
-    lc.publish("robot_server_response", cmd.encode())
-    lc.handle_timeout(100)
+      ctrl_cmd.tau_ff[i] = ii + 0
+      ctrl_cmd.f_ff[i] = ii + 1
+      ctrl_cmd.q_des[i] = ii + 2
+      ctrl_cmd.qd_des[i] = ii + 3
+      ctrl_cmd.p_des[i] = ii + 4
+      ctrl_cmd.v_des[i] = ii + 5
+      ctrl_dat.q[i] = ii + 6
+      ctrl_dat.qd[i] = ii + 7
+      ctrl_dat.p[i] = ii + 8
+      ctrl_dat.v[i] = ii + 9
+      ctrl_dat.tau_est[i] = ii + 10
+
+    lc.publish("leg_control_command", ctrl_cmd.encode())
+    lc.publish("leg_control_data", ctrl_dat.encode())
+
+
     ii = ii + 1
-    # if np.mod(ii,2) == 0:
+
     print("publishing")
+
 except KeyboardInterrupt:
   pass
 
-# lc.unsubscribe(subscription)

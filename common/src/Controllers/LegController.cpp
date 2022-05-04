@@ -316,6 +316,9 @@ void LegController<T>::updateCommand(RobServCommand* robservcommand) {
     // Torque
     legTorque = datas[leg].J.transpose() * footForce;
 
+    commands[leg].tauFeedForward = legTorque;
+    commands[leg].forceFeedForward = footForce;
+
     // set command:
     robservcommand->tau_ff[leg*3+0] = legTorque(0);
     robservcommand->tau_ff[leg*3+1] = legTorque(1);
