@@ -12,9 +12,9 @@ Kd_femur            : 5
 Kp_tibia            : 40
 Kd_tibia            : 5
 
-lon_gain            : .00001
-lat_gain            : .00001
-vert_gain           : .00001
+lon_gain            : .000025
+lat_gain            : .000025
+vert_gain           : .000025
 pitch_gain          : .0005
 roll_gain           : .0002
 yaw_gain            : .0006
