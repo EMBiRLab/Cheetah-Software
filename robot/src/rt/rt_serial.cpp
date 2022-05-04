@@ -18,10 +18,16 @@
 
 #undef termios
 
+// #define ioctl sysioctl
+// #include <sys/ioctl.h>
+// #undef ioctl
+
 #include <termios.h>
 #include <math.h>
 #include <pthread.h>
-#include <stropts.h>
+// #include <stropts.h>
+#include "rt/ioctl_wrap.h"
+
 #include <endian.h>
 #include <stdint.h>
 
@@ -31,7 +37,7 @@ void init_serial_for_sbus(int fd, int baud) {
   printf("\t[RT SERIAL] Configuring serial device...\n");
   struct termios2 tty;
 
-  ioctl(fd, TCGETS2, &tty);
+  ioctl_wrap(fd, TCGETS2, &tty);
   tty.c_cflag &= ~CBAUD;
   tty.c_cflag |= BOTHER;
   tty.c_ispeed = baud;
@@ -68,7 +74,7 @@ tty.c_cflag |= CS8;
   // tty.c_cflag &= ~CRTSCTS;
   // cfmakeraw(&tty);
 
-  ioctl(fd, TCSETS2, &tty);
+  ioctl_wrap(fd, TCSETS2, &tty);
 }
 
 /**
@@ -86,7 +92,7 @@ int set_interface_attribs_custom_baud(int fd, int speed, int parity, int port) {
   printf("\t[RT SERIAL] Configuring serial device...\n");
   struct termios2 tty;
 
-  ioctl(fd, TCGETS2, &tty);
+  ioctl_wrap(fd, TCGETS2, &tty);
   tty.c_cflag &= ~CBAUD;
   tty.c_cflag |= BOTHER;
   tty.c_ispeed = speed;
@@ -112,7 +118,7 @@ int set_interface_attribs_custom_baud(int fd, int speed, int parity, int port) {
   tty.c_cflag &= ~CRTSCTS;
   // cfmakeraw(&tty);
 
-  ioctl(fd, TCSETS2, &tty);
+  ioctl_wrap(fd, TCSETS2, &tty);
   return 0;
 }
 

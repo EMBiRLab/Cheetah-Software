@@ -8,7 +8,7 @@ include_directories("../lcm-types/cpp/")
 include_directories("../third-party/inih")       # inih includes
 include_directories("../third-party/osqp/include")       # osqp includes
 include_directories("../third-party/ParamHandler")
-include_directories("/usr/include/eigen3")   # lcm includes
+include_directories("${lib_include_path}/eigen3")   # lcm includes
 include_directories("FootstepPlanner")
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})

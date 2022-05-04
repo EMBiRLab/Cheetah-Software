@@ -1,0 +1,7 @@
+/home/ursk/Quadruped-Software/scripts/lcm-log2smat/pod-build/CMakeFiles/install/strip.dir
+/home/ursk/Quadruped-Software/scripts/lcm-log2smat/pod-build/CMakeFiles/install/local.dir
+/home/ursk/Quadruped-Software/scripts/lcm-log2smat/pod-build/CMakeFiles/install.dir
+/home/ursk/Quadruped-Software/scripts/lcm-log2smat/pod-build/CMakeFiles/list_install_components.dir
+/home/ursk/Quadruped-Software/scripts/lcm-log2smat/pod-build/CMakeFiles/rebuild_cache.dir
+/home/ursk/Quadruped-Software/scripts/lcm-log2smat/pod-build/CMakeFiles/edit_cache.dir
+/home/ursk/Quadruped-Software/scripts/lcm-log2smat/pod-build/CMakeFiles/7zmcKmR3AmxO1tdJ0aeJ9GOFOFOUWVmm.dir
