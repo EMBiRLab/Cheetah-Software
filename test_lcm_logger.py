@@ -116,8 +116,8 @@ class Handler:
 
 
 handler = Handler()          
-print(len(handler.buffer))          
-print(len(handler.header))          
+# print(len(handler.buffer))          
+# print(len(handler.header))          
 f = open("/home/ursk/muadquad_data/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
 writer = csv.writer(f)
 writer.writerow(handler.header)
@@ -139,7 +139,7 @@ try:
         if handler.ctrl_cmd_ready and handler.ctrl_data_ready:
             cur_time = time.time() - start_time
             buf2 = [cur_time] + handler.buffer[:168]
-            print(len(handler.buffer))
+            # print(len(handler.buffer))
             writer.writerow([round(e, 4) for e in buf2])
             handler.buffer = [0 for x in range(168)]
             handler.ctrl_cmd_ready = False
