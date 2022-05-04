@@ -18,7 +18,13 @@ void LegControllerCommand<T>::zero() {
   tauFeedForward = Vec3<T>::Zero();
   forceFeedForward = Vec3<T>::Zero();
   qDes = Vec3<T>::Zero();
+  qDes(0) = nan("");
+  qDes(1) = nan("");
+  qDes(2) = nan("");
   qdDes = Vec3<T>::Zero();
+  qdDes(0) = nan("");
+  qdDes(1) = nan("");
+  qdDes(2) = nan("");
   pDes = Vec3<T>::Zero();
   vDes = Vec3<T>::Zero();
   kpCartesian = Mat3<T>::Zero();
@@ -314,7 +320,7 @@ void LegController<T>::updateCommand(RobServCommand* robservcommand) {
 
     std::cout << "muadquad leg " << leg << " footForce is: " << footForce << std::endl;
     // Torque
-    legTorque = datas[leg].J.transpose() * footForce;
+    legTorque += datas[leg].J.transpose() * footForce;
 
     commands[leg].tauFeedForward = legTorque;
     commands[leg].forceFeedForward = footForce;
@@ -373,6 +379,17 @@ void LegController<T>::setLcm(leg_control_data_lcmt *lcmData, leg_control_comman
       lcmCommand->kd_joint[idx] = commands[leg].kdJoint(axis, axis);
     }
   }
+  int vec_idx = 0;
+  for(int row = 0; row < 3; row++) {
+    for (int col = 0; col < 3; col++) {
+      lcmData->jacobian0[vec_idx] = datas[0].J(row, col);
+      lcmData->jacobian1[vec_idx] = datas[1].J(row, col);
+      lcmData->jacobian2[vec_idx] = datas[2].J(row, col);
+      lcmData->jacobian3[vec_idx] = datas[3].J(row, col);
+      vec_idx++;
+    }
+  }
+
 }
 
 template struct LegControllerCommand<double>;

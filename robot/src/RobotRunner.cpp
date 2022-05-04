@@ -268,23 +268,23 @@ void RobotRunner::finalizeStep() {
     for(int leg = 0; leg < 4; leg++) {
       for(int axis = 0; axis < 3; axis++) {
         int idx = leg*3 + axis;
-        idx = muadquad_leg_reordering[idx];
+        int mq_idx = muadquad_leg_reordering[idx];
         int sign = 1;
         // std::cout << "[robServCommand->qd_des[" << idx << "]]----->" << robServCommand->qd_des[idx] << std::endl;
         if (leg%2 == 0)
           sign = -1;
         // if (axis == 0)
         //   sign *= -1;
-        LCMCommandfix.tau_ff[idx] = sign*robServCommand->tau_ff[idx];
+        LCMCommandfix.tau_ff[mq_idx] = sign*robServCommand->tau_ff[idx];
         //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
-        LCMCommandfix.q_des[idx]  = sign*robServCommand->q_des[idx];
-        LCMCommandfix.qd_des[idx] = sign*robServCommand->qd_des[idx];
+        LCMCommandfix.q_des[mq_idx]  = sign*robServCommand->q_des[idx];
+        LCMCommandfix.qd_des[mq_idx] = sign*robServCommand->qd_des[idx];
         //lcmcommand->p_des[idx] = commands[leg].pDes[axis];
         //lcmcommand->v_des[idx] = commands[leg].vDes[axis];
         //lcmcommand->kp_cartesian[idx] = commands[leg].kpCartesian(axis, axis);
         //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
-        LCMCommandfix.kp_joint[idx] = robServCommand->kp_joint[idx];
-        LCMCommandfix.kd_joint[idx] = robServCommand->kd_joint[idx];
+        LCMCommandfix.kp_joint[mq_idx] = robServCommand->kp_joint[idx];
+        LCMCommandfix.kd_joint[mq_idx] = robServCommand->kd_joint[idx];
         // std::cout << LCMCommandfix.q_des[idx] << ", ";
       }
     }
