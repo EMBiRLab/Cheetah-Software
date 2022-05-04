@@ -86,7 +86,7 @@ void FSM_State_StandUp<T>::run() {
       this->_data->_legController->commands[i].pDes[0] = 
         progress*(0) + (1. - progress) * _ini_foot_pos[i][0];
     }
-    std::cout << "desired z of foot 0 is " << this->_data->_legController->commands[0].pDes[2] << std::endl;
+    // std::cout << "desired z of foot 0 is " << this->_data->_legController->commands[0].pDes[2] << std::endl;
   }
 }
 

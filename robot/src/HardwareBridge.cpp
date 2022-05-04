@@ -121,6 +121,9 @@ void HardwareBridge::handleControlParameter(
     const control_parameter_request_lcmt* msg) {
   (void)rbuf;
   (void)chan;
+  
+  std::cout << "WE GOT AN INTERFACE RESPONSEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" << std::endl;
+  
   if (msg->requestNumber <= _parameter_response_lcmt.requestNumber) {
     // nothing to do!
     printf(
@@ -195,7 +198,12 @@ void HardwareBridge::handleControlParameter(
 
       // do the actual set
       ControlParameterValue v;
+
+      // v.d = 
+
       memcpy(&v, msg->value, sizeof(v));
+      std::cout << "THE VALUE OF MSG->VALUE IS " << msg->value << std::endl;
+      std::cout << "THE VALUE OF <v> IS " << v.d << std::endl;
       param.set(v, (ControlParameterValueKind)msg->parameterKind);
 
       // respond:

@@ -264,6 +264,16 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
   }
   last_height_command = _wbc_data->pBody_des[2];
 
+  std::cout << "Desired <_wbc_data->pBody_des> is: " << _wbc_data->pBody_des[0] << ", " << 
+                                                        _wbc_data->pBody_des[1] << ", " << 
+                                                        _wbc_data->pBody_des[2] << std::endl;
+
+  // for(size_t i(0); i<4; ++i){
+  //   std::cout << "Desired <_wbc_data->Fr_des> for leg " << i << " is: " << _wbc_data->Fr_des[i][0] << ", " << 
+  //                                                                          _wbc_data->Fr_des[i][1] << ", " <<;
+  //                                                                          _wbc_data->Fr_des[i][2] << std::endl;
+  // }                                                        
+
   _wbc_ctrl->run(_wbc_data, *this->_data);
 }
 

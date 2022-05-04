@@ -1,6 +1,7 @@
 #include "WBC_Ctrl.hpp"
 #include <Utilities/Utilities_print.h>
 #include <Utilities/Timer.h>
+#include <math.h>
 
 template<typename T>
 WBC_Ctrl<T>::WBC_Ctrl(FloatingBaseModel<T> model):
@@ -113,6 +114,7 @@ void WBC_Ctrl<T>::_UpdateLegCMD(ControlFSMData<T> & data){
 
         cmd[leg].kpJoint(jidx, jidx) = _Kp_joint[jidx];
         cmd[leg].kdJoint(jidx, jidx) = _Kd_joint[jidx];
+
        
        //if(contact[leg] > 0.){ // Contact
         //cmd[leg].kpJoint(jidx, jidx) = _Kp_joint[jidx];
@@ -124,6 +126,9 @@ void WBC_Ctrl<T>::_UpdateLegCMD(ControlFSMData<T> & data){
 
     }
   }
+  
+  if (isnan(cmd[0].tauFeedForward[1]))
+    std::cout << "tauFeedForward for actuator 1 isnan: " << cmd[0].tauFeedForward[1] << std::endl;
 
 
   // Knee joint non flip barrier

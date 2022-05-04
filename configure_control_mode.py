@@ -68,13 +68,22 @@ while True:
             sys.exit()
 
         value = [0 for x in range(64)]
-        value[0] = desired_control_mode
 
-        extended_name = "control_mode"
+        hex_val = struct.unpack('<Q', struct.pack('d',desired_control_mode))[0]
+        
+        for i in range(8):
+            shift_amt = 56-8*i
+            desired_byte = (hex_val >> shift_amt) & 0xFF
+            value[23-i-4] = desired_byte
+
+
+        # value[11] = desired_control_mode
+
+        extended_name = "control_mode\0"
         extended_name = extended_name.ljust(64," ")
         # cmd.name = struct.pack('%c' % len(extended_name),*extended_name)                 #'@c',*extended_name)
         cmd.name = [ord(e) for e in list(extended_name)]
-        print("cmd.name is:",cmd.name, "with len:",len(cmd.name))
+        print("cmd.name is:", ''.join(chr(i) for i in cmd.name), "with len:",len(cmd.name))
         print("the value is:",value, "with size:",len(value))
         # print("CMD.NAME TYPE:",typeof())
         requestNumLock.acquire()
@@ -82,9 +91,9 @@ while True:
         requestNumLock.release()
         cmd.value = value
         cmd.parameterKind = 1 #appears to be the default in the mini_cheetah code
-        cmd.requestKind = 3 #corresponds to ControlParameterRequestKind::SET_USER_PARAM_BY_NAME
+        cmd.requestKind = 1 #corresponds to ControlParameterRequestKind::SET_USER_PARAM_BY_NAME
         
-        lc.publish("robot_server_response", cmd.encode())
+        lc.publish("interface_request", cmd.encode())
 
         print("cmd.name is:",cmd.name)
         print("iteration of while loop is complete\n\n")

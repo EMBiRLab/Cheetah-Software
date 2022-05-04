@@ -9,6 +9,7 @@
  */
 
 #include "Controllers/LegController.h"
+#include <math.h>
 
 /*!
  * Zero the leg command so the leg will not output torque
@@ -304,10 +305,12 @@ void LegController<T>::updateCommand(RobServCommand* robservcommand) {
   //DEfinetly have to check this command here.....
   for(int leg = 0; leg < 4; leg++) {
     // tauFF
-    Vec3<T> legTorque = 0 * commands[leg].tauFeedForward;
+    Vec3<T> legTorque = commands[leg].tauFeedForward;
+
+    assert(!isnan(legTorque[1]));
 
     // forceFF
-    Vec3<T> footForce = 0 * commands[leg].forceFeedForward;
+    Vec3<T> footForce = commands[leg].forceFeedForward;
 
     // cartesian PD
     footForce +=
@@ -315,15 +318,24 @@ void LegController<T>::updateCommand(RobServCommand* robservcommand) {
     footForce +=
         commands[leg].kdCartesian * (commands[leg].vDes - datas[leg].v);
 
-    std::cout << "muadquad leg " << leg << " cartesian des_pos: " << commands[leg].pDes << std::endl;
-    std::cout << "muadquad leg " << leg << " cartesian pos: " << datas[leg].p << std::endl;
+    // std::cout << "muadquad leg " << leg << " cartesian des_pos: " << commands[leg].pDes << std::endl;
+    // std::cout << "muadquad leg " << leg << " cartesian pos: " << datas[leg].p << std::endl;
 
-    std::cout << "muadquad leg " << leg << " footForce is: " << footForce << std::endl;
+    // std::cout << "muadquad leg " << leg << " footForce is: " << footForce << std::endl;
     // Torque
     legTorque += datas[leg].J.transpose() * footForce;
 
+    if(isnan(legTorque[1])){
+      std::cout << "footForce @ nan detection: " << footForce << std::endl;
+      std::cout << "legTorque @ nan detection: " << legTorque << std::endl;
+      std::cout << "Jacobian @ nan detection: " << datas[leg].J << std::endl;
+      assert(false);
+    }
+
     commands[leg].tauFeedForward = legTorque;
     commands[leg].forceFeedForward = footForce;
+
+    assert(!isnan(commands[leg].tauFeedForward[1]));
 
     // set command:
     robservcommand->tau_ff[leg*3+0] = legTorque(0);

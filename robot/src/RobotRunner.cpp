@@ -7,7 +7,7 @@
 
 #include <unistd.h>
 #include <eigen3/Eigen/Geometry>
-
+#include <math.h>
 #include "RobotRunner.h"
 #include "Controllers/ContactEstimator.h"
 #include "Controllers/OrientationEstimator.h"
@@ -196,7 +196,11 @@ void RobotRunner::run() {
   cheetahMainVisualization->quat = _stateEstimate.orientation;
 
   // Sets the leg controller commands for the robot appropriate commands
+  if(isnan(robServCommand->tau_ff[1]))
+    std::cout << "tauff check 2: " << robServCommand->tau_ff[1] << std::endl;
   finalizeStep();
+  if(isnan(robServCommand->tau_ff[1]))
+    std::cout << "tauff check 3: " << robServCommand->tau_ff[1] << std::endl;
 }
 
 /*!
@@ -223,6 +227,9 @@ void RobotRunner::setupStep() {
   _legController->zeroCommand();
   _legController->setEnabled(true);
   _legController->setMaxTorqueCheetah3(208.5);
+
+  if(isnan(robServCommand->tau_ff[1]))
+    std::cout << "tauff check 1: " << robServCommand->tau_ff[1] << std::endl;
 
   // state estimator
   // check transition to cheater mode:
@@ -264,7 +271,7 @@ void RobotRunner::finalizeStep() {
     robot_server_command_lcmt LCMCommandfix;
 
     // static int leg_reordering[12] = {3,4,5,0,1,2,9,10,11,6,7,8};
-    std::cout << "[robot_server_command->tau_ff[";
+    // std::cout << "[robot_server_command->tau_ff[";
     for(int leg = 0; leg < 4; leg++) {
       for(int axis = 0; axis < 3; axis++) {
         int idx = leg*3 + axis;
@@ -288,9 +295,9 @@ void RobotRunner::finalizeStep() {
         // std::cout << LCMCommandfix.q_des[idx] << ", ";
       }
     }
-    std::cout << LCMCommandfix.tau_ff[muadquad_leg_reordering[1]] << ", ";
-    std::cout << LCMCommandfix.tau_ff[muadquad_leg_reordering[2]];
-    std::cout << "]" << std::endl;
+    // std::cout << LCMCommandfix.tau_ff[muadquad_leg_reordering[1]] << ", ";
+    // std::cout << LCMCommandfix.tau_ff[muadquad_leg_reordering[2]];
+    // std::cout << "]" << std::endl;
     // std::cout << "Updated the command second time!" << std::endl;
     _lcm.publish("robot_server_command", &LCMCommandfix);
     // _commandLCM.publish("robot_server_command", &LCMCommandfix);

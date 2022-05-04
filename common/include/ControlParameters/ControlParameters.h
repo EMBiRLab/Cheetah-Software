@@ -18,6 +18,7 @@
 #include <map>
 #include <mutex>
 #include <string>
+#include <iostream>
 #include "Utilities/utilities.h"
 #include "cTypes.h"
 
@@ -106,6 +107,9 @@ class ControlParameterCollection {
     if (mapContains(_map, name)) {
       return *_map[name];
     } else {
+      for (auto& [key, value]: _map) {
+        std::cout << key << " has value " << value << std::endl;
+      }
       throw std::runtime_error("Control parameter " + name +
                                " wasn't found in parameter collection " +
                                _name);
