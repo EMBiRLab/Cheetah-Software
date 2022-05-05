@@ -14,7 +14,7 @@ from state_estimator_lcmt import state_estimator_lcmt
 class Handler:
 
     def __init__(self):
-        self.buffer = [0 for x in range(168)]
+        self.buffer = [0 for x in range(190)]
         self.header = ['time','cmd_tau_ff_0','cmd_tau_ff_1','cmd_tau_ff_2','cmd_tau_ff_3','cmd_tau_ff_4','cmd_tau_ff_5','cmd_tau_ff_6','cmd_tau_ff_7','cmd_tau_ff_8','cmd_tau_ff_9','cmd_tau_ff_10','cmd_tau_ff_11',
                 'cmd_f_ff_0','cmd_f_ff_1','cmd_f_ff_2','cmd_f_ff_3','cmd_f_ff_4','cmd_f_ff_5','cmd_f_ff_6','cmd_f_ff_7','cmd_f_ff_8','cmd_f_ff_9','cmd_f_ff_10','cmd_f_ff_11',
                 'cmd_q_des_0','cmd_q_des_1','cmd_q_des_2','cmd_q_des_3','cmd_q_des_4','cmd_q_des_5','cmd_q_des_6','cmd_q_des_7','cmd_q_des_8','cmd_q_des_9','cmd_q_des_10','cmd_q_des_11',
@@ -29,10 +29,18 @@ class Handler:
                 'J0_0', 'J0_1', 'J0_2','J0_3','J0_4','J0_5','J0_6','J0_7','J0_8',
                 'J1_0', 'J1_1', 'J1_2','J1_3','J1_4','J1_5','J1_6','J1_7','J1_8',
                 'J2_0', 'J2_1', 'J2_2','J2_3','J2_4','J2_5','J2_6','J2_7','J2_8',
-                'J3_0', 'J3_1', 'J3_2','J3_3','J3_4','J3_5','J3_6','J3_7','J3_8'
+                'J3_0', 'J3_1', 'J3_2','J3_3','J3_4','J3_5','J3_6','J3_7','J3_8',
+                'p_0', 'p_1', 'p_2',
+                'vWorld_0', 'vWorld_1', 'vWorld_2',
+                'vBody_0', 'vBody_1', 'vBody_2',
+                'rpy_0', 'rpy_1', 'rpy_2',
+                'omegaBody_0', 'omegaBody_1', 'omegaBody_2',
+                'omegaWorld_0', 'omegaWorld_1', 'omegaWorld_2',
+                'quat_0', 'quat_1', 'quat_2', 'quat_3'
                 ]
         self.ctrl_cmd_ready = False
         self.ctrl_data_ready = False
+        self.state_est_ready = False
 
     """
     struct leg_control_command_lcmt {
@@ -111,7 +119,16 @@ class Handler:
     """
     def state_estim_handler(self, channel, data):
         msg = state_estimator_lcmt.decode(data)
-        # do nothing for now
+
+        self.buffer[168:170] = msg.p
+        self.buffer[171:173] = msg.vWorld
+        self.buffer[174:176] = msg.vBody
+        self.buffer[177:179] = msg.rpy
+        self.buffer[180:182] = msg.omegaBody
+        self.buffer[183:185] = msg.omegaWorld
+        self.buffer[186:189] = msg.quat
+        
+        self.state_est_ready = True
 
 
 
@@ -129,7 +146,7 @@ writer.writerow(handler.header)
 lc = lcm.LCM()
 subscription = lc.subscribe("leg_control_command", handler.ctrl_cmd_handler)
 subscription = lc.subscribe("leg_control_data", handler.ctrl_data_handler)
-# subscription = lc.subscribe("state_estimator", state_estim_handler)
+subscription = lc.subscribe("state_estimator", handler.state_estim_handler)
 
 iter = 0
 start_time = time.time()
@@ -137,14 +154,15 @@ try:
     while True:
         lc.handle_timeout(100)
         
-        if handler.ctrl_cmd_ready and handler.ctrl_data_ready:
+        if handler.ctrl_cmd_ready and handler.ctrl_data_ready and handler.state_est_ready:
             cur_time = time.time() - start_time
-            buf2 = [cur_time] + handler.buffer[:168]
+            buf2 = [cur_time] + handler.buffer[:190]
             # print(len(handler.buffer))
             writer.writerow([round(e, 4) for e in buf2])
-            handler.buffer = [0 for x in range(168)]
+            handler.buffer = [0 for x in range(190)]
             handler.ctrl_cmd_ready = False
             handler.ctrl_data_ready = False
+            handler.state_est_ready = False
 
         if iter % 300 == 0:
             print("logging is still alive")

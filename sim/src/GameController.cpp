@@ -141,26 +141,26 @@ void GameController::updateGamepadCommandLCM(){
     gamepadCmd.rightStickAnalog =
         Vec2<float>(_qGamepad->axisRightX(), -_qGamepad->axisRightY());
   } else {
-    // gamepadCmd.zero();  // no joystick, return all zeros
-    printf("setting left analog and right analog stick values\n");
-    gamepadCmd.leftBumper = 1;
-    gamepadCmd.rightBumper = 1;
-    gamepadCmd.leftTriggerButton = 1;
-    gamepadCmd.rightTriggerButton = 1;
-    gamepadCmd.back = 1;
-    gamepadCmd.start = 1;
-    gamepadCmd.a = 1;
-    gamepadCmd.b = 1;
-    gamepadCmd.x = 1;
-    gamepadCmd.y = 1;
-    gamepadCmd.leftStickButton = 1;
-    gamepadCmd.rightStickButton = 1;
-    gamepadCmd.leftTriggerAnalog = 1.0;
-    gamepadCmd.rightTriggerAnalog = 1.0;
-    gamepadCmd.leftStickAnalog =
-        Vec2<float>(0.0, 0.5);
-    gamepadCmd.rightStickAnalog =
-        Vec2<float>(0.0, 0.0);
+    gamepadCmd.zero();  // no joystick, return all zeros
+    // printf("setting left analog and right analog stick values\n");
+    // gamepadCmd.leftBumper = 1;
+    // gamepadCmd.rightBumper = 1;
+    // gamepadCmd.leftTriggerButton = 1;
+    // gamepadCmd.rightTriggerButton = 1;
+    // gamepadCmd.back = 1;
+    // gamepadCmd.start = 1;
+    // gamepadCmd.a = 1;
+    // gamepadCmd.b = 1;
+    // gamepadCmd.x = 1;
+    // gamepadCmd.y = 1;
+    // gamepadCmd.leftStickButton = 1;
+    // gamepadCmd.rightStickButton = 1;
+    // gamepadCmd.leftTriggerAnalog = 1.0;
+    // gamepadCmd.rightTriggerAnalog = 1.0;
+    // gamepadCmd.leftStickAnalog =
+    //     Vec2<float>(0.0, 0.5);
+    // gamepadCmd.rightStickAnalog =
+    //     Vec2<float>(0.0, 0.0);
   }
   gamepadCmd.get(&_gamepad_lcmt);
   _lcm.publish(INTERFACE_LCM_NAME, &_gamepad_lcmt);

@@ -42,6 +42,7 @@ void CheaterOrientationEstimator<T>::run() {
  */
 template <typename T>
 void VectorNavOrientationEstimator<T>::run() {
+  // std::cout << "COMPUTING THE ORIENTATION ESTIMATE" << std::endl;
   this->_stateEstimatorData.result->orientation[0] =
       this->_stateEstimatorData.vectorNavData->quat[3];
   this->_stateEstimatorData.result->orientation[1] =
@@ -63,6 +64,8 @@ void VectorNavOrientationEstimator<T>::run() {
 
   this->_stateEstimatorData.result->rpy =
       ori::quatToRPY(this->_stateEstimatorData.result->orientation);
+
+  std::cout << "We just calculated quatToRPY, result is: " << this->_stateEstimatorData.result->rpy << std::endl;
 
 
   this->_stateEstimatorData.result->rBody = ori::quaternionToRotationMatrix(
