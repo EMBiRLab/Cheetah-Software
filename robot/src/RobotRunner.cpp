@@ -309,6 +309,7 @@ void RobotRunner::finalizeStep() {
   _stateEstimate.setLcm(state_estimator_lcm);
   _lcm.publish("leg_control_command", &leg_control_command_lcm);
   _lcm.publish("leg_control_data", &leg_control_data_lcm);
+  std::cout << "RPY in _stateEstimate is: " << _stateEstimate.rpy << std::endl;
   _lcm.publish("state_estimator", &state_estimator_lcm);
   _iterations++;
 }
@@ -377,10 +378,15 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   // Firstly, rotate the quaternion by 180 about y bc its mounted
   // upside-down
   // static Eigen::Quaternionf y_180(0,0,1,0);
-  static Eigen::Quaternionf y_90(std::sqrt(2)/2.0,0,std::sqrt(2)/2.0,0);
+  // static Eigen::Quaternionf y_90(std::sqrt(2)/2.0, 0, std::sqrt(2)/2.0, 0);
+  static Eigen::Quaternionf y_n90(std::sqrt(2)/2.0, 0, -std::sqrt(2)/2.0, 0);
+  static Eigen::Quaternionf y_180(0, 0, -1, 0);
+
   Eigen::Quaternionf robserv_quat(msg->quat[0],msg->quat[1],msg->quat[2],msg->quat[3]);
   // robserv_quat = y_180 * robserv_quat;
-  robserv_quat = y_90 * robserv_quat;
+  // robserv_quat = y_90 * robserv_quat;
+  robserv_quat = y_n90 * y_180 * robserv_quat;
+  // robserv_quat = robserv_quat;
 
   vectorNavData->accelerometer(2) =  msg->accelerometer[0];
   vectorNavData->accelerometer(1) =  msg->accelerometer[1];
@@ -396,8 +402,8 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   //   vectorNavData->gyro(i) = msg->gyro[i];
   // }
   // get the quaternion
-  vectorNavData->quat(0) = robserv_quat.w();
-  vectorNavData->quat.segment(1,3) = robserv_quat.vec();
+  vectorNavData->quat(3) = robserv_quat.w();
+  vectorNavData->quat.segment(0,3) = robserv_quat.vec();
 
   // // negate the linear and angular data to match account for mounting of IMU
   // vectorNavData->accelerometer(0) = -vectorNavData->accelerometer(0);
