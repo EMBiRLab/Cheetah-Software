@@ -69,6 +69,8 @@ public:
 		bool skip_zero = false;
 		bool skip_cfg_load = false;
 
+		bool ignore_cmds = false;
+
 		std::vector<uint8_t> moteus_ids;
 		std::vector<uint8_t> moteus_buses;
 
@@ -171,6 +173,8 @@ public:
 
 	inline void set_pi3hat_attitude(mjbots::pi3hat::Attitude* attitude) {pi3hat_attitude_ = *attitude;}
 
+	void send_actuator_position_hold();
+
 private:
 	char cstr_buffer[128];
 	
@@ -214,6 +218,9 @@ private:
 	float time_prog_s_ = 0;
 	float time_prog_old_s_ = 0;
 	float time_fcn_s_ = 0;
+
+	float last_rx_ = 0;
+
 	size_t cycles_ = 0;
 
 	uint8_t quit_cycle = 0;

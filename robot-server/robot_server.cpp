@@ -94,9 +94,17 @@ void RobotServer::handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
 	(void)chan;
 	std::lock_guard<std::mutex> commandguard(commandmutex); // wrapper for mutex
 	requested_command = *msg;
+	last_rx_ = time_prog_s_;
 	// if (std::isnan(requested_command.q_des[0]))
 	// 	std::cout << "\ngot a nan" << std::endl;
 	// std::cout << "rx cmd; q_des[0] = " << requested_command.q_des[0] << std::endl;
+}
+
+void RobotServer::send_actuator_position_hold() {
+	for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
+		float pos = actuator_ptrs_[a_idx]->get_position_rad();
+		actuator_ptrs_[a_idx]->make_act_position(pos, 0);
+	} 
 }
 
 void RobotServer::iterate_fsm() {
@@ -140,9 +148,12 @@ void RobotServer::iterate_fsm() {
 			// torque mode: position and velocity NAN
 			// velocity mode: position NAN
 			// position mode: nothing NAN
+
+			bool rx_timed_out =  (time_prog_s_ - last_rx_ > 1/100); // detects if we haven't gotten a reply recently
+
 			auto& rc = requested_command;
 			for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
-				if (std::isnan(rc.q_des[a_idx])) {
+				if (std::isnan(rc.q_des[a_idx]) && !rs_set_.ignore_cmds) {
 					// either velocity or torque
 					if (std::isnan(rc.qd_des[a_idx])) {
 						if (std::isnan(rc.tau_ff[a_idx])) {
@@ -156,7 +167,7 @@ void RobotServer::iterate_fsm() {
 							rc.qd_des[a_idx], rc.tau_ff[a_idx]);
 					}
 				}
-				else {
+				else if (!rs_set_.ignore_cmds) {
 					// clamps position set points to valid angle range
 					// kill velocity setpoint if attempting to operate outside
 					// (does not prevent actuators from being backdriven out of range)
@@ -169,6 +180,12 @@ void RobotServer::iterate_fsm() {
 					if (q_clamped < ll) {q_clamped = ll; qd_clamped = 0;}
 					actuator_ptrs_[a_idx]->make_act_full_pos(
 						q_clamped, qd_clamped, rc.tau_ff[a_idx]);
+				}
+				// else if (rx_timed_out) { //
+				// 	send_actuator_position_hold();
+				// }
+				else { // if rs_set ignore commands is set
+					actuator_ptrs_[a_idx]->make_stop();
 				}
 			}
 
@@ -269,7 +286,14 @@ void RobotServer::print_status_update() {
 
 	if (safety_check()) std::cout << color_factory.bg_grn() << color_factory.fg_blk() << " **SAFE**";
 	else std::cout << "|" << color_factory.bg_red() << color_factory.fg_blk() << "**FAULT**";
-	std::cout << color_factory.fg_def() << color_factory.bg_def() << "\r";
+	std::cout << color_factory.fg_def() << color_factory.bg_def();
+	if (time_prog_s_ - last_rx_ < 1/100) {
+		std::cout << " | rx lcm";
+	}
+	else {
+		std::cout << " | NO RX!";
+	}
+	std::cout << "\r";
 	std::cout.flush();
 	return;
 }
@@ -403,6 +427,7 @@ cxxopts::Options rs_opts() {
 		("skip-cal", "skip recalibration")
 		("skip-zero", "skip setting actuator zero")
 		("skip-cfg-load", "skip loading actuator config")
+		("ignore-cmds", "ignore incoming commands and set actuators to idle")
 		("h,help", "Print usage")
 	;
 
@@ -432,6 +457,8 @@ RobotServer::RobotServerSettings::RobotServerSettings(cxxopts::ParseResult& rs_o
 	skip_cal = rs_opts["skip-cal"].as<bool>();
 	skip_zero = rs_opts["skip-zero"].as<bool>();
 	skip_cfg_load = rs_opts["skip-cfg-load"].as<bool>();
+
+	ignore_cmds = rs_opts["ignore-cmds"].as<bool>();
 
 	moteus_ids = rs_cfg_j["moteus_ids"].get<std::vector<uint8_t>>();
 	num_actuators = moteus_ids.size();
