@@ -309,7 +309,7 @@ void RobotRunner::finalizeStep() {
   _stateEstimate.setLcm(state_estimator_lcm);
   _lcm.publish("leg_control_command", &leg_control_command_lcm);
   _lcm.publish("leg_control_data", &leg_control_data_lcm);
-  std::cout << "RPY in _stateEstimate is: " << _stateEstimate.rpy << std::endl;
+  // std::cout << "RPY in _stateEstimate is: " << _stateEstimate.rpy << std::endl;
   _lcm.publish("state_estimator", &state_estimator_lcm);
   _iterations++;
 }
@@ -404,6 +404,9 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   // get the quaternion
   vectorNavData->quat(3) = robserv_quat.w();
   vectorNavData->quat.segment(0,3) = robserv_quat.vec();
+
+  std::cout << "RAW QUAT is: " << msg->quat[0] << ", " << msg->quat[1] << ", "
+                               << msg->quat[2] << ", " << msg->quat[3] << "\n";
 
   // // negate the linear and angular data to match account for mounting of IMU
   // vectorNavData->accelerometer(0) = -vectorNavData->accelerometer(0);

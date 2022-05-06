@@ -65,7 +65,7 @@ void VectorNavOrientationEstimator<T>::run() {
   this->_stateEstimatorData.result->rpy =
       ori::quatToRPY(this->_stateEstimatorData.result->orientation);
 
-  std::cout << "We just calculated quatToRPY, result is: " << this->_stateEstimatorData.result->rpy << std::endl;
+//   std::cout << "We just calculated quatToRPY, result is: " << this->_stateEstimatorData.result->rpy << std::endl;
 
 
   this->_stateEstimatorData.result->rBody = ori::quaternionToRotationMatrix(

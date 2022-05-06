@@ -2,26 +2,60 @@
 PyTeapot module for drawing rotating cube using OpenGL as per
 quaternion or yaw, pitch, roll angles received over serial port.
 """
-
+import numpy as np
+from cmath import pi
 import pygame
 import math
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from pygame.locals import *
-
+import sys
+sys.path.append('../')
+sys.path.append('./lcm-types/python/')
 import lcm
 
+from pyquaternion import Quaternion
 from robot_server_response_lcmt import robot_server_response_lcmt
 
 useSerial = False # set true for using serial for data transmission, false for wifi
 useLCM = True
 useQuat = True   # set true for using quaternions, false for using y,p,r angles
 
+first_rx = True
+rx_thresh = 15
+rx_count = 0
+
 latest_quat = [1, 0, 0, 0]
+qtransform = Quaternion(.9999999, 0, 0, 0)
 
 def rs_handler(channel, data):
-    msg = robot_server_command_lcmt.decode(data)
+    global rx_count
+    rx_count = rx_count + 1
+    msg = robot_server_response_lcmt.decode(data)
+    global latest_quat
+    global qtransform
+    global first_rx
     latest_quat = msg.quat
+
+    qimu = Quaternion(latest_quat[0],latest_quat[1],latest_quat[2],latest_quat[3])
+    if rx_count >= rx_thresh and rx_count < rx_thresh + 1:
+        qmit = Quaternion(.9999,0,0,0)
+        # qtransform = qmit / qimu
+        qtransform = qmit * qimu.inverse
+        # qtransform = qimu * qmit.inverse
+        first_rx = False
+    q1 = Quaternion(axis=[0,0,1], angle=np.pi/2)
+
+    # qimu = q1 * qimu
+    # q2 = q1 * qimu
+
+    qy90 = Quaternion(0.7071068, 0, 0.7071068, 0)
+    # rotatedq = qtransform * qimu
+    # rotatedq = qtransform * qimu #* qtransform.conjugate
+    # rotatedq = qimu * qtransform #* qtransform.conjugate
+    rotatedq = qy90*qimu
+
+    latest_quat = [rotatedq[0], rotatedq[1], rotatedq[2], rotatedq[3]]
 
 if(useSerial):
     import serial

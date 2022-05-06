@@ -8,7 +8,7 @@ class TorsoPos_Controller : public RobotController {
 public:
   TorsoPos_Controller():RobotController(){
 // <<<<<<< HEAD
-    home << -0.05, -0.5, 1.0, 0.05, -0.5, 1.0, -0.05, -0.5, 1.0, 0.05, -0.5, 1.0;
+    home << -0.05, -0.6, 1.2, 0.05, -0.6, 1.2, -0.05, -0.6, 1.2, 0.05, -0.6, 1.2;
     desired_q = home;
 
     max_setpoint_speed_mag_rad_s = 1.0;

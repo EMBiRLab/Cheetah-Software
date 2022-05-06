@@ -15,7 +15,7 @@
 template <typename T>
 FSM_State_StandUp<T>::FSM_State_StandUp(ControlFSMData<T>* _controlFSMData)
     : FSM_State<T>(_controlFSMData, FSM_StateName::STAND_UP, "STAND_UP"),
-_ini_foot_pos(4){
+_ini_foot_pos(4), transition_cmd(4), transition_pos(4){
   // Do nothing
   // Set the pre controls safety checks
   this->checkSafeOrientation = false;
@@ -35,6 +35,7 @@ void FSM_State_StandUp<T>::onEnter() {
 
   // Reset iteration counter
   iter = 0;
+  standup_iter = 0;
 
   for(size_t leg(0); leg<4; ++leg){
     _ini_foot_pos[leg] = this->_data->_legController->datas[leg].p;
@@ -62,31 +63,125 @@ void FSM_State_StandUp<T>::run() {
         progress*(-hMax) + (1. - progress) * _ini_foot_pos[i][2];
     }
   } else if(this->_data->_quadruped->_robotType == RobotType::MUADQUAD) {
-    T hMax = 0.25;
-    T progress = .75 * iter * this->_data->controlParameters->controller_dt;
+    T progress = .75 * standup_iter * this->_data->controlParameters->controller_dt;
+    T hMax = 0.28;
 
-    if (progress > 1.){ progress = 1.; }
+    if (this->_data->_desiredStateCommand->gamepadCommand->start && stood_up){
+      // pushup mode
+      // we are in triangular wave "pushup" mode
+      if(standing_up){ // change detection
+        standing_up = false;
+        standup_iter = 0;
+        std::cout << "MODE TRANSITION DETECT: STANDING TO PUSHUP @ iter " << iter << "\n";
+        for (int leg = 0; leg < 4; leg++){
+          std::cout << "_ini_foot_pos of leg " << leg << " is " << _ini_foot_pos[leg] << std::endl;
+        }
+      }
+      // std::cout << "pushup mode. ini z = " << _ini_foot_pos[0][2] << "";
 
-    // for(int i = 0; i < 4; i++) {
-    for(int i = 0; i < 4; i++) {
-      // this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
-      this->_data->_legController->commands[i].kpCartesian = Vec3<T>(400, 400, 400).asDiagonal();
-      // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
-      this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.5, 2.5, 2.5).asDiagonal();
+      for(int i = 0; i < 4; i++) {
+        // this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
+        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(350, 350, 350).asDiagonal();
+        // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
+        this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.2, 2.2, 2.2).asDiagonal();
+        // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.5, 2.5, 2.5).asDiagonal();
 
-      // this->_data->_legController->commands[i].qDes = Vec3<T>(std::numeric_limits<float>::quiet_NaN,
-      //                                                         std::numeric_limits<float>::quiet_NaN,
-      //                                                         std::numeric_limits<float>::quiet_NaN);
-      this->_data->_legController->commands[i].qDes[0] = nan("");
-      this->_data->_legController->commands[i].qDes[1] = nan("");
-      this->_data->_legController->commands[i].qDes[2] = nan("");
-      this->_data->_legController->commands[i].pDes = _ini_foot_pos[i];
-      this->_data->_legController->commands[i].pDes[2] = 
-        progress*(-hMax) + (1. - progress) * _ini_foot_pos[i][2];
-      this->_data->_legController->commands[i].pDes[0] = 
-        progress*(0) + (1. - progress) * _ini_foot_pos[i][0];
+
+        this->_data->_legController->commands[i].pDes = _ini_foot_pos[i];
+        this->_data->_legController->commands[i].vDes[0] = 0;
+        this->_data->_legController->commands[i].vDes[1] = 0;
+        this->_data->_legController->commands[i].vDes[2] = 0;
+
+
+        T A = 0.03;
+        T pushup_freq = 0.333;
+        T w = pushup_freq*2*M_PI;
+        T t = standup_iter * this->_data->controlParameters->controller_dt - (1/pushup_freq)/4;
+
+
+        this->_data->_legController->commands[i].pDes[0] = 0.0;
+        this->_data->_legController->commands[i].pDes[2] = 
+          -hMax + (4*A*(1-std::pow(-1,1)) / (std::pow(M_PI,2)*std::pow(1,2))) * std::cos(1*w*t) + 
+                  (4*A*(1-std::pow(-1,3)) / (std::pow(M_PI,2)*std::pow(3,2))) * std::cos(3*w*t) + 
+                  (4*A*(1-std::pow(-1,5)) / (std::pow(M_PI,2)*std::pow(5,2))) * std::cos(5*w*t);
+
+
+        this->_data->_legController->commands[i].vDes[2] = 
+          -(4*A*1*w*(1-std::pow(-1,1)) / (std::pow(M_PI,2)*std::pow(1,2))) * std::sin(1*w*t) - 
+           (4*A*3*w*(1-std::pow(-1,3)) / (std::pow(M_PI,2)*std::pow(3,2))) * std::sin(3*w*t) - 
+           (4*A*5*w*(1-std::pow(-1,5)) / (std::pow(M_PI,2)*std::pow(5,2))) * std::sin(5*w*t);
+
+        
+        transition_pos[i] = this->_data->_legController->datas[i].p;
+        transition_cmd[i] = this->_data->_legController->commands[i].pDes;
+      }
+
+      // std::cout << ", cmd pdes z = " << this->_data->_legController->commands[0].pDes[2] 
+      //  << ", actual z = " <<  this->_data->_legController->datas[0].p[2] << std::endl;
+      // transition_pos = this->_data->_legController->datas[leg].p;
+      // transition_cmd = this->_data->_legController->commands[leg].pDes;
+
+      standup_iter++;
+
     }
-    // std::cout << "desired z of foot 0 is " << this->_data->_legController->commands[0].pDes[2] << std::endl;
+    else {
+      // go to "stand up" position from wherever you are
+      if (!standing_up){
+        standing_up = true;
+        stood_up = false;
+        standup_iter = 0;
+        std::cout << "MODE TRANSITION DETECT: PUSHUP TO STANDING @ iter " << iter << ".... setting new ini\n";
+        for(size_t leg(0); leg<4; ++leg){
+          // _ini_foot_pos[leg] = this->_data->_legController->datas[leg].p;
+          _ini_foot_pos[leg] = transition_cmd[leg];
+        }
+      }
+
+      // if (standing_up){
+      // already standing up, no need to reset standup_iter
+      // T hMax = 0.25;
+      // T progress = .75 * standup_iter * this->_data->controlParameters->controller_dt;
+      progress = .75 * standup_iter * this->_data->controlParameters->controller_dt;
+
+      // std::cout << "standup mode. ini z = " << _ini_foot_pos[0][2] << "... progress = " << progress;
+
+      if (progress > 1.){ 
+        progress = 1.; 
+        stood_up = true;
+        // std::cout << "... FINISHED STANDING";
+      }
+
+      // for(int i = 0; i < 4; i++) {
+      for(int i = 0; i < 4; i++) {
+        // this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
+        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(350, 350, 350).asDiagonal();
+        // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
+        this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.2, 2.2, 2.2).asDiagonal();
+        // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.5, 2.5, 2.5).asDiagonal();
+
+        this->_data->_legController->commands[i].pDes = _ini_foot_pos[i];
+        this->_data->_legController->commands[i].pDes[2] = 
+          progress*(-hMax) + (1. - progress) * _ini_foot_pos[i][2];
+        this->_data->_legController->commands[i].pDes[0] = 
+          progress*(0) + (1. - progress) * _ini_foot_pos[i][0];
+        transition_pos[i] = this->_data->_legController->datas[i].p;
+        transition_cmd[i] = this->_data->_legController->commands[i].pDes;
+      }
+      
+      // std::cout << ", cmd pdes z = " << this->_data->_legController->commands[0].pDes[2] << std::endl;
+      // std::cout << "desired z of foot 0 is " << this->_data->_legController->commands[0].pDes[2] << std::endl;
+      // }
+      
+      standup_iter++;
+    }
+
+    for(int i = 0; i < 4; i++){
+      this->_data->_legController->commands[i].forceFeedForward[2] = -20;
+    }
+
+    for(int i = 2; i < 4; i++){
+      this->_data->_legController->commands[i].forceFeedForward[2] = -29.1;
+    }
   }
 }
 
