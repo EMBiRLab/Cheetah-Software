@@ -38,27 +38,65 @@ def rs_handler(channel, data):
     latest_quat = msg.quat
 
     qimu = Quaternion(latest_quat[0],latest_quat[1],latest_quat[2],latest_quat[3])
+    
+    # Ry90 = np.array([[0, 0, 1], [0, 1, 0], [-1, 0, 0]])
     # Rimu = qimu.rotation_matrix
+    # Rimu = np.matmul(Ry90, Rimu)
+    # qimu = Quaternion(matrix=Rimu)
+
+    
 
 
+    qmit = Quaternion(.9999,0,0,0)
     if rx_count >= rx_thresh and rx_count < rx_thresh + 1:
-        qmit = Quaternion(.9999,0,0,0)
         # qtransform = qmit / qimu
         qtransform = qmit * qimu.inverse
+        # qtransform = qimu.inverse * qmit
+
+
+
+        # Rtransform = qimu.rotation_matrix
+        # print(Rtransform)
+        # Rtransform = np.asarray(Rtransform)
+        # Rtransform = Rtransform.transpose()
+
+        # print(Ry90)
+        # Rtransform = Ry90 * Rtransform
+        # print(Rtransform)
+        # qtransform = Quaternion(matrix=Rtransform)
         # qtransform = qimu * qmit.inverse
         first_rx = False
 
     # Rtransform = qtransform.rotation_matrix
+    qimu = qtransform * qimu # to square up sensor axes
+
+
+    Rx180 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
+    Ry90neg = np.array([[0, 0, -1], [0, 1, 0], [1, 0, -0]])
+    Rz180 = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
+    Ry90  = np.array([[0, 0, 1], [0, 1, 0], [-1, 0, -0]])
+    Rimu = qimu.rotation_matrix
+    Rimu = np.matmul(Rx180, Rimu)
+    Rimu = np.matmul(Ry90neg, Rimu)
+    Rimu = np.matmul(Rz180, Rimu)
+    Rimu = np.matmul(Rimu, Ry90)
+    qimu = Quaternion(matrix=Rimu)
+    
+    qy90 = Quaternion(0.7071068, 0, 0.7071068, 0)
+    
+    
     q1 = Quaternion(axis=[0,0,1], angle=np.pi/2)
 
     # qimu = q1 * qimu
     # q2 = q1 * qimu
 
-    qy90 = Quaternion(0.7071068, 0, 0.7071068, 0)
     # rotatedq = qtransform * qimu
+    rotatedq = qimu
+    print("\rqimu [w x y z] = {}".format([np.round(e, 2) for e in rotatedq]))
+    sys.stdout.flush()
     # rotatedq = qtransform * qimu #* qtransform.conjugate
     # rotatedq = qimu * qtransform #* qtransform.conjugate
-    rotatedq = qy90*qimu
+    # rotatedq = qy90*qimu
 
     latest_quat = [rotatedq[0], rotatedq[1], rotatedq[2], rotatedq[3]]
 
@@ -188,7 +226,7 @@ def draw(w, nx, ny, nz):
 
     if(useQuat):
         [yaw, pitch , roll] = quat_to_ypr([w, nx, ny, nz])
-        drawText((-2.6, -1.8, 2), "Yaw: %f, Pitch: %f, Roll: %f" %(yaw, pitch, roll), 16)
+        drawText((-2.6, -1.8, 2), "Yaw: %f, Pitch: %f, Roll: %f" %(np.round(yaw, 2), np.round(pitch, 2), np.round(roll, 2)), 16)
         glRotatef(2 * math.acos(w) * 180.00/math.pi, -1 * nx, nz, ny)
     else:
         yaw = nx
