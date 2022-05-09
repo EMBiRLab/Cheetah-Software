@@ -405,8 +405,8 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   vectorNavData->quat(3) = robserv_quat.w();
   vectorNavData->quat.segment(0,3) = robserv_quat.vec();
 
-  std::cout << "RAW QUAT is: " << msg->quat[0] << ", " << msg->quat[1] << ", "
-                               << msg->quat[2] << ", " << msg->quat[3] << "\n";
+  // std::cout << "RAW QUAT is: " << msg->quat[0] << ", " << msg->quat[1] << ", "
+  //                              << msg->quat[2] << ", " << msg->quat[3] << "\n";
 
   // // negate the linear and angular data to match account for mounting of IMU
   // vectorNavData->accelerometer(0) = -vectorNavData->accelerometer(0);

@@ -36,6 +36,7 @@ class FSM_State_StandUp : public FSM_State<T> {
   bool standing_up = true;
   bool stood_up = false;
   int standup_iter = 0;
+  int button_count = 0;
 
   std::vector< Vec3<T> > transition_cmd;
   std::vector< Vec3<T> > transition_pos;

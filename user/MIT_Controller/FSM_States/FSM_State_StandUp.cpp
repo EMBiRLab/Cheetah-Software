@@ -36,6 +36,7 @@ void FSM_State_StandUp<T>::onEnter() {
   // Reset iteration counter
   iter = 0;
   standup_iter = 0;
+  button_count = 0;
 
   for(size_t leg(0); leg<4; ++leg){
     _ini_foot_pos[leg] = this->_data->_legController->datas[leg].p;
@@ -66,7 +67,14 @@ void FSM_State_StandUp<T>::run() {
     T progress = .75 * standup_iter * this->_data->controlParameters->controller_dt;
     T hMax = 0.28;
 
-    if (this->_data->_desiredStateCommand->gamepadCommand->start && stood_up){
+    if (this->_data->_desiredStateCommand->gamepadCommand->start){
+      button_count++;
+    }
+    else{
+      button_count = 0;
+    }
+
+    if (this->_data->_desiredStateCommand->gamepadCommand->start && stood_up && button_count >= 15){
       // pushup mode
       // we are in triangular wave "pushup" mode
       if(standing_up){ // change detection
@@ -81,7 +89,7 @@ void FSM_State_StandUp<T>::run() {
 
       for(int i = 0; i < 4; i++) {
         // this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
-        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(350, 350, 350).asDiagonal();
+        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(300, 300, 300).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
         this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.2, 2.2, 2.2).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.5, 2.5, 2.5).asDiagonal();
@@ -154,7 +162,7 @@ void FSM_State_StandUp<T>::run() {
       // for(int i = 0; i < 4; i++) {
       for(int i = 0; i < 4; i++) {
         // this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
-        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(350, 350, 350).asDiagonal();
+        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(300, 300, 300).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
         this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.2, 2.2, 2.2).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.5, 2.5, 2.5).asDiagonal();
@@ -179,9 +187,9 @@ void FSM_State_StandUp<T>::run() {
       this->_data->_legController->commands[i].forceFeedForward[2] = -20;
     }
 
-    for(int i = 2; i < 4; i++){
-      this->_data->_legController->commands[i].forceFeedForward[2] = -29.1;
-    }
+    // for(int i = 2; i < 4; i++){
+      // this->_data->_legController->commands[i].forceFeedForward[2] = -29.1;
+    // }
   }
 }
 

@@ -38,12 +38,17 @@ def rs_handler(channel, data):
     latest_quat = msg.quat
 
     qimu = Quaternion(latest_quat[0],latest_quat[1],latest_quat[2],latest_quat[3])
+    # Rimu = qimu.rotation_matrix
+
+
     if rx_count >= rx_thresh and rx_count < rx_thresh + 1:
         qmit = Quaternion(.9999,0,0,0)
         # qtransform = qmit / qimu
         qtransform = qmit * qimu.inverse
         # qtransform = qimu * qmit.inverse
         first_rx = False
+
+    # Rtransform = qtransform.rotation_matrix
     q1 = Quaternion(axis=[0,0,1], angle=np.pi/2)
 
     # qimu = q1 * qimu
