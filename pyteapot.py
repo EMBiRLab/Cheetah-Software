@@ -76,9 +76,9 @@ def rs_handler(channel, data):
     Rz180 = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
     Ry90  = np.array([[0, 0, 1], [0, 1, 0], [-1, 0, -0]])
     Rimu = qimu.rotation_matrix
-    Rimu = np.matmul(Rx180, Rimu)
+    # Rimu = np.matmul(Rx180, Rimu)
     Rimu = np.matmul(Ry90neg, Rimu)
-    Rimu = np.matmul(Rz180, Rimu)
+    # Rimu = np.matmul(Rz180, Rimu)
     Rimu = np.matmul(Rimu, Ry90)
     qimu = Quaternion(matrix=Rimu)
     
