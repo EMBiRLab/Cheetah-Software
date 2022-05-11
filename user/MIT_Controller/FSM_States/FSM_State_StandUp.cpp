@@ -89,7 +89,7 @@ void FSM_State_StandUp<T>::run() {
 
       for(int i = 0; i < 4; i++) {
         // this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
-        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(300, 300, 300).asDiagonal();
+        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(350, 350, 350).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
         this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2, 2, 2).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(3.25, 3.25, 3.25).asDiagonal();
@@ -162,7 +162,7 @@ void FSM_State_StandUp<T>::run() {
       // for(int i = 0; i < 4; i++) {
       for(int i = 0; i < 4; i++) {
         // this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
-        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(300, 300, 300).asDiagonal();
+        this->_data->_legController->commands[i].kpCartesian = Vec3<T>(350, 350, 350).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
         this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2, 2, 2).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(3.25, 3.25, 3.25).asDiagonal();
@@ -184,11 +184,11 @@ void FSM_State_StandUp<T>::run() {
     }
 
     for(int i = 0; i < 4; i++){
-      this->_data->_legController->commands[i].forceFeedForward[2] = -21;
+      this->_data->_legController->commands[i].forceFeedForward[2] = -20;
     }
 
     for(int i = 2; i < 4; i++){
-      this->_data->_legController->commands[i].forceFeedForward[2] = -27;
+      this->_data->_legController->commands[i].forceFeedForward[2] = -25;
     }
   }
 }
