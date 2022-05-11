@@ -371,7 +371,13 @@ void RobotServer::publish_LCM_response() {
 	// auto& server_response = server_response;
 	for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
 		server_response.q[a_idx] = actuator_ptrs_[a_idx]->get_position_rad();
+		if (std::isnan(server_response.q[a_idx])){
+			std::cout << "Got a position nan for actuator " << a_idx << " when packing LCM" << std::endl;
+		}
 		server_response.qd[a_idx] = actuator_ptrs_[a_idx]->get_velocity_rad_s();
+		if (std::isnan(server_response.qd[a_idx])){
+			std::cout << "Got a velocity nan for actuator " << a_idx << " when packing LCM" << std::endl;
+		}
 		server_response.tau_est[a_idx] = actuator_ptrs_[a_idx]->get_torque_Nm();
 	}
 	server_response.fsm_state = uint8_t(curr_state_);

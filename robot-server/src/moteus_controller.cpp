@@ -147,16 +147,23 @@ void MoteusController::make_mot_full_pos(float pos_rot, float vel_Hz,
 
 void MoteusController::retrieve_reply(std::vector<MoteusInterface::ServoReply>& replies) {
 	// if(replies.size() < 2) std::cout << "incorrect number of replies: " << replies.size() << std::endl;
-	float pos_buf = 0;
-	float vel_buf = 0;
+	double pos_buf = 0;
+	double vel_buf = 0;
 	for (auto reply : replies) {
 		if (reply.id == id_) {
 			//std::cout << "found id " << (int)id_ << std::endl;
 			pos_buf = prev_reply_.result.position;
 			vel_buf = prev_reply_.result.velocity;
 			prev_reply_ = reply;
-			if (std::isnan(prev_reply_.result.position)) prev_reply_.result.position = pos_buf;
-			if (std::isnan(prev_reply_.result.velocity)) prev_reply_.result.velocity = vel_buf;
+			if (std::isnan(prev_reply_.result.position)) {
+				prev_reply_.result.position = pos_buf;	
+				std::cout << "Had a position nan on id" << (int)id_ << std::endl;
+			}
+			if (std::isnan(prev_reply_.result.velocity)) {
+				prev_reply_.result.velocity = vel_buf;
+				std::cout << "Had a velocity nan on id" << (int)id_ << std::endl;
+			
+			}
 			mode_ = prev_reply_.result.mode;
 			fault_code_ = (errc)prev_reply_.result.fault;
 			//if (fault_code_ == errc::kSuccess && outside_limit()) fault_code_ = errc::kOutsideLimit;
