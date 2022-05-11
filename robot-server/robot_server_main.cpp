@@ -116,9 +116,12 @@ void Run(RobotServer& robotserver) {
 	std::cout << "beginning while loop..." << std::endl;
 
 	// * MAIN LOOP *
-	while (!interrupted
-			&& robotserver.get_time_prog() < rs_settings.duration_s
+	while (robotserver.get_time_prog() < rs_settings.duration_s
 			&& !robotserver.is_ready_to_quit()) {
+		if (interrupted) {
+			std::cout << "\ncaught interruption... transitioning to quit";
+			robotserver.transition_to_quit();
+		}
 		cycle_count++; margin_cycles++;
 		// Terminal status update
 		{

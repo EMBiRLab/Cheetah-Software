@@ -155,7 +155,7 @@ public:
 
 	void sample_sensors();
 
-  inline void flush_data() {datastream_.flush();}
+	inline void flush_data() {datastream_.flush();}
 
 	std::string stringify_sensor_data();
 	std::string stringify_sensor_data_headers();
@@ -172,6 +172,8 @@ public:
 	inline size_t num_actuators() {return actuator_ptrs_.size();}
 
 	inline void set_pi3hat_attitude(mjbots::pi3hat::Attitude* attitude) {pi3hat_attitude_ = *attitude;}
+
+	inline void transition_to_quit() { next_state_ = FSMState::kQuitting;}
 
 	void send_actuator_position_hold();
 

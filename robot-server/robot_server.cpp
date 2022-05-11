@@ -219,6 +219,7 @@ void RobotServer::iterate_fsm() {
 			quit_cycle++;
 			// wait at least a few cycles, then raise flag (main will have to quit)
 			if(quit_cycle > quit_cycle_thresh) {
+				std::cout << "\nsent stop commands... ready to quit" << std::endl;
 				ready_to_quit = true;
 				// std::cout << "\n\nerror codes on exit: a1 = " << int(a1_.fault()) << "; a2 = " << int(a2_.fault()) << std::endl;
 			}
