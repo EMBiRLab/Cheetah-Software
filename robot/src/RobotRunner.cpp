@@ -346,47 +346,39 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
                         const robot_server_response_lcmt* msg){
   (void)rbuf;
   (void)chan;
-  // std::cout<<"Getting the messages!! \n";
-  // for (int i = 0; i<12;i++){
-  //   LCMData->q[i] = msg->q[i];
-  //   LCMData->qd[i] = msg->qd[i];
-  //   LCMData->tau_est[i] = msg->tau_est[i];
-  // }
-  // LCMData->fsm_state = msg->fsm_state;
-  // std::cout<<"fsm_state is "<<LCMData->fsm_state;
-  // std::cout<<"Getting the messages!! \n";
+  
   int sign = 0;
-  // std::cout << "robServData->q[";
+  
   for (int i = 0; i<12; i++){
     sign = 1;
     if ((i / 3) % 2 == 0)
       sign = -1;
-    // if ((i % 3) == 0)
-    //   sign *= -1;
+
     int idx = muadquad_leg_reordering[i];
     robServData->q[i] = sign*msg->q[idx];
     robServData->qd[i] = sign*msg->qd[idx];
     robServData->tau_est[i] = sign*msg->tau_est[idx];
-    // std::cout << robServData->q[i] << ", ";
   }
-  // std::cout << "]\n";
   robServData->fsm_state = msg->fsm_state;
-  // std::cout<<"fsm_state is "<< (int)robServData->fsm_state;
-
+  
   // Populate vectorNavData here from the lcm bc we receive IMU 
   // updates via lcm from robot_server
-  // Firstly, rotate the quaternion by 180 about y bc its mounted
-  // upside-down
-  // static Eigen::Quaternionf y_180(0,0,1,0);
-  // static Eigen::Quaternionf y_90(std::sqrt(2)/2.0, 0, std::sqrt(2)/2.0, 0);
+  static Eigen::Quaternionf y_90(std::sqrt(2)/2.0, 0, std::sqrt(2)/2.0, 0);
   static Eigen::Quaternionf y_n90(std::sqrt(2)/2.0, 0, -std::sqrt(2)/2.0, 0);
-  static Eigen::Quaternionf y_180(0, 0, -1, 0);
-
+  static Eigen::Quaternionf qtransform(1, 0, 0, 0);
+  static int handle_count = 0;
+  
   Eigen::Quaternionf robserv_quat(msg->quat[0],msg->quat[1],msg->quat[2],msg->quat[3]);
-  // robserv_quat = y_180 * robserv_quat;
-  // robserv_quat = y_90 * robserv_quat;
-  robserv_quat = y_n90 * y_180 * robserv_quat;
-  // robserv_quat = robserv_quat;
+
+  handle_count++;
+  if(handle_count == 10){
+    qtransform = qtransform * robserv_quat.inverse();
+  }
+
+  robserv_quat = qtransform * robserv_quat;
+  robserv_quat = y_n90 * robserv_quat * y_90;
+  
+  // robserv_quat = robserv_quat * y_90;
 
   vectorNavData->accelerometer(2) =  msg->accelerometer[0];
   vectorNavData->accelerometer(1) =  msg->accelerometer[1];
@@ -397,20 +389,14 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   vectorNavData->gyro(0) = -msg->gyro[2];
 
 
-  // for (int i = 0; i < 3; i++){
-  //   vectorNavData->accelerometer(i) = msg->accelerometer[i];
-  //   vectorNavData->gyro(i) = msg->gyro[i];
-  // }
   // get the quaternion
   vectorNavData->quat(3) = robserv_quat.w();
   vectorNavData->quat.segment(0,3) = robserv_quat.vec();
 
-  // std::cout << "RAW QUAT is: " << msg->quat[0] << ", " << msg->quat[1] << ", "
-  //                              << msg->quat[2] << ", " << msg->quat[3] << "\n";
+  // std::cout.precision(3);
+  // std::cout << "GYRO is: " << vectorNavData->gyro(0) << ",\t" << 
+                              //  vectorNavData->gyro(1) << ",\t" << 
+                              //  vectorNavData->gyro(2) << "\n";
+  // std::cout.flush();
 
-  // // negate the linear and angular data to match account for mounting of IMU
-  // vectorNavData->accelerometer(0) = -vectorNavData->accelerometer(0);
-  // vectorNavData->accelerometer(2) = -vectorNavData->accelerometer(2);
-  // vectorNavData->gyro(0) = -vectorNavData->gyro(0);
-  // vectorNavData->gyro(2) = -vectorNavData->gyro(2);
 }

@@ -71,8 +71,11 @@ def rs_handler(channel, data):
     qimu = qtransform * qimu # to square up sensor axes
 
 
+    
+
     Rx180 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
     Ry90neg = np.array([[0, 0, -1], [0, 1, 0], [1, 0, -0]])
+    qy90neg = Quaternion(matrix=np.array([[0, 0, -1], [0, 1, 0], [1, 0, -0]]))
     Rz180 = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
     Ry90  = np.array([[0, 0, 1], [0, 1, 0], [-1, 0, -0]])
     Rimu = qimu.rotation_matrix
@@ -80,11 +83,14 @@ def rs_handler(channel, data):
     Rimu = np.matmul(Ry90neg, Rimu)
     # Rimu = np.matmul(Rz180, Rimu)
     Rimu = np.matmul(Rimu, Ry90)
-    qimu = Quaternion(matrix=Rimu)
+
+
+    # qimu = Quaternion(matrix=Rimu)
     
     qy90 = Quaternion(0.7071068, 0, 0.7071068, 0)
     
-    
+    qimu = qy90neg * qimu * qy90
+
     q1 = Quaternion(axis=[0,0,1], angle=np.pi/2)
 
     # qimu = q1 * qimu
@@ -98,7 +104,7 @@ def rs_handler(channel, data):
     # rotatedq = qimu * qtransform #* qtransform.conjugate
     # rotatedq = qy90*qimu
 
-    latest_quat = [rotatedq[0], rotatedq[1], rotatedq[2], rotatedq[3]]
+    latest_quat = [rotatedq[0]-0.0001, rotatedq[1], rotatedq[2], rotatedq[3]]
 
 if(useSerial):
     import serial

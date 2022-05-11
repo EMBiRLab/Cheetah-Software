@@ -81,13 +81,19 @@ void RobotInterface::handleVisualizationData(
   }
   std::cout << std::endl;
 
+  // std::cout << "VISUALIZATION DATA body orientation is: ";
   for (int i = 0; i < 4; i++) {
     _fwdKinState.bodyOrientation[i] = msg->quat[i];
+    // std::cout << msg->quat[i] << " | ";
   }
+  // std::cout << std::endl;
 
+  // std::cout << "VISUALIZATION DATA joint q are: ";
   for (int i = 0; i < 12; i++) {
     _fwdKinState.q[i] = msg->q[i];
+    // std::cout << msg->q[i] << " | ";
   }
+  // std::cout << std::endl;
 
   _simulator->setState(_fwdKinState);
   _simulator->forwardKinematics();

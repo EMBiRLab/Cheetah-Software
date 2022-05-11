@@ -91,8 +91,8 @@ void FSM_State_StandUp<T>::run() {
         // this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
         this->_data->_legController->commands[i].kpCartesian = Vec3<T>(300, 300, 300).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
-        this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.2, 2.2, 2.2).asDiagonal();
-        // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.5, 2.5, 2.5).asDiagonal();
+        this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2, 2, 2).asDiagonal();
+        // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(3.25, 3.25, 3.25).asDiagonal();
 
 
         this->_data->_legController->commands[i].pDes = _ini_foot_pos[i];
@@ -149,7 +149,7 @@ void FSM_State_StandUp<T>::run() {
       // already standing up, no need to reset standup_iter
       // T hMax = 0.25;
       // T progress = .75 * standup_iter * this->_data->controlParameters->controller_dt;
-      progress = .75 * standup_iter * this->_data->controlParameters->controller_dt;
+      progress = 1.3 * standup_iter * this->_data->controlParameters->controller_dt;
 
       // std::cout << "standup mode. ini z = " << _ini_foot_pos[0][2] << "... progress = " << progress;
 
@@ -164,8 +164,8 @@ void FSM_State_StandUp<T>::run() {
         // this->_data->_legController->commands[i].kpCartesian = Vec3<T>(500, 500, 500).asDiagonal();
         this->_data->_legController->commands[i].kpCartesian = Vec3<T>(300, 300, 300).asDiagonal();
         // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(8, 8, 8).asDiagonal();
-        this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.2, 2.2, 2.2).asDiagonal();
-        // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2.5, 2.5, 2.5).asDiagonal();
+        this->_data->_legController->commands[i].kdCartesian = Vec3<T>(2, 2, 2).asDiagonal();
+        // this->_data->_legController->commands[i].kdCartesian = Vec3<T>(3.25, 3.25, 3.25).asDiagonal();
 
         this->_data->_legController->commands[i].pDes = _ini_foot_pos[i];
         this->_data->_legController->commands[i].pDes[2] = 
@@ -184,12 +184,12 @@ void FSM_State_StandUp<T>::run() {
     }
 
     for(int i = 0; i < 4; i++){
-      this->_data->_legController->commands[i].forceFeedForward[2] = -20;
+      this->_data->_legController->commands[i].forceFeedForward[2] = -21;
     }
 
-    // for(int i = 2; i < 4; i++){
-      // this->_data->_legController->commands[i].forceFeedForward[2] = -29.1;
-    // }
+    for(int i = 2; i < 4; i++){
+      this->_data->_legController->commands[i].forceFeedForward[2] = -27;
+    }
   }
 }
 
