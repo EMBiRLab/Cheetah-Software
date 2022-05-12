@@ -637,11 +637,11 @@ void Run(Pi3Hat* pi3hat, const Arguments& args) {
     }
 
     {
-      ::snprintf(
-          buf, sizeof(buf) - 1,
-          "%5.1f Hz  \r",
-          1.0 / filtered_period_s);
-      std::cout << buf;
+      // ::snprintf(
+      //     buf, sizeof(buf) - 1,
+      //     "%5.1f Hz  \r",
+      //     1.0 / filtered_period_s);
+      // std::cout << buf;
       std::cout.flush();
     }
 
