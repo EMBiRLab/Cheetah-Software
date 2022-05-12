@@ -1,7 +1,7 @@
 # Generated on Fri Feb  8 19:30:57 2019
 __collection-name__: simulator-parameters
 
-dynamics_dt                      : 0.001
+dynamics_dt                      : 0.0001
 floor_kd                         : 5000
 floor_kp                         : 500000
 game_controller_deadband         : 0.01

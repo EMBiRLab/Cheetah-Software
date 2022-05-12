@@ -22,6 +22,7 @@
 
 #include "third-party/cxxopts/cxxopts.hpp"
 #include "third-party/nlohmann/json.hpp"
+#include "third-party/mjbots/pi3hat/pi3hat.h"
 
 #include "robot_server_command_lcmt.hpp"
 #include "robot_server_response_lcmt.hpp"
@@ -68,6 +69,8 @@ public:
 		bool skip_zero = false;
 		bool skip_cfg_load = false;
 
+		bool ignore_cmds = false;
+
 		std::vector<uint8_t> moteus_ids;
 		std::vector<uint8_t> moteus_buses;
 
@@ -77,6 +80,9 @@ public:
 		std::vector<std::string> moteus_cfg_filenames;
 		std::string moteus_cal_path_prefix;
 		std::vector<std::string> moteus_cal_filenames;
+
+		std::vector<float> upper_limits_rad;
+		std::vector<float> lower_limits_rad;
 
 		std::vector<float> gear_ratios;
 
@@ -148,8 +154,14 @@ public:
 	float filtered_random();
 
 	void sample_sensors();
+
+	inline void flush_data() {datastream_.flush();}
+
 	std::string stringify_sensor_data();
 	std::string stringify_sensor_data_headers();
+
+	std::string stringify_attitude_data();
+	std::string stringify_attitude_data_headers();
 
 	bool safety_check();
 
@@ -158,6 +170,12 @@ public:
 	std::map<int, int> create_servo_bus_map();
 
 	inline size_t num_actuators() {return actuator_ptrs_.size();}
+
+	inline void set_pi3hat_attitude(mjbots::pi3hat::Attitude* attitude) {pi3hat_attitude_ = *attitude;}
+
+	inline void transition_to_quit() { next_state_ = FSMState::kQuitting;}
+
+	void send_actuator_position_hold();
 
 private:
 	char cstr_buffer[128];
@@ -171,6 +189,7 @@ private:
 	// Adafruit_INA260 ina2_;
 
 	SensorData sd_;
+	mjbots::pi3hat::Attitude pi3hat_attitude_;
 
 	// *** LCM ***
 
@@ -201,6 +220,9 @@ private:
 	float time_prog_s_ = 0;
 	float time_prog_old_s_ = 0;
 	float time_fcn_s_ = 0;
+
+	float last_rx_ = 0;
+
 	size_t cycles_ = 0;
 
 	uint8_t quit_cycle = 0;

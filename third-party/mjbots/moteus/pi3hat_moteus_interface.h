@@ -78,10 +78,13 @@ class Pi3HatMoteusInterface {
     pi3hat::Span<ServoCommand> commands;
 
     pi3hat::Span<ServoReply> replies;
+
+    pi3hat::Attitude* attitude;
   };
 
   struct Output {
     size_t query_result_size = 0;
+    bool attitude_present = false;
   };
 
   using CallbackFunction = std::function<void (const Output&)>;
@@ -178,6 +181,10 @@ class Pi3HatMoteusInterface {
     input.tx_can = { tx_can_.data(), tx_can_.size() };
     input.rx_can = { rx_can_.data(), rx_can_.size() };
 
+    // requesting IMU attitude data
+    input.request_attitude = true;
+    input.attitude = &attitude_;
+
     Output result;
 
     const auto output = pi3hat_->Cycle(input);
@@ -189,6 +196,10 @@ class Pi3HatMoteusInterface {
       result.query_result_size = i + 1;
     }
 
+    *(data_.attitude) = attitude_; // move data
+    if (output.attitude_present) {
+    }
+    result.attitude_present = output.attitude_present;
     return result;
   }
 
@@ -214,6 +225,8 @@ class Pi3HatMoteusInterface {
   // required in steady state.
   std::vector<pi3hat::CanFrame> tx_can_;
   std::vector<pi3hat::CanFrame> rx_can_;
+
+  pi3hat::Attitude attitude_;
 };
 
 

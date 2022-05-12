@@ -47,6 +47,7 @@ public:
 	inline float get_velocity_cmd_rad_s() {return curr_cmd_.position.velocity * 2 * PI;}
 	inline float get_torque_Nm() {return prev_reply_.result.torque;}
 	inline float get_torque_cmd_Nm() {return curr_cmd_.position.feedforward_torque;}
+	inline float get_temperature_degC() {return prev_reply_.result.temperature;}
 
 	std::string stringify_actuator();
 	std::string stringify_actuator_header();

@@ -29,6 +29,9 @@ void FSM_State_Passive<T>::onEnter() {
   // Default is to not transition
   this->nextStateName = this->stateName;
 
+  auto quat = this->_data->_stateEstimator->getResult().orientation;
+  std::cout << "\n QUAT = " << quat << "\n" << std::endl;
+
   // Reset the transition data
   this->transitionData.zero();
 }

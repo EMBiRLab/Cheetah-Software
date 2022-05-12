@@ -307,7 +307,7 @@ void LegController<T>::updateCommand(RobServCommand* robservcommand) {
     // tauFF
     Vec3<T> legTorque = commands[leg].tauFeedForward;
 
-    assert(!isnan(legTorque[1]));
+    // assert(!isnan(legTorque[1]));
 
     // forceFF
     Vec3<T> footForce = commands[leg].forceFeedForward;
@@ -325,17 +325,17 @@ void LegController<T>::updateCommand(RobServCommand* robservcommand) {
     // Torque
     legTorque += datas[leg].J.transpose() * footForce;
 
-    if(isnan(legTorque[1])){
-      std::cout << "footForce @ nan detection: " << footForce << std::endl;
-      std::cout << "legTorque @ nan detection: " << legTorque << std::endl;
-      std::cout << "Jacobian @ nan detection: " << datas[leg].J << std::endl;
-      assert(false);
-    }
+    // if(isnan(legTorque[1])){
+    //   std::cout << "footForce @ nan detection: " << footForce << std::endl;
+    //   std::cout << "legTorque @ nan detection: " << legTorque << std::endl;
+    //   std::cout << "Jacobian @ nan detection: " << datas[leg].J << std::endl;
+    //   assert(false);
+    // }
 
     commands[leg].tauFeedForward = legTorque;
     commands[leg].forceFeedForward = footForce;
 
-    assert(!isnan(commands[leg].tauFeedForward[1]));
+    // assert(!isnan(commands[leg].tauFeedForward[1]));
 
     // set command:
     robservcommand->tau_ff[leg*3+0] = legTorque(0);
