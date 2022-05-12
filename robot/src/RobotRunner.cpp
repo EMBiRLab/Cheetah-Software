@@ -284,7 +284,7 @@ void RobotRunner::finalizeStep() {
         //   sign *= -1;
         LCMCommandfix.tau_ff[mq_idx] = sign*robServCommand->tau_ff[idx];
         //lcmcommand->f_ff[idx] = commands[leg].forceFeedForward[axis];
-        LCMCommandfix.q_des[mq_idx]  = sign*robServCommand->q_des[idx] - muadquad_angle_offsets[idx];
+        LCMCommandfix.q_des[mq_idx]  = sign*(robServCommand->q_des[idx] - muadquad_angle_offsets[idx]);
         LCMCommandfix.qd_des[mq_idx] = sign*robServCommand->qd_des[idx];
         //lcmcommand->p_des[idx] = commands[leg].pDes[axis];
         //lcmcommand->v_des[idx] = commands[leg].vDes[axis];
@@ -361,7 +361,7 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
       sign = -1;
 
     int idx = muadquad_leg_reordering[i];
-    robServData->q[i] = sign*msg->q[idx] + muadquad_angle_offsets[idx];
+    robServData->q[i] = sign*msg->q[idx] + muadquad_angle_offsets[i];
     robServData->qd[i] = sign*msg->qd[idx];
     robServData->tau_est[i] = sign*msg->tau_est[idx];
   }
