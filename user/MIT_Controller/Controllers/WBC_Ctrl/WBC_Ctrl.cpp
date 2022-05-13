@@ -20,7 +20,7 @@ WBC_Ctrl<T>::WBC_Ctrl(FloatingBaseModel<T> model):
   _wbic = new WBIC<T>(cheetah::dim_config, &(_contact_list), &(_task_list));
   _wbic_data = new WBIC_ExtraData<T>();
 
-  _wbic_data->_W_floating = DVec<T>::Constant(6, 0.1);
+  _wbic_data->_W_floating = DVec<T>::Constant(6, 0.05);
   //_wbic_data->_W_floating = DVec<T>::Constant(6, 50.);
   //_wbic_data->_W_floating[5] = 0.1;
   _wbic_data->_W_rf = DVec<T>::Constant(12, 1.);

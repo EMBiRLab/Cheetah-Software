@@ -226,8 +226,11 @@ void WBIC<T>::_GetSolution(const DVec<T>& qddot, DVec<T>& cmd) {
   if (_dim_rf > 0) {
     _data->_Fr = DVec<T>(_dim_rf);
     // get Reaction forces
-    for (size_t i(0); i < _dim_rf; ++i)
+    for (size_t i(0); i < _dim_rf; ++i) {
       _data->_Fr[i] = z[i + _dim_floating] + _Fr_des[i];
+      std::cout << "\nl" << int(i) << " _Fr_des = " << _Fr_des[i] << "; z = " << z[i + _dim_floating];
+    }
+    std::cout << "\n";
     tot_tau =
       WB::A_ * qddot + WB::cori_ + WB::grav_ - _Jc.transpose() * _data->_Fr;
 
