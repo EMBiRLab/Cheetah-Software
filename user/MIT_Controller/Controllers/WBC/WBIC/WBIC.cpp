@@ -87,7 +87,10 @@ void WBIC<T>::MakeTorque(DVec<T>& cmd, void* extra_input) {
   (void)f;
 
   // pretty_print(qddot_pre, std::cout, "qddot_cmd");
-  for (size_t i(0); i < _dim_floating; ++i) qddot_pre[i] += z[i];
+  for (size_t i(0); i < _dim_floating; ++i) {
+    std::cout << "\nl" << int(i) << " qddot_pre = " << qddot_pre[i] << "; z = " << z[i];
+    qddot_pre[i] += z[i];
+  }
   _GetSolution(qddot_pre, cmd);
 
   _data->_opt_result = DVec<T>(_dim_opt);
@@ -226,8 +229,11 @@ void WBIC<T>::_GetSolution(const DVec<T>& qddot, DVec<T>& cmd) {
   if (_dim_rf > 0) {
     _data->_Fr = DVec<T>(_dim_rf);
     // get Reaction forces
-    for (size_t i(0); i < _dim_rf; ++i)
+    for (size_t i(0); i < _dim_rf; ++i) {
       _data->_Fr[i] = z[i + _dim_floating] + _Fr_des[i];
+      std::cout << "\nl" << int(i) << " _Fr_des = " << _Fr_des[i] << "; z = " << z[i + _dim_floating];
+    }
+    std::cout << "\n";
     tot_tau =
       WB::A_ * qddot + WB::cori_ + WB::grav_ - _Jc.transpose() * _data->_Fr;
 
