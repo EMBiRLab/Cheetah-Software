@@ -26,6 +26,8 @@ class WBC_Ctrl{
       _wbic_data->_W_floating = DVec<T>::Constant(6, weight);
     }
 
+    FloatingBaseModel<T> _model;
+
   protected:
     virtual void _ContactTaskUpdate(void * input, ControlFSMData<T> & data) = 0;
     virtual void _ContactTaskUpdateTEST(void * input, ControlFSMData<T> & data){
@@ -41,7 +43,6 @@ class WBC_Ctrl{
     WBIC<T>* _wbic;
     WBIC_ExtraData<T>* _wbic_data;
 
-    FloatingBaseModel<T> _model;
     std::vector<ContactSpec<T> * > _contact_list;
     std::vector<Task<T> * > _task_list;
 

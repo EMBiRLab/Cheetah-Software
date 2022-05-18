@@ -53,7 +53,8 @@ void FSM_State_BalanceStand<T>::onEnter() {
   last_height_command = _ini_body_pos[2];
 
   _ini_body_ori_rpy = (this->_data->_stateEstimator->getResult()).rpy;
-  _body_weight = this->_data->_quadruped->_bodyMass * 9.81;
+  // _body_weight = this->_data->_quadruped->_bodyMass * 9.81;
+  _body_weight = (this->_wbc_ctrl->_model.totalNonRotorMass() + this->_wbc_ctrl->_model.totalRotorMass()) * 9.81; 
 }
 
 /**

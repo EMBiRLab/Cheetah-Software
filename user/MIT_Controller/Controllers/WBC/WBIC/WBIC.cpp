@@ -62,6 +62,10 @@ void WBIC<T>::MakeTorque(DVec<T>& cmd, void* extra_input) {
     WB::_WeightedInverse(JtPre, WB::Ainv_, JtBar);
 
     qddot_pre += JtBar * (xddot - JtDotQdot - Jt * qddot_pre);
+    std::cout << "qddot_pre for task " << i << "\n";
+    pretty_print(qddot_pre, std::cout, "qddot_pre");
+
+
     Npre = Npre * (_eye - JtBar * JtPre);
 
     // pretty_print(xddot, std::cout, "xddot");
@@ -86,7 +90,6 @@ void WBIC<T>::MakeTorque(DVec<T>& cmd, void* extra_input) {
   // std::cout<<"\n wbic old time: "<<timer.getMs()<<std::endl;
   (void)f;
 
-  // pretty_print(qddot_pre, std::cout, "qddot_cmd");
   for (size_t i(0); i < _dim_floating; ++i) {
     std::cout << "\nl" << int(i) << " qddot_pre = " << qddot_pre[i] << "; z = " << z[i];
     qddot_pre[i] += z[i];
@@ -247,6 +250,9 @@ void WBIC<T>::_GetSolution(const DVec<T>& qddot, DVec<T>& cmd) {
   // DVec<T> delta_tau = DVec<T>::Zero(WB::num_qdot_);
   // for(size_t i(0); i<_dim_floating; ++i) delta_tau[i] = z[i];
   // pretty_print(tot_tau, std::cout, "tot tau original");
+  pretty_print(WB::A_, std::cout, "WB::A_ matrix");
+  pretty_print(WB::cori_, std::cout, "WB::cori_ matrix");
+  pretty_print(WB::grav_, std::cout, "WB::grav_ matrix");
   // tot_tau += delta_tau;
   // pretty_print(tot_tau, std::cout, "tot tau result");
   // pretty_print(qddot, std::cout, "qddot");

@@ -76,22 +76,29 @@ Quadruped<T> buildMuadQuad() {
 
   // spatial inertias
   Mat3<T> abadRotationalInertia;
-  abadRotationalInertia << 381, 58, 0.45, 58, 560, 0.95, 0.45, 0.95, 444;
+  // abadRotationalInertia << 381, 58, 0.45, 58, 560, 0.95, 0.45, 0.95, 444;
+     abadRotationalInertia << 500, 58, 0.45, 58, 560, 0.95, 0.45, 0.95, 550; // the axis is not as close to COM, so increases in x and z inertias
   abadRotationalInertia = abadRotationalInertia * 1e-6;
-  Vec3<T> abadCOM(0, 0.036, 0);  // LEFT
-  SpatialInertia<T> abadInertia(0.54, abadCOM, abadRotationalInertia);
+  // Vec3<T> abadCOM(0, 0.036, 0);  // LEFT
+     Vec3<T> abadCOM(0, -0.020, 0);  // LEFT our x2 actuator is farther in medially
+  // SpatialInertia<T> abadInertia(0.54, abadCOM, abadRotationalInertia);
+     SpatialInertia<T> abadInertia(0.58, abadCOM, abadRotationalInertia);
 
   Mat3<T> hipRotationalInertia;
-  hipRotationalInertia << 1983, 245, 13, 245, 2103, 1.5, 13, 1.5, 408;
+  // hipRotationalInertia << 1983, 245, 13, 245, 2103, 1.5, 13, 1.5, 408;
+     hipRotationalInertia << 2200, 245, 13, 245, 2103, 1.5, 13, 1.5, 650; // more x and z inertia because x3 actuator COM is farther out laterally
   hipRotationalInertia = hipRotationalInertia * 1e-6;
-  Vec3<T> hipCOM(0, 0.016, -0.02);
+  // Vec3<T> hipCOM(0, 0.016, -0.02);
+     Vec3<T> hipCOM(0, 0.045, -0.02); // our x3 actuator is farther out laterally
   SpatialInertia<T> hipInertia(0.634, hipCOM, hipRotationalInertia);
 
   Mat3<T> kneeRotationalInertia, kneeRotationalInertiaRotated;
-  kneeRotationalInertiaRotated << 6, 0, 0, 0, 248, 0, 0, 0, 245;
+  // kneeRotationalInertiaRotated << 6, 0, 0, 0, 248, 0, 0, 0, 245;
+     kneeRotationalInertiaRotated << 6, 0, 0, 0, 650, 0, 0, 0, 245; // our x2 actuator stator mass moves with knee due to inverted mounting, unlike mini cheetah
   kneeRotationalInertiaRotated = kneeRotationalInertiaRotated * 1e-6;
   kneeRotationalInertia = RY * kneeRotationalInertiaRotated * RY.transpose();
-  Vec3<T> kneeCOM(0, 0, -0.061);
+  // Vec3<T> kneeCOM(0, 0, -0.061);
+     Vec3<T> kneeCOM(0, 0, -0.080);
   SpatialInertia<T> kneeInertia(0.064, kneeCOM, kneeRotationalInertia);
 
   Vec3<T> rotorCOM(0, 0, 0);

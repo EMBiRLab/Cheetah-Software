@@ -14,7 +14,7 @@ BodyPosTask<T>::BodyPosTask(const FloatingBaseModel<T>* robot)
 
   _Kp_kin = DVec<T>::Constant(TK::dim_task_, 1.);
   _Kp = DVec<T>::Constant(TK::dim_task_, 30.);
-  _Kd = DVec<T>::Constant(TK::dim_task_, 0.6);
+  _Kd = DVec<T>::Constant(TK::dim_task_, 0.3);
 }
 
 template <typename T>
@@ -42,20 +42,22 @@ bool BodyPosTask<T>::_UpdateCommand(const void* pos_des, const DVec<T>& vel_des,
                      _Kd[i] * (TK::vel_des_[i] - curr_vel[i + 3]) +
                      TK::acc_des_[i];
   }
+
+  // std::cout << "BodyPosTask <pos_err_[2]> is " << pos_err_[2] << "\n";
   // Quat<T> quat = _robot_sys->_state.bodyOrientation;
   // Mat3<T> Rot = ori::quaternionToRotationMatrix(quat);
   // TK::pos_err_ = Rot * TK::pos_err_;
   // TK::vel_des_ = Rot * TK::vel_des_;
   // TK::acc_des_ = Rot * TK::acc_des_;
 
-  // printf("[Body Pos Task]\n");
-  // pretty_print(acc_des, std::cout, "acc_des");
-  // pretty_print(TK::pos_err_, std::cout, "pos_err_");
-  // pretty_print(curr_vel, std::cout, "curr_vel");
-  // pretty_print(*pos_cmd, std::cout, "pos cmd");
-  // pretty_print(TK::op_cmd_, std::cout, "op cmd");
-  // pretty_print(TK::vel_des_, std::cout, "vel des");
-  // pretty_print(TK::Jt_, std::cout, "Jt");
+  printf("[Body Pos Task]\n");
+  pretty_print(acc_des, std::cout, "acc_des");
+  pretty_print(TK::pos_err_, std::cout, "pos_err_");
+  pretty_print(curr_vel, std::cout, "curr_vel");
+  pretty_print(*pos_cmd, std::cout, "pos cmd");
+  pretty_print(TK::op_cmd_, std::cout, "op cmd");
+  pretty_print(TK::vel_des_, std::cout, "vel des");
+  pretty_print(TK::Jt_, std::cout, "Jt");
 
   return true;
 }
