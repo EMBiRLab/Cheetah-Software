@@ -35,12 +35,15 @@ float clamp(float angle) {
 	return angle;
 }
 
+// Constructor
 RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream& datastream) : 
 	datastream_(datastream),
 	rs_set_(rs_set),
 	commandLCM_(getLcmUrl(255)),
 	responseLCM_(getLcmUrl(255)) {
 
+	// construct variable number of actuator objects depending on what is in
+	// robot_server_config.json
 	std::cout << "constructing actuator objects... ";
 	actuator_ptrs_.resize(rs_set_.num_actuators);
 	for (size_t a_idx = 0; a_idx < rs_set_.num_actuators; a_idx++) {
@@ -79,7 +82,7 @@ void RobotServer::init_LCM() {
 	commandLCM_.subscribe(
 		"robot_server_command",
 		&RobotServer::handle_robot_server_command, this);
-
+	// launch thread to handle LCM on loop
 	serverLCMThread = std::thread(&RobotServer::handle_serverLCM, this);
 }
 
@@ -95,11 +98,9 @@ void RobotServer::handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
 	std::lock_guard<std::mutex> commandguard(commandmutex); // wrapper for mutex
 	requested_command = *msg;
 	last_rx_ = time_prog_s_;
-	// if (std::isnan(requested_command.q_des[0]))
-	// 	std::cout << "\ngot a nan" << std::endl;
-	// std::cout << "rx cmd; q_des[0] = " << requested_command.q_des[0] << std::endl;
 }
 
+// sends commands to "freeze" all actuators
 void RobotServer::send_actuator_position_hold() {
 	for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
 		float pos = actuator_ptrs_[a_idx]->get_position_rad();
@@ -168,7 +169,7 @@ void RobotServer::iterate_fsm() {
 					}
 				}
 				else if (!rs_set_.ignore_cmds) {
-					// clamps position set points to valid angle range
+					// clamps position set points to valid angle range (set in JSON)
 					// kill velocity setpoint if attempting to operate outside
 					// (does not prevent actuators from being backdriven out of range)
 					// (does not kill torque ff... may need to)
@@ -201,7 +202,7 @@ void RobotServer::iterate_fsm() {
 			make_stop_all();
 			recovery_cycle++;
 			
-			// wait at least a few cycles
+			// send stops for at least a few cycles
 			if(recovery_cycle < recovery_cycle_thresh)
 				break;
 
@@ -221,7 +222,6 @@ void RobotServer::iterate_fsm() {
 			if(quit_cycle > quit_cycle_thresh) {
 				std::cout << "\nsent stop commands... ready to quit" << std::endl;
 				ready_to_quit = true;
-				// std::cout << "\n\nerror codes on exit: a1 = " << int(a1_.fault()) << "; a2 = " << int(a2_.fault()) << std::endl;
 			}
 			break;}
 		
@@ -300,13 +300,6 @@ void RobotServer::print_status_update() {
 }
 
 void RobotServer::sample_sensors() {
-	// TODO: Add temp read and calc
-	// sd_.torque_Nm = 0;
-	float t1 = 0;
-	float t2 = 0;
-	float alpha = 0.1;
-	// sd_.temp1_C = 0;
-	// sd_.temp2_C = 0;
 
 	sd_.ina1_voltage_V = 0;
 	sd_.ina1_current_A = 0;
@@ -354,7 +347,7 @@ bool RobotServer::safety_check() {
 
 	if (actuator_fault_check()) return false;
 	
-	// Put conditions to check here
+	// Put more conditions to check here
 
 	return safe;
 }
