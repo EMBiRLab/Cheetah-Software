@@ -260,7 +260,7 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
     _wbc_data->pBody_des[2] = 0.25;
 
     if(last_height_command - _wbc_data->pBody_des[2] > 0.001) {
-      _wbc_data->pBody_des[2] = last_height_command - 0.001;
+      _wbc_data->pBody_des[2] = last_height_command - 0.00001; //speed up eventually. This is 5mm/s
     }
   }
   last_height_command = _wbc_data->pBody_des[2];
