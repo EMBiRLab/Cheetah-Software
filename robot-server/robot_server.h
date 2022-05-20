@@ -84,6 +84,9 @@ public:
 		std::vector<float> upper_limits_rad;
 		std::vector<float> lower_limits_rad;
 
+		float lpf_order;
+		float lpf_freq;
+
 		std::vector<float> gear_ratios;
 
 		bool load_success = false;
@@ -184,6 +187,10 @@ private:
 	// where outside commands are stored,
 	// values are read and sent to moteus drivers
 	robot_server_command_lcmt requested_command;
+
+	// filters for the commands
+	LowPassFilter lpf_command;
+
 	// protects requested_command variable, which is async manipulated 
 	// by the LCM handling on a different thread
 	std::mutex commandmutex;

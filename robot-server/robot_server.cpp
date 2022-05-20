@@ -42,6 +42,9 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 	commandLCM_(getLcmUrl(255)),
 	responseLCM_(getLcmUrl(255)) {
 
+	// Construct the lowpass filter for the incoming command data
+	lpf_command(rs_set_.lpf_order, rs_set_.lpf_freq, rs_set_.period_s);
+
 	// construct variable number of actuator objects depending on what is in
 	// robot_server_config.json
 	std::cout << "constructing actuator objects... ";
@@ -97,6 +100,7 @@ void RobotServer::handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
 	(void)chan;
 	std::lock_guard<std::mutex> commandguard(commandmutex); // wrapper for mutex
 	requested_command = *msg;
+	// lpf_command.iterate_filter TODO MICHAEL FINISH THIS LATER
 	last_rx_ = time_prog_s_;
 }
 
@@ -158,27 +162,40 @@ void RobotServer::iterate_fsm() {
 					// either velocity or torque
 					if (std::isnan(rc.qd_des[a_idx])) {
 						if (std::isnan(rc.tau_ff[a_idx])) {
+							// no pos, vel, or torque feedforward
 							actuator_ptrs_[a_idx]->make_stop();
 						}
 						else
+							// torque feedforward with no pos or vel setpoints
 							actuator_ptrs_[a_idx]->make_act_torque(rc.tau_ff[a_idx]);
 					}
 					else {
+						// velocity control with a torque feedforward
 						actuator_ptrs_[a_idx]->make_act_velocity(
 							rc.qd_des[a_idx], rc.tau_ff[a_idx]);
 					}
 				}
 				else if (!rs_set_.ignore_cmds) {
+					// this mode always runs if there was a pos setpoint!!
+
 					// clamps position set points to valid angle range (set in JSON)
 					// kill velocity setpoint if attempting to operate outside
 					// (does not prevent actuators from being backdriven out of range)
 					// (does not kill torque ff... may need to)
 					float q_clamped = rc.q_des[a_idx];
 					float qd_clamped = rc.qd_des[a_idx];
+					float tau_ff_clamped = rc.tau_ff[a_idx];
 					float ul = rs_set_.upper_limits_rad[a_idx];
 					float ll = rs_set_.lower_limits_rad[a_idx];
-					if (q_clamped > ul) {q_clamped = ul; qd_clamped = 0;}
-					if (q_clamped < ll) {q_clamped = ll; qd_clamped = 0;}
+					if (q_clamped > ul) {
+						q_clamped = ul; 
+						qd_clamped = 0;
+						// tau_ff_clamped += 1*(ul - ) For softstop, we need to implement that as reaction to the current state elsewhere! Implement later TODO MICHAEL
+					}
+					if (q_clamped < ll) {
+						q_clamped = ll; 
+						qd_clamped = 0;
+					}
 					actuator_ptrs_[a_idx]->make_act_full_pos(
 						q_clamped, qd_clamped, rc.tau_ff[a_idx]);
 				}
@@ -472,6 +489,9 @@ RobotServer::RobotServerSettings::RobotServerSettings(cxxopts::ParseResult& rs_o
 
 	upper_limits_rad = rs_cfg_j["upper_limits_rad"].get<std::vector<float>>();
 	lower_limits_rad = rs_cfg_j["lower_limits_rad"].get<std::vector<float>>();
+
+	lpf_order = rs_cfg_j["lpf_order"].get<float>();
+	lpf_freq = rs_cfg_j["lpf_freq"].get<float>();
 
 	gear_ratios = rs_cfg_j["gear_ratios"].get<std::vector<float>>();
 	if (
