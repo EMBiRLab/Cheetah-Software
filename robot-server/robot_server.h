@@ -30,7 +30,7 @@
 
 class RobotServer {
 public:
-
+	// stores INA260 power sensor values if in use
 	struct SensorData {
 		float ina1_current_A;
 		float ina1_voltage_V;
@@ -40,11 +40,11 @@ public:
 		float ina2_power_W;
 	};
 
-	// low level "gate" allowing the leg to operate
+	// low level "gate" states allowing the robot to operate
 	enum FSMState : uint8_t {
 		kIdle,
 		kStartup,
-		kRunning, // allow other actions to happen, depending on TestMode
+		kRunning, // allow other actions to happen, depending on commands from LCM
 		kRecovery,
 		kQuitting,
 	};
@@ -89,36 +89,20 @@ public:
 		bool load_success = false;
 	};
 
-	class Timer {
-		private:
-		float current_time = 0;
-		float time_end = 0;
-
-		public:
-		inline Timer() {}
-		inline void update_time(float now) {
-			current_time = now;
-		}
-		inline void start_timer(float duration) {
-			time_end = current_time + duration;
-		}
-		inline bool timer_done() {
-			return current_time > time_end;
-		}
-		inline float time_left() {
-			return time_end-current_time;
-		}
-	};
-
 	RobotServer(RobotServerSettings& rs_set,
 		std::ostream& datastream);
 
 	void init_LCM();
+
+	// runs LCM handle in a separate thread on loop
 	void handle_serverLCM();
+
+	// actual handling of commands over LCM -- copies them into member variable
 	void handle_robot_server_command(const lcm::ReceiveBuffer* rbuf,
                               const std::string& chan,
                               const robot_server_command_lcmt* msg);
 
+	// main function where things happen
 	void iterate_fsm();
 
 	void log_data();
@@ -217,9 +201,9 @@ private:
 	FSMState recovery_return_state_ = FSMState::kIdle;
 
 	std::chrono::steady_clock::time_point time0_s_;
-	float time_prog_s_ = 0;
+	float time_prog_s_ = 0; // program running time
 	float time_prog_old_s_ = 0;
-	float time_fcn_s_ = 0;
+	float time_fcn_s_ = 0; // functional running time (i.e., time spent in FSMState::kRunning)
 
 	float last_rx_ = 0;
 
