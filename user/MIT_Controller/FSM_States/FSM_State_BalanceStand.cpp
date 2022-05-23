@@ -44,7 +44,11 @@ void FSM_State_BalanceStand<T>::onEnter() {
   // Always set the gait to be standing in this state
   this->_data->_gaitScheduler->gaitData._nextGait = GaitType::STAND;
   
+  //TODO: Will have to switch back to using the initial bosy orientation and position instead of setting it to 0
+  // Only did it for better debugging!
   _ini_body_pos = (this->_data->_stateEstimator->getResult()).position;
+  _ini_body_pos[1] = 0.;
+
 
   if(_ini_body_pos[2] < 0.2) {
     _ini_body_pos[2] = 0.3;
@@ -53,6 +57,8 @@ void FSM_State_BalanceStand<T>::onEnter() {
   last_height_command = _ini_body_pos[2];
 
   _ini_body_ori_rpy = (this->_data->_stateEstimator->getResult()).rpy;
+  _ini_body_ori_rpy[0] = 0.; 
+  _ini_body_ori_rpy[1] = 0.; 
   // _body_weight = this->_data->_quadruped->_bodyMass * 9.81;
   _body_weight = (this->_wbc_ctrl->_model.totalNonRotorMass() + this->_wbc_ctrl->_model.totalRotorMass()) * 9.81; 
 }

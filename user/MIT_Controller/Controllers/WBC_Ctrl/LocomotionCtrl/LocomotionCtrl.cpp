@@ -112,6 +112,7 @@ void LocomotionCtrl<T>::_ContactTaskUpdateTEST(void* input, ControlFSMData<T> & 
       WBCtrl::_contact_list.push_back(_foot_contact[leg]);
 
     }else{ // No Contact (swing)
+      std::cout<<"*****************IN SWING PHASE****************************"<<std::endl;
       _foot_task[leg]->UpdateTask(
           &(_input_data->pFoot_des[leg]), 
           _input_data->vFoot_des[leg], 

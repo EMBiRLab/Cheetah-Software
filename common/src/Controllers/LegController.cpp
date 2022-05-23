@@ -387,12 +387,12 @@ void LegController<T>::setLcm(leg_control_data_lcmt *lcmData, leg_control_comman
       lcmCommand->v_des[idx] = commands[leg].vDes[axis];
       lcmCommand->kp_cartesian[idx] = commands[leg].kpCartesian(axis, axis);
       lcmCommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
-      std::cout<<"Kp_cartesian for actuator - "<< idx << "is " << lcmCommand->kp_cartesian[idx]<<std::endl;
-      std::cout<<"Kd_cartesian for actuator - "<< idx << "is " << lcmCommand->kd_cartesian[idx]<<std::endl;
+      // std::cout<<"Kp_cartesian for actuator - "<< idx << "is " << lcmCommand->kp_cartesian[idx]<<std::endl;
+      // std::cout<<"Kd_cartesian for actuator - "<< idx << "is " << lcmCommand->kd_cartesian[idx]<<std::endl;
       lcmCommand->kp_joint[idx] = commands[leg].kpJoint(axis, axis);
       lcmCommand->kd_joint[idx] = commands[leg].kdJoint(axis, axis);
-      std::cout<<"Kp_joint for actuator - "<< idx << "is " << lcmCommand->kp_joint[idx]<<std::endl;
-      std::cout<<"Kd_joint for actuator - "<< idx << "is " << lcmCommand->kd_joint[idx]<<std::endl;
+      // std::cout<<"Kp_joint for actuator - "<< idx << "is " << lcmCommand->kp_joint[idx]<<std::endl;
+      // std::cout<<"Kd_joint for actuator - "<< idx << "is " << lcmCommand->kd_joint[idx]<<std::endl;
     }
   }
   int vec_idx = 0;

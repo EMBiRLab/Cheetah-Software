@@ -15,9 +15,10 @@ BodyOriTask<T>::BodyOriTask(const FloatingBaseModel<T>* robot)
   TK::Jt_.block(0, 0, 3, 3).setIdentity();
   TK::JtDotQdot_ = DVec<T>::Zero(TK::dim_task_);
 
-  _Kp_kin = DVec<T>::Constant(TK::dim_task_, 1.);
-  _Kp = DVec<T>::Constant(TK::dim_task_, 0.);
-  _Kd = DVec<T>::Constant(TK::dim_task_, 0.);
+  // _Kp_kin = DVec<T>::Constant(TK::dim_task_, 1.);
+  _Kp_kin = DVec<T>::Constant(TK::dim_task_, 0.5);
+  _Kp = DVec<T>::Constant(TK::dim_task_, 30.);
+  _Kd = DVec<T>::Constant(TK::dim_task_, 0.3);
 }
 
 template <typename T>
@@ -59,6 +60,10 @@ bool BodyOriTask<T>::_UpdateCommand(const void* pos_des, const DVec<T>& vel_des,
     TK::op_cmd_[i] = _Kp[i] * ori_err_so3[i] +
                      _Kd[i] * vel_err[i] + TK::acc_des_[i];
   }
+
+  std::cout << "BODYORITASK KPKIN, KP and KD are: " <<_Kp_kin[0] << "," << _Kp[0] << ", " << _Kd[0] << std::endl;
+
+
    //printf("[Body Ori Task]\n");
    //pretty_print(TK::pos_err_, std::cout, "pos_err_");
    //pretty_print(*ori_cmd, std::cout, "des_ori");

@@ -22,7 +22,7 @@ Quadruped<T> buildMuadQuad() {
   Quadruped<T> muadquad;
   muadquad._robotType = RobotType::MUADQUAD;
 
-  muadquad._bodyMass = 3.3;
+  muadquad._bodyMass = 4.6;
   muadquad._bodyLength = 0.2 * 2;
   muadquad._bodyWidth = 0.1 * 2;
   muadquad._bodyHeight = 0.035;

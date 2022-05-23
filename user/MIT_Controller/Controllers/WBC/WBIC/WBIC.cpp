@@ -62,8 +62,8 @@ void WBIC<T>::MakeTorque(DVec<T>& cmd, void* extra_input) {
     WB::_WeightedInverse(JtPre, WB::Ainv_, JtBar);
 
     qddot_pre += JtBar * (xddot - JtDotQdot - Jt * qddot_pre);
-    std::cout << "qddot_pre for task " << i << "\n";
-    pretty_print(qddot_pre, std::cout, "qddot_pre");
+    // std::cout << "qddot_pre for task " << i << "\n";
+    // pretty_print(qddot_pre, std::cout, "qddot_pre");
 
 
     Npre = Npre * (_eye - JtBar * JtPre);
@@ -91,7 +91,7 @@ void WBIC<T>::MakeTorque(DVec<T>& cmd, void* extra_input) {
   (void)f;
 
   for (size_t i(0); i < _dim_floating; ++i) {
-    std::cout << "\nl" << int(i) << " qddot_pre = " << qddot_pre[i] << "; z = " << z[i];
+    // std::cout << "\nl" << int(i) << " qddot_pre = " << qddot_pre[i] << "; z = " << z[i];
     qddot_pre[i] += z[i];
   }
   _GetSolution(qddot_pre, cmd);
@@ -234,9 +234,9 @@ void WBIC<T>::_GetSolution(const DVec<T>& qddot, DVec<T>& cmd) {
     // get Reaction forces
     for (size_t i(0); i < _dim_rf; ++i) {
       _data->_Fr[i] = z[i + _dim_floating] + _Fr_des[i];
-      std::cout << "\nl" << int(i) << " _Fr_des = " << _Fr_des[i] << "; z = " << z[i + _dim_floating];
+      // std::cout << "\nl" << int(i) << " _Fr_des = " << _Fr_des[i] << "; z = " << z[i + _dim_floating];
     }
-    std::cout << "\n";
+    // std::cout << "\n";
     tot_tau =
       WB::A_ * qddot + WB::cori_ + WB::grav_ - _Jc.transpose() * _data->_Fr;
 
@@ -250,9 +250,9 @@ void WBIC<T>::_GetSolution(const DVec<T>& qddot, DVec<T>& cmd) {
   // DVec<T> delta_tau = DVec<T>::Zero(WB::num_qdot_);
   // for(size_t i(0); i<_dim_floating; ++i) delta_tau[i] = z[i];
   // pretty_print(tot_tau, std::cout, "tot tau original");
-  pretty_print(WB::A_, std::cout, "WB::A_ matrix");
-  pretty_print(WB::cori_, std::cout, "WB::cori_ matrix");
-  pretty_print(WB::grav_, std::cout, "WB::grav_ matrix");
+  // pretty_print(WB::A_, std::cout, "WB::A_ matrix");
+  // pretty_print(WB::cori_, std::cout, "WB::cori_ matrix");
+  // pretty_print(WB::grav_, std::cout, "WB::grav_ matrix");
   // tot_tau += delta_tau;
   // pretty_print(tot_tau, std::cout, "tot tau result");
   // pretty_print(qddot, std::cout, "qddot");
