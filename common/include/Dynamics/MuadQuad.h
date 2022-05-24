@@ -22,7 +22,7 @@ Quadruped<T> buildMuadQuad() {
   Quadruped<T> muadquad;
   muadquad._robotType = RobotType::MUADQUAD;
 
-  muadquad._bodyMass = 4.6;
+  muadquad._bodyMass = 4.08*1.12;
   muadquad._bodyLength = 0.2 * 2;
   muadquad._bodyWidth = 0.1 * 2;
   muadquad._bodyHeight = 0.035;
@@ -77,38 +77,38 @@ Quadruped<T> buildMuadQuad() {
   // spatial inertias
   Mat3<T> abadRotationalInertia;
   // abadRotationalInertia << 381, 58, 0.45, 58, 560, 0.95, 0.45, 0.95, 444;
-     abadRotationalInertia << 500, 58, 0.45, 58, 560, 0.95, 0.45, 0.95, 550; // the axis is not as close to COM, so increases in x and z inertias
-  abadRotationalInertia = abadRotationalInertia * 1e-6;
+     abadRotationalInertia << 488, 1, 2, 1, 537, 8, 2, 8, 472; // the axis is not as close to COM, so increases in x and z inertias
+  abadRotationalInertia = abadRotationalInertia * 1e-6 * 1.12;
   // Vec3<T> abadCOM(0, 0.036, 0);  // LEFT
-     Vec3<T> abadCOM(0, -0.020, 0);  // LEFT our x2 actuator is farther in medially
+     Vec3<T> abadCOM(0, -0.093, 0.0005);  // LEFT our x2 actuator is farther in medially
   // SpatialInertia<T> abadInertia(0.54, abadCOM, abadRotationalInertia);
-     SpatialInertia<T> abadInertia(0.58, abadCOM, abadRotationalInertia);
+     SpatialInertia<T> abadInertia(0.53*1.12, abadCOM, abadRotationalInertia);
 
   Mat3<T> hipRotationalInertia;
   // hipRotationalInertia << 1983, 245, 13, 245, 2103, 1.5, 13, 1.5, 408;
-     hipRotationalInertia << 2200, 245, 13, 245, 2103, 1.5, 13, 1.5, 650; // more x and z inertia because x3 actuator COM is farther out laterally
-  hipRotationalInertia = hipRotationalInertia * 1e-6;
+     hipRotationalInertia << 1580, 3, 11, 3, 1433, 266, 11, 266, 704; // more x and z inertia because x3 actuator COM is farther out laterally
+  hipRotationalInertia = hipRotationalInertia * 1e-6 * 1.12;
   // Vec3<T> hipCOM(0, 0.016, -0.02);
-     Vec3<T> hipCOM(0, 0.045, -0.02); // our x3 actuator is farther out laterally
-  SpatialInertia<T> hipInertia(0.634, hipCOM, hipRotationalInertia);
+     Vec3<T> hipCOM(0, 0.043, -0.01); // our x3 actuator is farther out laterally
+  SpatialInertia<T> hipInertia(0.62 * 1.12, hipCOM, hipRotationalInertia);
 
   Mat3<T> kneeRotationalInertia, kneeRotationalInertiaRotated;
   // kneeRotationalInertiaRotated << 6, 0, 0, 0, 248, 0, 0, 0, 245;
-     kneeRotationalInertiaRotated << 6, 0, 0, 0, 650, 0, 0, 0, 245; // our x2 actuator stator mass moves with knee due to inverted mounting, unlike mini cheetah
-  kneeRotationalInertiaRotated = kneeRotationalInertiaRotated * 1e-6;
+     kneeRotationalInertiaRotated << 388, 0, 0, 0, 388, 0, 0, 0, 7.5; // our x2 actuator stator mass moves with knee due to inverted mounting, unlike mini cheetah
+  kneeRotationalInertiaRotated = kneeRotationalInertiaRotated * 1e-6 * 1.12;
   kneeRotationalInertia = RY * kneeRotationalInertiaRotated * RY.transpose();
   // Vec3<T> kneeCOM(0, 0, -0.061);
-     Vec3<T> kneeCOM(0, 0, -0.080);
-  SpatialInertia<T> kneeInertia(0.064, kneeCOM, kneeRotationalInertia);
+     Vec3<T> kneeCOM(0, 0, -0.098);
+  SpatialInertia<T> kneeInertia(0.076 * 1.12, kneeCOM, kneeRotationalInertia);
 
   Vec3<T> rotorCOM(0, 0, 0);
   SpatialInertia<T> rotorInertiaX(0.055, rotorCOM, rotorRotationalInertiaX);
   SpatialInertia<T> rotorInertiaY(0.055, rotorCOM, rotorRotationalInertiaY);
 
   Mat3<T> bodyRotationalInertia;
-  bodyRotationalInertia << 11253, 0, 0, 0, 36203, 0, 0, 0, 42673;
-  bodyRotationalInertia = bodyRotationalInertia * 1e-6;
-  Vec3<T> bodyCOM(0, 0, 0);
+  bodyRotationalInertia << 18613, 357, 223, 357, 125292, 0, 223, 0, 125529;
+  bodyRotationalInertia = bodyRotationalInertia * 1e-6 * 1.12;
+  Vec3<T> bodyCOM(0, 0, .037);
   SpatialInertia<T> bodyInertia(muadquad._bodyMass, bodyCOM,
                                 bodyRotationalInertia);
 
