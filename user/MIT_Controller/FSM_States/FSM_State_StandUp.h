@@ -3,6 +3,9 @@
 
 #include "FSM_State.h"
 
+template<typename T> class WBC_Ctrl;
+template<typename T> class LocomotionCtrlData;
+
 /**
  *
  */
@@ -29,9 +32,24 @@ class FSM_State_StandUp : public FSM_State<T> {
   TransitionData<T> testTransition();
 
  private:
+
+  WBC_Ctrl<T> * _wbc_ctrl;
+  LocomotionCtrlData<T> * _wbc_data;
+
+  T last_height_command = 0;
+
+  Vec3<T> _ini_body_pos;
+  Vec3<T> _des_body_pos;
+  Vec3<T> _ini_body_ori_rpy;
+  T _body_weight;
+
+  void StandUpStep();
+
   // Keep track of the control iterations
   int iter = 0;
   std::vector< Vec3<T> > _ini_foot_pos;
+  std::vector< Vec3<T> > _err_foot_pos;
+  Vec3<T> _avg_foot_err;
 
   bool standing_up = true;
   bool stood_up = false;
