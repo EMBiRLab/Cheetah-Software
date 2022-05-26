@@ -292,6 +292,49 @@ void FSM_State_Locomotion<T>::LocomotionControlStep() {
     this->_data->_legController->commands[leg].kdCartesian = Kd_backup[leg];
   }
 
+  //sad to have to publish inline here
+  publish_mpc_data();
+}
+
+template <typename T>
+void FSM_State_Locomotion<T>::publish_mpc_data() {
+  
+// Vec3<float> pBody_des;
+//   Vec3<float> vBody_des;
+//   Vec3<float> aBody_des;
+
+//   Vec3<float> pBody_RPY_des;
+//   Vec3<float> vBody_Ori_des;
+
+//   Vec3<float> pFoot_des[4];
+//   Vec3<float> vFoot_des[4];
+//   Vec3<float> aFoot_des[4];
+
+//   Vec3<float> Fr_des[4];
+
+//   Vec4<float> contact_state;
+
+    // populate the lcm type with data from the mpc object
+    for(int j = 0; j < 3; j++) {
+      mpc_data.pBody_des[j] = cMPCOld->pBody_des[j];
+      mpc_data.vBody_des[j] = cMPCOld->vBody_des[j];
+      mpc_data.aBody_des[j] = cMPCOld->aBody_des[j];
+      mpc_data.pBody_rpy_des[j] = cMPCOld->pBody_RPY_des[j];
+      mpc_data.vBody_ori_des[j] = cMPCOld->vBody_Ori_des[j];
+      
+      for(int leg = 0; leg < 4; leg++) {
+        mpc_data.pFoot_des[leg*3 + j] = cMPCOld->pFoot_des[leg][j];
+        mpc_data.vFoot_des[leg*3 + j] = cMPCOld->vFoot_des[leg][j];
+        mpc_data.aFoot_des[leg*3 + j] = cMPCOld->aFoot_des[leg][j];
+        mpc_data.Fr_des[leg*3 + j] = cMPCOld->Fr_des[leg][j];
+      }
+    }
+
+    for(int leg = 0; leg < 4; leg++) {
+      mpc_data.contact_state[leg] = cMPCOld->contact_state[leg];
+    }
+
+    _mpcLCM.publish("mpc_data", &mpc_data);
 }
 
 /**

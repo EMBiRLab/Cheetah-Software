@@ -296,18 +296,8 @@ void RobotRunner::finalizeStep() {
       }
     }
 
-    // std::cout << "MQ OFFSETS are: ";
-    // for (int i = 0; i < 12; i++){
-    //   std::cout << muadquad_angle_offsets[i] << ", ";
-    // }
-    // std::cout << std::endl;
-    // std::cout << LCMCommandfix.tau_ff[muadquad_leg_reordering[1]] << ", ";
-    // std::cout << LCMCommandfix.tau_ff[muadquad_leg_reordering[2]];
-    // std::cout << "]" << std::endl;
-    // std::cout << "Updated the command second time!" << std::endl;
     _lcm.publish("robot_server_command", &LCMCommandfix);
-    // _commandLCM.publish("robot_server_command", &LCMCommandfix);
-    // std::cout << "FINALLY PUBLISHED!" << std::endl;
+    
   } else {
     assert(false);
   }

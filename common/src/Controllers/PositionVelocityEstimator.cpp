@@ -95,7 +95,7 @@ void LinearKFPositionVelocityEstimator<T>::run() {
   Mat3<T> Rbod = this->_stateEstimatorData.result->rBody.transpose();
   // in old code, Rbod * se_acc + g
   Vec3<T> a = this->_stateEstimatorData.result->aWorld + g; 
-  std::cout << "A WORLD\n" << a << "\n";
+  // std::cout << "A WORLD\n" << a << "\n";
   Vec4<T> pzs = Vec4<T>::Zero();
   Vec4<T> trusts = Vec4<T>::Zero();
   Vec3<T> p0, v0;
@@ -124,7 +124,7 @@ void LinearKFPositionVelocityEstimator<T>::run() {
     T trust = T(1);
     T phase = fmin(this->_stateEstimatorData.result->contactEstimate(i), T(1));
     //T trust_window = T(0.25);
-    T trust_window = T(0.2);
+    T trust_window = T(0.0);
 
     if (phase < trust_window) {
       trust = phase / trust_window;
@@ -153,7 +153,7 @@ void LinearKFPositionVelocityEstimator<T>::run() {
   Eigen::Matrix<T, 28, 1> y;
   y << _ps, _vs, pzs;
   _xhat = _A * _xhat + _B * a;
-  std::cout << "_xhat before lu.solve() additional stuff\n" << _xhat.block(0,0,6,1) << "\n";
+  // std::cout << "_xhat before lu.solve() additional stuff\n" << _xhat.block(0,0,6,1) << "\n";
   Eigen::Matrix<T, 18, 18> At = _A.transpose();
   Eigen::Matrix<T, 18, 18> Pm = _A * _P * At + Q;
   Eigen::Matrix<T, 18, 28> Ct = _C.transpose();
@@ -164,7 +164,7 @@ void LinearKFPositionVelocityEstimator<T>::run() {
   // todo compute LU only once
   Eigen::Matrix<T, 28, 1> S_ey = S.lu().solve(ey);
   _xhat += Pm * Ct * S_ey;
-  std::cout << "_xhat AFTER lu.solve() additional stuff\n" << _xhat.block(0,0,6,1) << "\n";
+  // std::cout << "_xhat AFTER lu.solve() additional stuff\n" << _xhat.block(0,0,6,1) << "\n";
 
   Eigen::Matrix<T, 28, 18> S_C = S.lu().solve(_C);
   _P = (Eigen::Matrix<T, 18, 18>::Identity() - Pm * Ct * S_C) * Pm;
@@ -180,7 +180,7 @@ void LinearKFPositionVelocityEstimator<T>::run() {
 
   this->_stateEstimatorData.result->position = _xhat.block(0, 0, 3, 1);
   this->_stateEstimatorData.result->vWorld = _xhat.block(3, 0, 3, 1);
-  std::cout << "state estim data V WORLD\n" << this->_stateEstimatorData.result->vWorld << "\n";
+  // std::cout << "state estim data V WORLD\n" << this->_stateEstimatorData.result->vWorld << "\n";
   this->_stateEstimatorData.result->vBody =
       this->_stateEstimatorData.result->rBody *
       this->_stateEstimatorData.result->vWorld;

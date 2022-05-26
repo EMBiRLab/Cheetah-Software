@@ -34,7 +34,7 @@ FSM_State_BalanceStand<T>::FSM_State_BalanceStand(
 
 template <typename T>
 void FSM_State_BalanceStand<T>::onEnter() {
-  std::cout << "Enterred BalanceStand\n";
+  // std::cout << "Enterred BalanceStand\n";
   // Default is to not transition
   this->nextStateName = this->stateName;
 
@@ -239,11 +239,11 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
   }else{
     // Orientation
     _wbc_data->pBody_RPY_des[0] = 
-      2*0.06* this->_data->_desiredStateCommand->gamepadCommand->leftStickAnalog[0];
+      4*0.06* this->_data->_desiredStateCommand->gamepadCommand->leftStickAnalog[0];
      _wbc_data->pBody_RPY_des[1] = 
-      2*0.06*this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[0];
+      4*0.06*this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[0];
     _wbc_data->pBody_RPY_des[2] -= 
-      2*0.1*this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[1];
+      0.3*this->_data->_desiredStateCommand->gamepadCommand->rightStickAnalog[1];
     
     // Height
     _wbc_data->pBody_des[2] += 
@@ -266,7 +266,7 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
     _wbc_data->pBody_des[2] = 0.25;
 
     if(last_height_command - _wbc_data->pBody_des[2] > 0.001) {
-      _wbc_data->pBody_des[2] = last_height_command - 0.00001; //speed up eventually. This is 5mm/s
+      _wbc_data->pBody_des[2] = last_height_command - 0.0001; //speed up eventually. This is 5mm/s
     }
   }
   last_height_command = _wbc_data->pBody_des[2];

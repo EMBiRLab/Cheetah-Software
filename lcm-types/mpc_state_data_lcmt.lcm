@@ -1,0 +1,13 @@
+struct mpc_state_data_t
+{
+    float pBody_des[3];
+    float vBody_des[3];
+    float aBody_des[3];
+    float pBody_rpy_des[3];
+    float vBody_ori_des[3];
+    float pFoot_des[12];
+    float vFoot_des[12];
+    float aFoot_des[12];
+    float Fr_des[12];
+    float contact_state[4];
+}

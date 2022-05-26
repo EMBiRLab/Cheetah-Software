@@ -204,7 +204,12 @@ void GaitScheduler<T>::modifyGait() {
 
   case 1:
     // Use chosen gait with default settings
+
     if (gaitData._currentGait != GaitType(userParameters->gait_type)) {
+      std::cout << "Ayyoooo we in case 1 of modifyGait()\n";
+      std::cout << "<gaitData._currentGait> is " << (int)gaitData._currentGait << 
+                    " and GaitType(userParameters->gait_type) is " << 
+                    (int)GaitType(userParameters->gait_type) << std::endl; 
       gaitData._nextGait = GaitType(userParameters->gait_type);
       createGait();
     }

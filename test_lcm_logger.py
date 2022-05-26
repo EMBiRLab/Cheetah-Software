@@ -9,12 +9,12 @@ sys.path.append('./lcm-types/python/')
 from leg_control_command_lcmt import leg_control_command_lcmt
 from leg_control_data_lcmt import leg_control_data_lcmt
 from state_estimator_lcmt import state_estimator_lcmt
-
+from mpc_state_data_t import mpc_state_data_t
 
 class Handler:
 
     def __init__(self):
-        self.buffer = [0 for x in range(238)]
+        self.buffer = [0 for x in range(305)]
         self.header = ['time','cmd_tau_ff_0','cmd_tau_ff_1','cmd_tau_ff_2','cmd_tau_ff_3','cmd_tau_ff_4','cmd_tau_ff_5','cmd_tau_ff_6','cmd_tau_ff_7','cmd_tau_ff_8','cmd_tau_ff_9','cmd_tau_ff_10','cmd_tau_ff_11',
                 'cmd_f_ff_0','cmd_f_ff_1','cmd_f_ff_2','cmd_f_ff_3','cmd_f_ff_4','cmd_f_ff_5','cmd_f_ff_6','cmd_f_ff_7','cmd_f_ff_8','cmd_f_ff_9','cmd_f_ff_10','cmd_f_ff_11',
                 'cmd_q_des_0','cmd_q_des_1','cmd_q_des_2','cmd_q_des_3','cmd_q_des_4','cmd_q_des_5','cmd_q_des_6','cmd_q_des_7','cmd_q_des_8','cmd_q_des_9','cmd_q_des_10','cmd_q_des_11',
@@ -40,11 +40,22 @@ class Handler:
                 'rpy_0', 'rpy_1', 'rpy_2',
                 'omegaBody_0', 'omegaBody_1', 'omegaBody_2',
                 'omegaWorld_0', 'omegaWorld_1', 'omegaWorld_2',
-                'quat_0', 'quat_1', 'quat_2', 'quat_3'
+                'quat_0', 'quat_1', 'quat_2', 'quat_3',
+                'pBody_des_0','pBody_des_1','pBody_des_2',
+                'vBody_des_0','vBody_des_1','vBody_des_2',
+                'aBody_des_0','aBody_des_1','aBody_des_2',
+                'pBody_rpy_des_0','pBody_rpy_des_1','pBody_rpy_des_2',
+                'vBody_ori_des_0','vBody_ori_des_1','vBody_ori_des_2',
+                'pFoot_des_0','pFoot_des_1','pFoot_des_2','pFoot_des_3','pFoot_des_4','pFoot_des_5','pFoot_des_6','pFoot_des_7','pFoot_des_8','pFoot_des_9','pFoot_des_10','pFoot_des_11',
+                'vFoot_des_0','vFoot_des_1','vFoot_des_2','vFoot_des_3','vFoot_des_4','vFoot_des_5','vFoot_des_6','vFoot_des_7','vFoot_des_8','vFoot_des_9','vFoot_des_10','vFoot_des_11',
+                'aFoot_des_0','aFoot_des_1','aFoot_des_2','aFoot_des_3','aFoot_des_4','aFoot_des_5','aFoot_des_6','aFoot_des_7','aFoot_des_8','aFoot_des_9','aFoot_des_10','aFoot_des_11',
+                'Fr_des_0','Fr_des_1','Fr_des_2','Fr_des_3','Fr_des_4','Fr_des_5','Fr_des_6','Fr_des_7','Fr_des_8','Fr_des_9','Fr_des_10','Fr_des_11',
+                'contact_state_0', 'contact_state_1', 'contact_state_2', 'contact_state_3'
                 ]
-        self.ctrl_cmd_ready = False
+        self.ctrl_cmd_ready  = False
         self.ctrl_data_ready = False
         self.state_est_ready = False
+        self.mpc_state_data_ready = False
 
     """
     struct leg_control_command_lcmt {
@@ -77,6 +88,7 @@ class Handler:
         self.buffer[84:95] = msg.kd_cartesian
         self.buffer[96:107] = msg.kp_joint
         self.buffer[108:119] = msg.kd_joint
+
         self.ctrl_cmd_ready = True
 
     """
@@ -150,15 +162,50 @@ class Handler:
         self.buffer[228:230] = msg.omegaBody
         self.buffer[231:233] = msg.omegaWorld
         self.buffer[234:237] = msg.quat
+
         self.state_est_ready = True
 
+    """
+    struct mpc_state_data_t
+    {
+        float pBody_des[3];
+        float vBody_des[3];
+        float aBody_des[3];
+        
+        float pBody_rpy_des[3];
+        float vBody_ori_des[3];
+        
+        float pFoot_des[12];
+        float vFoot_des[12];
+        float aFoot_des[12];
+        float Fr_des[12];
+
+        float contact_state[4];
+    }
+    """
+    def mpc_data_handler(self, channel, data):
+        msg = mpc_state_data_t.decode(data)
+
+        self.buffer[238:240] = msg.pBody_des
+        self.buffer[241:243] = msg.vBody_des
+        self.buffer[244:246] = msg.aBody_des
+        self.buffer[247:249] = msg.pBody_rpy_des
+        self.buffer[250:252] = msg.vBody_ori_des
+        self.buffer[253:264] = msg.pFoot_des
+        self.buffer[265:276] = msg.vFoot_des
+        self.buffer[277:288] = msg.aFoot_des
+        self.buffer[289:300] = msg.Fr_des
+        self.buffer[301:304] = msg.contact_state
+
+        self.mpc_state_data_ready = True
 
 
 handler = Handler()          
 # print(len(handler.buffer))          
 # print(len(handler.header))          
 # f = open("/home/ursk/muadquad_data/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
-f = open("/home/adsm/mq_telem/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
+# f = open("/home/adsm/mq_telem/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
+f = open("/home/mrako/Documents/EMBIR/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
 writer = csv.writer(f)
 writer.writerow(handler.header)
 
@@ -166,9 +213,11 @@ writer.writerow(handler.header)
 # ctrl_data_ready = False
 
 lc = lcm.LCM()
+lc_mpc = lcm.LCM()
 subscription = lc.subscribe("leg_control_command", handler.ctrl_cmd_handler)
 subscription = lc.subscribe("leg_control_data", handler.ctrl_data_handler)
 subscription = lc.subscribe("state_estimator", handler.state_estim_handler)
+subscription = lc_mpc.subscribe("mpc_data", handler.mpc_data_handler)
 
 iter = 0
 start_time = time.time()
@@ -177,14 +226,16 @@ try:
         lc.handle_timeout(100)
         
         if handler.ctrl_cmd_ready and handler.ctrl_data_ready and handler.state_est_ready:
+            lc_mpc.handle_timeout(1)
             cur_time = time.time() - start_time
-            buf2 = [cur_time] + handler.buffer[:238]
+            buf2 = [cur_time] + handler.buffer[:305]
             # print(len(handler.buffer))
             writer.writerow([round(e, 4) for e in buf2])
-            handler.buffer = [0 for x in range(238)]
+            handler.buffer = [0 for x in range(305)]
             handler.ctrl_cmd_ready = False
             handler.ctrl_data_ready = False
             handler.state_est_ready = False
+            handler.mpc_state_data_ready = False
 
         if iter % 300 == 0:
             print("logging is still alive")

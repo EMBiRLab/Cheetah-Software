@@ -2,6 +2,8 @@
 #define FSM_STATE_LOCOMOTION_H
 
 #include <Controllers/convexMPC/ConvexMPCLocomotion.h>
+#include "mpc_state_data_t.hpp"
+#include <lcm-cpp.hpp>
 #include "FSM_State.h"
 
 template<typename T> class WBC_Ctrl;
@@ -44,6 +46,12 @@ class FSM_State_Locomotion : public FSM_State<T> {
 
   // Impedance control for the stance legs during locomotion
   void StanceLegImpedanceControl(int leg);
+
+  // lcm type and publishing function for data-logging
+  lcm::LCM _mpcLCM;
+  mpc_state_data_t mpc_data;
+  void publish_mpc_data();
+
 };
 
 #endif  // FSM_STATE_LOCOMOTION_H
