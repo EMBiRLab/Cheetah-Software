@@ -156,7 +156,7 @@ void RobotServer::iterate_fsm() {
 				if (std::isnan(rc.q_des[a_idx]) && !rs_set_.ignore_cmds) {
 					// either velocity or torque
 					if (std::isnan(rc.qd_des[a_idx])) {
-						if (std::isnan(rc.tau_ff[a_idx])) {
+						if (std::isnan(rc.tau_ff[a_idx]) || std::fabs(rc.tau_ff[a_idx]) < 0.001) {
 							actuator_ptrs_[a_idx]->make_stop();
 						}
 						else
@@ -209,16 +209,17 @@ void RobotServer::iterate_fsm() {
 			if(safety_check()) next_state_ = recovery_return_state_;
 
 			// if recovery hasn't occurred, quit
-			if(!safety_check()) next_state_ = FSMState::kQuitting;
+			if(!safety_check() && recovery_cycle > recovery_quit) next_state_ = FSMState::kQuitting;
 			
 			// else, recovery has occurred, and we go back to running
-			else next_state_ = recovery_return_state_;
+			// else next_state_ = recovery_return_state_;
 			break;}
 		case FSMState::kQuitting: {
 			make_stop_all();
 			quit_cycle++;
 			// wait at least a few cycles, then raise flag (main will have to quit)
 			if(quit_cycle > quit_cycle_thresh) {
+				std::cout << "\nsent stop commands... ready to quit" << std::endl;
 				ready_to_quit = true;
 				// std::cout << "\n\nerror codes on exit: a1 = " << int(a1_.fault()) << "; a2 = " << int(a2_.fault()) << std::endl;
 			}
@@ -370,7 +371,15 @@ void RobotServer::publish_LCM_response() {
 	// auto& server_response = server_response;
 	for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
 		server_response.q[a_idx] = actuator_ptrs_[a_idx]->get_position_rad();
+		if (std::isnan(server_response.q[a_idx])){
+			std::cout << "\npos nan a" << a_idx << " LCM; get pos = " << actuator_ptrs_[a_idx]->get_position_rad();
+			std::cout.flush();
+		}
 		server_response.qd[a_idx] = actuator_ptrs_[a_idx]->get_velocity_rad_s();
+		if (std::isnan(server_response.qd[a_idx])){
+			std::cout << "\nvel nan a" << a_idx << " LCM; get vel = " << actuator_ptrs_[a_idx]->get_velocity_rad_s();
+			std::cout.flush();
+		}
 		server_response.tau_est[a_idx] = actuator_ptrs_[a_idx]->get_torque_Nm();
 	}
 	server_response.fsm_state = uint8_t(curr_state_);
