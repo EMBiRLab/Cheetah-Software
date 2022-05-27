@@ -116,6 +116,17 @@ void ControlFSM<T>::runFSM() {
       //data.controlParameters->control_mode = K_FRONTJUMP;
     //std::cout<< "control mode: "<<data.controlParameters->control_mode<<std::endl;
   }
+  else{
+    if (data._desiredStateCommand->gamepadCommand->a == 1){
+      data.controlParameters->control_mode = K_PASSIVE;
+    }
+    if (data._desiredStateCommand->gamepadCommand->b == 1){
+      data.controlParameters->control_mode = K_BALANCE_STAND;
+    }
+    if (data._desiredStateCommand->gamepadCommand->y == 1){
+      data.controlParameters->control_mode = K_LOCOMOTION;
+    }
+  }
 
   // std::cout << "Current Operating Mode: " << (int)operatingMode << std::endl;
 

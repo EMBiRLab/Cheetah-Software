@@ -96,8 +96,8 @@ else()
       -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
       -Wshadow -Wsign-promo")
       # include_directories("/usr/include/lcm/")   # lcm includes
-      # include_directories("/usr/local/include/lcm/")   # lcm includes
-      include_directories("${lib_include_path}/lcm/")   # lcm includes
+      include_directories("/usr/local/include/lcm/")   # lcm includes
+      # include_directories("${lib_include_path}/lcm/")   # lcm includes
     endif()
 
     set(CMAKE_C_FLAGS "-ggdb  -march=native -std=gnu99 -I.")

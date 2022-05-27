@@ -5,7 +5,9 @@ import random
 import csv
 import time
 sys.path.append('../')
+# sys.path.append('../../')
 sys.path.append('./lcm-types/python/')
+sys.path.append('../lcm-types/python/')
 from leg_control_command_lcmt import leg_control_command_lcmt
 from leg_control_data_lcmt import leg_control_data_lcmt
 from state_estimator_lcmt import state_estimator_lcmt

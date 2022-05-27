@@ -22,11 +22,12 @@
 
 RobotRunner::RobotRunner(RobotController* robot_ctrl, 
     PeriodicTaskManager* manager, 
-    float period, std::string name):
+    float period, std::string name, int monitoring):
   PeriodicTask(manager, period, name),
   _lcm(getLcmUrl(255)) {
 
     _robot_ctrl = robot_ctrl;
+    _monitoring = monitoring;
 
     // for (int dof = 0; dof < 12; dof++){
     //   LCMData->q[dof] = std::numeric_limits<float>::quiet_NaN();
@@ -198,7 +199,13 @@ void RobotRunner::run() {
   // Sets the leg controller commands for the robot appropriate commands
   if(isnan(robServCommand->tau_ff[1]))
     std::cout << "tauff check 2: " << robServCommand->tau_ff[1] << std::endl;
-  finalizeStep();
+  
+  if (_monitoring == 0){
+    finalizeStep();
+  } else {
+    std::cout<<"ROBOT RUNNER NOT PUBLISHING!"<<std::endl;
+  }
+  
   if(isnan(robServCommand->tau_ff[1]))
     std::cout << "tauff check 3: " << robServCommand->tau_ff[1] << std::endl;
 }

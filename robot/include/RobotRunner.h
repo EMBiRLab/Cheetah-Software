@@ -29,12 +29,13 @@
 #include <lcm-cpp.hpp>
 
 #define MQ_MOT_ROT 2 * M_PI / 7.5
+#define MQ_MOT_ROT_X3_NEW 2 * M_PI / 12.0232
 
 class RobotRunner : public PeriodicTask {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  RobotRunner(RobotController* , PeriodicTaskManager*, float, std::string);
+  RobotRunner(RobotController* , PeriodicTaskManager*, float, std::string, int monitoring = 0);
   using PeriodicTask::PeriodicTask;
   void init() override;
   void run() override;
@@ -66,8 +67,8 @@ class RobotRunner : public PeriodicTask {
   // following written in MIT angle convention
   float muadquad_angle_offsets[12]  = {0,-1*MQ_MOT_ROT,2*MQ_MOT_ROT,
                                        0,-1*MQ_MOT_ROT,2*MQ_MOT_ROT,
-                                       0,-1*MQ_MOT_ROT,2*MQ_MOT_ROT,
-                                       0,-1*MQ_MOT_ROT,2*MQ_MOT_ROT}; // todo: place into a good spot like mq quadruped
+                                       0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW,
+                                       0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW}; // todo: place into a good spot like mq quadruped
   // robot_server_response_lcmt* LCMData;
   RobServData* robServData;
   void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
@@ -78,6 +79,9 @@ class RobotRunner : public PeriodicTask {
   robot_server_command_lcmt* LCMCommand;
   RobServCommand* robServCommand;
   lcm::LCM _commandLCM;
+
+  //For monitoring dont publish any messages
+  int _monitoring;
 
  private:
   float _ini_yaw;

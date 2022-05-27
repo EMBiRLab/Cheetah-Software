@@ -602,8 +602,9 @@ void Cheetah3HardwareBridge::run() {
 
 
 // Implementation of the MuadQuad Hardware Bridge
-MuadQuadHardwareBridge::MuadQuadHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file) : HardwareBridge(robot_ctrl) {
+MuadQuadHardwareBridge::MuadQuadHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file, int monitoring) : HardwareBridge(robot_ctrl) {
   _load_parameters_from_file = load_parameters_from_file;
+  _monitoring = monitoring;
 }
 
 /*!
@@ -670,7 +671,7 @@ void MuadQuadHardwareBridge::run() {
   printf("[Hardware Bridge] Got all parameters, starting up!\n");
 
   _robotRunner =
-      new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
+      new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control", _monitoring);
 
   //will have to create variables for storing current data and commands to joint position, velocity 
   //and torque data like the ones in spi command for cheetah

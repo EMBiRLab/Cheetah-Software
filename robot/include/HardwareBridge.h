@@ -137,10 +137,11 @@ private:
 //Interface between robot and hardware for MuadQuad
 class MuadQuadHardwareBridge : public HardwareBridge {
 public:
-  MuadQuadHardwareBridge(RobotController* rc, bool load_parameters_from_file);
+  MuadQuadHardwareBridge(RobotController* rc, bool load_parameters_from_file, int monitoring = 0);
   void runLCM();
   void initHardware();
   void run();
+  int _monitoring;
   // might need some more functions here...
 
 private:

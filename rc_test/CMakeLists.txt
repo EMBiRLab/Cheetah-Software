@@ -13,8 +13,8 @@ include_directories("../third-party/lord_imu/Include")
 
 include_directories("../lcm-types/cpp")
 # include_directories("/usr/include/lcm/")   # lcm includes
-# include_directories("/usr/local/include/lcm/")   # lcm includes
-include_directories("${lib_include_path}/lcm/")   # lcm includes
+include_directories("/usr/local/include/lcm/")   # lcm includes
+# include_directories("${lib_include_path}/lcm/")   # lcm includes
 
 file(GLOB sources "*.cpp")
 

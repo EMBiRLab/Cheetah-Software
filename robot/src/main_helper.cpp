@@ -33,89 +33,95 @@ void printUsage() {
  */
 int main_helper(int argc, char** argv, RobotController* ctrl) {
 
-  if (argc != 3 && argc != 4) {
-    printUsage();
-    return EXIT_FAILURE;
-  }
+  if (argv[1][0] == 's'){
+    std::cout<<"----Monitoring for Muadquad-------"<<std::endl;
+    MuadQuadHardwareBridge hw(ctrl, true,1);
+    hw.run();
+  }else {
 
-  if (argv[1][0] == '3') {
-    gMasterConfig._robot = RobotType::CHEETAH_3;
-  } else if (argv[1][0] == 'm') {
-    gMasterConfig._robot = RobotType::MINI_CHEETAH;
-  } else if (argv[1][0] == 'e') {
-    gMasterConfig._robot = RobotType::MUADQUAD;
-  } else {
-    printUsage();
-    return EXIT_FAILURE;
-  }
-
-  if (argv[2][0] == 's') {
-    gMasterConfig.simulated = true;
-  } else if (argv[2][0] == 'r') {
-    gMasterConfig.simulated = false;
-  } else {
-    printUsage();
-    return EXIT_FAILURE;
-  }
-
-  if(argc == 4 && argv[3][0] == 'f') {
-    gMasterConfig.load_from_file = true;
-    printf("Load parameters from file\n");
-  } else {
-    gMasterConfig.load_from_file = false;
-    printf("Load parameters from network\n");
-  }
-
-  printf("[Quadruped] Cheetah Software\n");
-  printf("        Quadruped:  %s\n",
-         gMasterConfig._robot == RobotType::MINI_CHEETAH ? "Mini Cheetah" : 
-        (gMasterConfig._robot == RobotType::CHEETAH_3 ? "Cheetah 3" : "MuadQuad"));
-  printf("        Driver: %s\n", gMasterConfig.simulated
-                                     ? "Development Simulation Driver"
-                                     : "Quadruped Driver");
-
-  // dispatch the appropriate driver
-  if (gMasterConfig.simulated) {
-    if(argc != 3) {
+    if (argc != 3 && argc != 4) {
       printUsage();
       return EXIT_FAILURE;
     }
-    if (gMasterConfig._robot == RobotType::MINI_CHEETAH) {
-      SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
-      simulationBridge.run();
-      printf("[Quadruped] SimDriver run() has finished!\n");
-    } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
-      // Commented out bc we do not have a cheetah 3 and the optimization
-      // pre-allocates space which overflows the default stack size
-      SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
-      simulationBridge.run();
-    } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
-      SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
-      simulationBridge.run();
-    } else {
-      printf("[ERROR] unknown robot\n");
-      assert(false);
-    }
-  } else {
-#ifdef linux
-    if (gMasterConfig._robot == RobotType::MINI_CHEETAH) {
-      MiniCheetahHardwareBridge hw(ctrl, gMasterConfig.load_from_file);
-      hw.run();
-      printf("[Quadruped] SimDriver run() has finished!\n");
-    } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
-      // Commented out bc we do not have a cheetah 3 and the optimization
-      // pre-allocates space which overflows the default stack size
-      // Cheetah3HardwareBridge hw(ctrl);
-      // hw.run();
-    } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
-      MuadQuadHardwareBridge hw(ctrl, gMasterConfig.load_from_file);
-      hw.run();
-    } else {
-      printf("[ERROR] unknown robot\n");
-      assert(false);
-    }
-#endif
-  }
 
+    if (argv[1][0] == '3') {
+      gMasterConfig._robot = RobotType::CHEETAH_3;
+    } else if (argv[1][0] == 'm') {
+      gMasterConfig._robot = RobotType::MINI_CHEETAH;
+    } else if (argv[1][0] == 'e') {
+      gMasterConfig._robot = RobotType::MUADQUAD;
+    } else {
+      printUsage();
+      return EXIT_FAILURE;
+    }
+
+    if (argv[2][0] == 's') {
+      gMasterConfig.simulated = true;
+    } else if (argv[2][0] == 'r') {
+      gMasterConfig.simulated = false;
+    } else {
+      printUsage();
+      return EXIT_FAILURE;
+    }
+
+    if(argc == 4 && argv[3][0] == 'f') {
+      gMasterConfig.load_from_file = true;
+      printf("Load parameters from file\n");
+    } else {
+      gMasterConfig.load_from_file = false;
+      printf("Load parameters from network\n");
+    }
+
+    printf("[Quadruped] Cheetah Software\n");
+    printf("        Quadruped:  %s\n",
+          gMasterConfig._robot == RobotType::MINI_CHEETAH ? "Mini Cheetah" : 
+          (gMasterConfig._robot == RobotType::CHEETAH_3 ? "Cheetah 3" : "MuadQuad"));
+    printf("        Driver: %s\n", gMasterConfig.simulated
+                                      ? "Development Simulation Driver"
+                                      : "Quadruped Driver");
+
+    // dispatch the appropriate driver
+    if (gMasterConfig.simulated) {
+      if(argc != 3) {
+        printUsage();
+        return EXIT_FAILURE;
+      }
+      if (gMasterConfig._robot == RobotType::MINI_CHEETAH) {
+        SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
+        simulationBridge.run();
+        printf("[Quadruped] SimDriver run() has finished!\n");
+      } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
+        // Commented out bc we do not have a cheetah 3 and the optimization
+        // pre-allocates space which overflows the default stack size
+        SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
+        simulationBridge.run();
+      } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
+        SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
+        simulationBridge.run();
+      } else {
+        printf("[ERROR] unknown robot\n");
+        assert(false);
+      }
+    } else {
+  #ifdef linux
+      if (gMasterConfig._robot == RobotType::MINI_CHEETAH) {
+        MiniCheetahHardwareBridge hw(ctrl, gMasterConfig.load_from_file);
+        hw.run();
+        printf("[Quadruped] SimDriver run() has finished!\n");
+      } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
+        // Commented out bc we do not have a cheetah 3 and the optimization
+        // pre-allocates space which overflows the default stack size
+        // Cheetah3HardwareBridge hw(ctrl);
+        // hw.run();
+      } else if (gMasterConfig._robot == RobotType::MUADQUAD) {
+        MuadQuadHardwareBridge hw(ctrl, gMasterConfig.load_from_file);
+        hw.run();
+      } else {
+        printf("[ERROR] unknown robot\n");
+        assert(false);
+      }
+  #endif
+    }
+  }
   return 0;
 }
