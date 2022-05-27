@@ -174,9 +174,13 @@ void Run(RobotServer& robotserver) {
 			const auto current_values = can_result.get();
 			// We copy out the results we just got out.
 			const auto rx_count = current_values.query_result_size;
+			// std::cout << "\n<replies.size()> is " << replies.size();
+			std::cout.flush();
 			for (size_t ii = 0; ii < replies.size(); ii++)	{
 				saved_replies[ii] = replies[ii];
+				// std::cout << "\nreply id = " << replies[ii].id;
 			}
+			std::cout.flush();
 			robotserver.set_pi3hat_attitude(moteus_data.attitude);
 			if (current_values.attitude_present) { // copy out new IMU attitude data if it exists
 				robotserver.set_pi3hat_attitude(moteus_data.attitude);
@@ -287,7 +291,7 @@ int main(int argc, char** argv) {
 		data_file);
 	// return 0;
 	Run(robotserver);
-	std::cout << "(returned to main)" << std::endl;
+	std::cout << "(returned to main -- should not happen!)" << std::endl; // we should quit from within the Run() fcn
 	data_file.close();
 	std::exit(EXIT_SUCCESS);
 }
