@@ -61,7 +61,7 @@ bool BodyOriTask<T>::_UpdateCommand(const void* pos_des, const DVec<T>& vel_des,
                      _Kd[i] * vel_err[i] + TK::acc_des_[i];
   }
 
-  std::cout << "BODYORITASK KPKIN, KP and KD are: " <<_Kp_kin[0] << "," << _Kp[0] << ", " << _Kd[0] << std::endl;
+  // std::cout << "BODYORITASK KPKIN, KP and KD are: " <<_Kp_kin[0] << "," << _Kp[0] << ", " << _Kd[0] << std::endl;
 
 
    //printf("[Body Ori Task]\n");
