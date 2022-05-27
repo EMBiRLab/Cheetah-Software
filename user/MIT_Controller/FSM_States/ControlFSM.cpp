@@ -126,6 +126,9 @@ void ControlFSM<T>::runFSM() {
     if (data._desiredStateCommand->gamepadCommand->y == 1){
       data.controlParameters->control_mode = K_LOCOMOTION;
     }
+    if (data._desiredStateCommand->gamepadCommand->x == 1){
+      data.controlParameters->control_mode = K_STAND_UP;
+    }
   }
 
   // std::cout << "Current Operating Mode: " << (int)operatingMode << std::endl;

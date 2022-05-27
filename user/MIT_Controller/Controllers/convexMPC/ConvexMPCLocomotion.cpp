@@ -138,7 +138,7 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
   else if(gaitNumber == 2)
     gait = &pronking;
   else if(gaitNumber == 3)
-    gait = &random;
+    gait = &walking;
   else if(gaitNumber == 4)
     gait = &standing;
   else if(gaitNumber == 5)
