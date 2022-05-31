@@ -16,7 +16,7 @@
 template <typename T>
 FSM_State_StandUp<T>::FSM_State_StandUp(ControlFSMData<T>* _controlFSMData)
     : FSM_State<T>(_controlFSMData, FSM_StateName::STAND_UP, "STAND_UP"),
-_ini_foot_pos(4), transition_cmd(4), transition_pos(4){
+_ini_foot_pos(4), _err_foot_pos(4), transition_cmd(4), transition_pos(4){
   
   // Set the pre controls safety checks
   this->turnOnAllSafetyChecks();
@@ -44,6 +44,8 @@ _ini_foot_pos(4), transition_cmd(4), transition_pos(4){
 
 template <typename T>
 void FSM_State_StandUp<T>::onEnter() {
+  std::cout << "Enterred onEnter()" << std::endl;
+
   // Default is to not transition
   this->nextStateName = this->stateName;
 
@@ -70,7 +72,7 @@ void FSM_State_StandUp<T>::onEnter() {
   // _ini_body_ori_rpy[1] = 0.; 
   // _body_weight = this->_data->_quadruped->_bodyMass * 9.81;
   _body_weight = (this->_wbc_ctrl->_model.totalNonRotorMass() + this->_wbc_ctrl->_model.totalRotorMass()) * 9.81;
-
+  std::cout << "HERE!" << std::endl;
 
 
 
@@ -95,6 +97,7 @@ void FSM_State_StandUp<T>::onEnter() {
 
   _des_body_pos = _ini_body_pos + _avg_foot_err;
 
+  std::cout << "made it to the end of OnEnter()!" << std::endl;
 }
 
 /**
