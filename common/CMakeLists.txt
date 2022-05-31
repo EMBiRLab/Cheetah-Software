@@ -3,12 +3,12 @@ include_directories(".")
 include_directories("include/" )                 # common includes
 # include_directories("/usr/include/lcm/")   # lcm includes
 # include_directories("/usr/local/include/lcm/")   # lcm includes
-include_directories("${lib_include_path}/lcm/")   # lcm includes
+include_directories("${lib_include_path_lcm}/lcm/")   # lcm includes
 include_directories("../lcm-types/cpp/")
 include_directories("../third-party/inih")       # inih includes
 include_directories("../third-party/osqp/include")       # osqp includes
 include_directories("../third-party/ParamHandler")
-include_directories("${lib_include_path}/eigen3")   # lcm includes
+include_directories("${lib_include_path_eigen}/eigen3")   # lcm includes
 include_directories("FootstepPlanner")
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})

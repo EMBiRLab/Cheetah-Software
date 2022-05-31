@@ -115,6 +115,20 @@ void ControlFSM<T>::runFSM() {
    }
       //data.controlParameters->control_mode = K_FRONTJUMP;
     //std::cout<< "control mode: "<<data.controlParameters->control_mode<<std::endl;
+  } else {
+    // Using not rc (aka logitech gamepad)
+    if (data._desiredStateCommand->gamepadCommand->a == 1){
+      data.controlParameters->control_mode = K_PASSIVE;
+    }
+    if (data._desiredStateCommand->gamepadCommand->b == 1){
+      data.controlParameters->control_mode = K_BALANCE_STAND;
+    }
+    if (data._desiredStateCommand->gamepadCommand->y == 1){
+      data.controlParameters->control_mode = K_LOCOMOTION;
+    }
+    if (data._desiredStateCommand->gamepadCommand->x == 1){
+      data.controlParameters->control_mode = K_STAND_UP;
+    }
   }
 
   // std::cout << "Current Operating Mode: " << (int)operatingMode << std::endl;

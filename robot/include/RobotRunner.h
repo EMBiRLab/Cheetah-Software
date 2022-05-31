@@ -28,7 +28,8 @@
 #include "RobotController.h"
 #include <lcm-cpp.hpp>
 
-#define MQ_MOT_ROT 2 * M_PI / 7.5
+#define MQ_MOT_ROT        2 * M_PI / 7.5
+#define MQ_MOT_ROT_X3_NEW 2 * M_PI / 12.0232
 
 class RobotRunner : public PeriodicTask {
  public:
@@ -64,10 +65,10 @@ class RobotRunner : public PeriodicTask {
   //Updating LCM Data and Command (Robot_server) MUADQUAD
   int   muadquad_leg_reordering[12] = {3,4,5,0,1,2,9,10,11,6,7,8}; // todo: place into a good spot like mq quadruped
   // following written in MIT angle convention
-  float muadquad_angle_offsets[12]  = {0,-1*MQ_MOT_ROT,2*MQ_MOT_ROT,
-                                       0,-1*MQ_MOT_ROT,2*MQ_MOT_ROT,
-                                       0,-1*MQ_MOT_ROT,2*MQ_MOT_ROT,
-                                       0,-1*MQ_MOT_ROT,2*MQ_MOT_ROT}; // todo: place into a good spot like mq quadruped
+  float muadquad_angle_offsets[12]  = {0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW,
+                                       0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW,
+                                       0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW,
+                                       0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW}; // todo: place into a good spot like mq quadruped
   // robot_server_response_lcmt* LCMData;
   RobServData* robServData;
   void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,

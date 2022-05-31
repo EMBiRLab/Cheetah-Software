@@ -74,12 +74,12 @@ void RobotInterface::handleVisualizationData(
     const cheetah_visualization_lcmt *msg) {
   (void)rbuf;
   (void)chan;
-  std::cout << "VISUALIZATION DATA body position is: ";
+  // std::cout << "VISUALIZATION DATA body position is: ";
   for (int i = 0; i < 3; i++) {
     _fwdKinState.bodyPosition[i] = msg->x[i];
-    std::cout << msg->x[i] << " | ";
+    // std::cout << msg->x[i] << " | ";
   }
-  std::cout << std::endl;
+  // std::cout << std::endl;
 
   // std::cout << "VISUALIZATION DATA body orientation is: ";
   for (int i = 0; i < 4; i++) {

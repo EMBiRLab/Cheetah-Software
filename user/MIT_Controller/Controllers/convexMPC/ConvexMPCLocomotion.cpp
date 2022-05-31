@@ -92,8 +92,8 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
     _body_height += rc_cmd->height_variation * 0.08;
   }else{
     _yaw_turn_rate = data._desiredStateCommand->rightAnalogStick[0];
-    x_vel_cmd = data._desiredStateCommand->leftAnalogStick[1];
-    y_vel_cmd = data._desiredStateCommand->leftAnalogStick[0];
+    x_vel_cmd = data._desiredStateCommand->leftAnalogStick[1] * 0.5; //slow movement to start
+    y_vel_cmd = data._desiredStateCommand->leftAnalogStick[0] * 0.5; //slow movement to start
   }
   _x_vel_des = _x_vel_des*(1-filter) + x_vel_cmd*filter;
   _y_vel_des = _y_vel_des*(1-filter) + y_vel_cmd*filter;
@@ -138,7 +138,7 @@ void ConvexMPCLocomotion::run(ControlFSMData<float>& data) {
   else if(gaitNumber == 2)
     gait = &pronking;
   else if(gaitNumber == 3)
-    gait = &random;
+    gait = &walking;
   else if(gaitNumber == 4)
     gait = &standing;
   else if(gaitNumber == 5)

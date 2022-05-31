@@ -85,8 +85,8 @@ void FSM_State_StandUp<T>::onEnter() {
 
   for(size_t leg(0); leg<4; ++leg){
     _ini_foot_pos[leg] =  this->_data->_legController->datas[leg].p;
-    _err_foot_pos[leg] =  _ini_foot_pos - des_foot_pos; 
-    _avg_foot_err[leg] += _err_foot_pos[leg];
+    _err_foot_pos[leg] =  _ini_foot_pos[leg] - des_foot_pos; 
+    _avg_foot_err += _err_foot_pos[leg];
   }
 
   _avg_foot_err[0] = _avg_foot_err[0] / 4;

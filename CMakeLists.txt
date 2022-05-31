@@ -18,10 +18,20 @@ option(EMBIR_ROBOT_CONTROL_BUILD "use compiler flags for EMBiR Lab development" 
 option(MINI_CHEETAH_BUILD "use compiler flags for mini cheetah computer" OFF)
 option(PERMISSIVE "use -fpermissive compiler flag" OFF)
 option(PI_INCLUDE "use include paths for raspberry pi" OFF)
+option(USR_LOCAL_LCM "use /usr/local/include path for lcm" OFF)
+option(USR_LOCAL_EIGEN "use /usr/local/include path for eigen3" OFF)
 
-set(lib_include_path "/usr/include")
+set(lib_include_path_lcm "/usr/include")
+set(lib_include_path_eigen "/usr/include")
 if(PI_INCLUDE)
-  set(lib_include_path "/usr/local/include")
+  set(lib_include_path_lcm "/usr/local/include")
+  set(lib_include_path_eigen "/usr/local/include")
+endif()
+if(USR_LOCAL_LCM)
+  set(lib_include_path_lcm "/usr/local/include")
+endif()
+if(USR_LOCAL_EIGEN)
+  set(lib_include_path_eigen "/usr/local/include")
 endif()
 
 set(BUILD_TYPE_RELEASE TRUE)
@@ -97,7 +107,7 @@ else()
       -Wshadow -Wsign-promo")
       # include_directories("/usr/include/lcm/")   # lcm includes
       # include_directories("/usr/local/include/lcm/")   # lcm includes
-      include_directories("${lib_include_path}/lcm/")   # lcm includes
+      include_directories("${lib_include_path_lcm}/lcm/")   # lcm includes
     endif()
 
     set(CMAKE_C_FLAGS "-ggdb  -march=native -std=gnu99 -I.")
