@@ -80,8 +80,11 @@ trot_attempt_7 = "data/mq_telem_23_05_2022_17-59-13.csv"; % actually increased t
 trot_attempt_9 = "data/mq_telem_24_05_2022_14-12-55.csv"; % lower link broke -- trying to see side-to-side drift
 trot_attempt_10 = "data/mq_telem_24_05_2022_15-05-59.csv"; % changed trot period in YAML but it didn't do anything. used gamepad to move bot
 
+trot_12_1_1 = "data/mq_telem_01_06_2022_16-29-43.csv"; % 12:1 actuators on all x3's, rapid walk backwards when going to trot
+trot_12_1_2 = "data/mq_telem_01_06_2022_17-09-25.csv"; % same as above, but did torso orientation demo to verify wbc without mpc
+
 sample_freq = 500; % Hz
-T = readtable(trot_attempt_10);
+T = readtable(trot_12_1_2);
 mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_table(T);
@@ -244,11 +247,19 @@ hold off;
 
 %% Torso 2D position
 
-time_mask = mq_time > 15 & mq_time < 28;
+time_mask = mq_time > 125 & mq_time < 126.7;
+
+% time_mask = mq_time > 0 & mq_time < inf;
+time_indices = find(time_mask);
 
 figure;
 hold on
 plot(-mq_telem.torso_pos(time_mask,2), mq_telem.torso_pos(time_mask,1));
+
+plot(-mq_telem.torso_pos((time_indices(1)),2), mq_telem.torso_pos((time_indices(1)),1), "k*");
+
+plot(-mq_telem.torso_pos((time_indices(end)),2), mq_telem.torso_pos((time_indices(end)),1), "r*");
+hold off
 daspect([1 1 1])
 title("x-y torso location")
 
@@ -267,6 +278,7 @@ legend
 figure;
 
 lims = [26.8, 27.8];
+lims = [0, inf];
 actuator_num = 3;
 
 subplot(3,1,1)

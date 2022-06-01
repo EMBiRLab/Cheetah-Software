@@ -26,14 +26,17 @@ sine_wave_debug_2 = "data\robot_server_16_05_2022_19-06-36.csv";
 
 trot_attempt_10_rs = "data\robot_server_24_05_2022_15-05-35.csv";
 
-T_rs = readtable(trot_attempt_10_rs);
+new_actuator_thermal_1 = "data\robot_server_26_05_2022_21-39-51.csv";
+
+T_rs = readtable(new_actuator_thermal_1);
 
 offset_angles = false;
 MQ_MOT_ROT = pi/7.5;
+MQ_MOT_ROT_12 = pi/12;
 angles = [0,-2*MQ_MOT_ROT,4*MQ_MOT_ROT,...
            0,2*MQ_MOT_ROT,-4*MQ_MOT_ROT,...
-           0,-2*MQ_MOT_ROT,4*MQ_MOT_ROT,...
-           0,2*MQ_MOT_ROT,-4*MQ_MOT_ROT];
+           0,-2*MQ_MOT_ROT,8*MQ_MOT_ROT_12,...
+           0,2*MQ_MOT_ROT,-8*MQ_MOT_ROT_12];
 if offset_angles
     T_rs.a11PositionCmd_rad_ = T_rs.a11PositionCmd_rad_ - angles(1);
     T_rs.a12PositionCmd_rad_ = T_rs.a12PositionCmd_rad_ - angles(2);
@@ -72,12 +75,12 @@ hold on
 yyaxis left
 % plot(T.time_s_, T.a43PositionCmd_rad_, 'DisplayName',"cmd")
 plot(T_rs.time_s_, -T_rs.a13Torque_Nm_, 'm.', 'DisplayName',"tau13")
-plot(T_rs.time_s_, T_rs.a23Torque_Nm_, 'r.', 'DisplayName',"tau23")
+plot(T_rs.time_s_, T_rs.a63Torque_Nm_, 'r.', 'DisplayName',"tau63")
 plot(T_rs.time_s_, -T_rs.a33Torque_Nm_, 'b.', 'DisplayName',"tau33")
 plot(T_rs.time_s_, T_rs.a43Torque_Nm_, 'k.', 'DisplayName',"tau43")
 
 plot(T_rs.time_s_, -T_rs.a13FfTorqueCmd_Nm_, 'm-', 'DisplayName',"tau13 cmd")
-plot(T_rs.time_s_, T_rs.a23FfTorqueCmd_Nm_, 'r-', 'DisplayName',"tau23 cmd")
+plot(T_rs.time_s_, T_rs.a63FfTorqueCmd_Nm_, 'r-', 'DisplayName',"tau63 cmd")
 plot(T_rs.time_s_, -T_rs.a33FfTorqueCmd_Nm_, 'b-', 'DisplayName',"tau33 cmd")
 plot(T_rs.time_s_, T_rs.a43FfTorqueCmd_Nm_, 'k-', 'DisplayName',"tau43 cmd")
 
@@ -85,18 +88,26 @@ plot_temp = true;
 if plot_temp
     yyaxis right
     plot(T_rs.time_s_, T_rs.a13Temp_C_, 'm:', 'DisplayName','a13 temp');
-    plot(T_rs.time_s_, T_rs.a23Temp_C_, 'r:', 'DisplayName','a23 temp');
+    plot(T_rs.time_s_, T_rs.a63Temp_C_, 'r:', 'DisplayName','a63 temp');
     plot(T_rs.time_s_, T_rs.a33Temp_C_, 'b:', 'DisplayName','a33 temp');
     plot(T_rs.time_s_, T_rs.a43Temp_C_, 'k:', 'DisplayName','a43 temp');
 end
 
-plot_faults = true;
+plot_faults = false;
 if plot_faults
     yyaxis right
     plot(T_rs.time_s_, T_rs.a13Fault, 'mo', 'DisplayName','a13 fault');
-    plot(T_rs.time_s_, T_rs.a23Fault, 'r.', 'DisplayName','a23 fault');
+    plot(T_rs.time_s_, T_rs.a63Fault, 'r.', 'DisplayName','a63 fault');
     plot(T_rs.time_s_, T_rs.a33Fault, 'bx', 'DisplayName','a33 fault');
     plot(T_rs.time_s_, T_rs.a43Fault, 'kd', 'DisplayName','a43 fault');
+end
+
+plot_thermal_model = true;
+if plot_thermal_model
+    RWH = .828; RHA = 1.44; CWH = 15.9; CWA = 146;
+    syms s;
+    TF = (RHA + RWH + CHA*RHA*RWH*s) /...
+        ( (CHA*RHA*s+1)*(CQA*RWH*s + 1) );
 end
 
 
@@ -109,12 +120,12 @@ legend()
 title("torque")
 hold off;
 
-%%
+%% thermal
 figure
 
 hold on;
 plot(T_rs.time_s_, T_rs.a13Temp_C_, 'm:', 'DisplayName','a13 temp');
-plot(T_rs.time_s_, T_rs.a23Temp_C_, 'r:', 'DisplayName','a23 temp');
+plot(T_rs.time_s_, T_rs.a63Temp_C_, 'r:', 'DisplayName','a23 temp');
 plot(T_rs.time_s_, T_rs.a33Temp_C_, 'b:', 'DisplayName','a33 temp');
 plot(T_rs.time_s_, T_rs.a43Temp_C_, 'k:', 'DisplayName','a43 temp');
 legend('Location','best')
@@ -128,15 +139,19 @@ hold off
 figure;
 
 fnames = [temperature_rs4, temperature_rs5, temperature_rs6, temperature_rs7];
+fnames = [new_actuator_thermal_1];
 tstarts = [50.2, 25.6, 44.5, 34.6];
+tstarts = [33.75];
 labels = ["big fan on", "big fan off", "heat spreader", "big heatsink"];
+labels = ["new actuator"];
 colors = ["r", "b", "k", "m"];
+colors = ["r"];
 hold on;
 
 for ii = 1:length(fnames)
     fname = fnames(ii);
     T_rs = readtable(fname);
-    mean_temp = T_rs.a13Temp_C_ + T_rs.a23Temp_C_ ...
+    mean_temp = T_rs.a13Temp_C_ + T_rs.a63Temp_C_ ...
         +T_rs.a33Temp_C_ + T_rs.a43Temp_C_;
     mean_temp = mean_temp/4;
     tstart = tstarts(ii);
@@ -146,7 +161,7 @@ for ii = 1:length(fnames)
     downsample_mask = 1:100:length(time);
 
     plot(time(downsample_mask), T_rs.a13Temp_C_(downsample_mask), colors(ii)+':', 'HandleVisibility','off','LineWidth',0.5);
-    plot(time(downsample_mask), T_rs.a23Temp_C_(downsample_mask), colors(ii)+':', 'HandleVisibility','off','LineWidth',0.5);
+    plot(time(downsample_mask), T_rs.a63Temp_C_(downsample_mask), colors(ii)+':', 'HandleVisibility','off','LineWidth',0.5);
     plot(time(downsample_mask), T_rs.a33Temp_C_(downsample_mask), colors(ii)+':', 'HandleVisibility','off','LineWidth',0.5);
     plot(time(downsample_mask), T_rs.a43Temp_C_(downsample_mask), colors(ii)+':', 'HandleVisibility','off','LineWidth',0.5);
 end
