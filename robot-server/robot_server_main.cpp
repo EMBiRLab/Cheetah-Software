@@ -271,6 +271,12 @@ int main(int argc, char** argv) {
 
 	std::ofstream data_file(opts["path"].as<std::string>()+filename);
 
+	// Check failbit to see if file opened successfully
+	if (data_file.fail()) {
+		std::cout << "File failed to open properly!!\nExiting..." << std::endl;
+		std::exit(EXIT_FAILURE);
+	} 
+
 	// place command line args into log file for reproducibility
 	std::vector<std::string> arg_list(argv, argv+argc);
 	data_file << "# ";
@@ -299,7 +305,7 @@ int main(int argc, char** argv) {
 		rs_settings,
 		data_file);
 	Run(robotserver);
-	
+
 	std::cout << "(returned to main -- should not happen!)" << std::endl; // we should quit from within the Run() fcn
 	data_file.close();
 	std::exit(EXIT_SUCCESS);
