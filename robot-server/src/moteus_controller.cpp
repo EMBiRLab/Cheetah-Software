@@ -166,11 +166,17 @@ void MoteusController::retrieve_reply(std::vector<MoteusInterface::ServoReply>& 
 			}
 			mode_ = prev_reply_.result.mode;
 			fault_code_ = (errc)prev_reply_.result.fault;
+			// std::cout << "\nid = " << (int)id_ <<  
+			// 			 ", pos = " << prev_reply_.result.position << 
+			// 			 ", vel = " << prev_reply_.result.velocity;
+			// std::cout.flush();
 			//if (fault_code_ == errc::kSuccess && outside_limit()) fault_code_ = errc::kOutsideLimit;
 			return;
 		}
 	}
-	prev_reply_ = {};
+	// prev_reply_ = {}; // COMMENT OUT TO RETAIN OLD DATA IF MISSING REPLY
+	std::cout << "\nmissed reply for a" << int(id_);
+	// std::cout.flush();
 	mode_ = mjbots::moteus::Mode::kFault;
 	fault_code_ = errc::kMissingReply;
 	return;

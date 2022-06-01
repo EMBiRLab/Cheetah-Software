@@ -161,8 +161,7 @@ void RobotServer::iterate_fsm() {
 				if (std::isnan(rc.q_des[a_idx]) && !rs_set_.ignore_cmds) {
 					// either velocity or torque
 					if (std::isnan(rc.qd_des[a_idx])) {
-						if (std::isnan(rc.tau_ff[a_idx])) {
-							// no pos, vel, or torque feedforward
+						if (std::isnan(rc.tau_ff[a_idx]) || std::fabs(rc.tau_ff[a_idx]) < 0.001) {
 							actuator_ptrs_[a_idx]->make_stop();
 						}
 						else
@@ -184,20 +183,16 @@ void RobotServer::iterate_fsm() {
 					// (does not kill torque ff... may need to)
 					float q_clamped = rc.q_des[a_idx];
 					float qd_clamped = rc.qd_des[a_idx];
-					float tau_ff_clamped = rc.tau_ff[a_idx];
-					float ul = rs_set_.upper_limits_rad[a_idx];
-					float ll = rs_set_.lower_limits_rad[a_idx];
-					if (q_clamped > ul) {
-						q_clamped = ul; 
-						qd_clamped = 0;
-						// tau_ff_clamped += 1*(ul - ) For softstop, we need to implement that as reaction to the current state elsewhere! Implement later TODO MICHAEL
-					}
-					if (q_clamped < ll) {
-						q_clamped = ll; 
-						qd_clamped = 0;
-					}
-					actuator_ptrs_[a_idx]->make_act_full_pos(
-						q_clamped, qd_clamped, rc.tau_ff[a_idx]);
+					// float ul = rs_set_.upper_limits_rad[a_idx];
+					// float ll = rs_set_.lower_limits_rad[a_idx];
+					// if (q_clamped > ul) {q_clamped = ul; qd_clamped = 0;}
+					// if (q_clamped < ll) {q_clamped = ll; qd_clamped = 0;}
+					// if missing reply, set actuators to damping mode
+					if (actuator_ptrs_[a_idx]->fault() == MoteusController::errc::kMissingReply)
+						actuator_ptrs_[a_idx]->make_act_velocity(0,0);
+					else 
+						actuator_ptrs_[a_idx]->make_act_full_pos(
+							q_clamped, qd_clamped, rc.tau_ff[a_idx]);
 				}
 				// else if (rx_timed_out) { //
 				// 	send_actuator_position_hold();
@@ -227,10 +222,10 @@ void RobotServer::iterate_fsm() {
 			if(safety_check()) next_state_ = recovery_return_state_;
 
 			// if recovery hasn't occurred, quit
-			if(!safety_check()) next_state_ = FSMState::kQuitting;
+			if(!safety_check() && recovery_cycle > recovery_quit) next_state_ = FSMState::kQuitting;
 			
 			// else, recovery has occurred, and we go back to running
-			else next_state_ = recovery_return_state_;
+			// else next_state_ = recovery_return_state_;
 			break;}
 		case FSMState::kQuitting: {
 			make_stop_all();
@@ -372,7 +367,7 @@ bool RobotServer::safety_check() {
 bool RobotServer::actuator_fault_check() {
 	bool fault = false;
 	for (auto a_ptr : actuator_ptrs_) {
-		fault |= bool(a_ptr->fault());
+		fault |= bool(a_ptr->fault()) && (a_ptr->fault() != MoteusController::errc::kMissingReply);
 	}
 	return fault;
 }
@@ -382,11 +377,13 @@ void RobotServer::publish_LCM_response() {
 	for (size_t a_idx = 0; a_idx < num_actuators(); ++a_idx) {
 		server_response.q[a_idx] = actuator_ptrs_[a_idx]->get_position_rad();
 		if (std::isnan(server_response.q[a_idx])){
-			std::cout << "Got a position nan for actuator " << a_idx << " when packing LCM" << std::endl;
+			std::cout << "\npos nan a" << a_idx << " LCM; get pos = " << actuator_ptrs_[a_idx]->get_position_rad();
+			// std::cout.flush();
 		}
 		server_response.qd[a_idx] = actuator_ptrs_[a_idx]->get_velocity_rad_s();
 		if (std::isnan(server_response.qd[a_idx])){
-			std::cout << "Got a velocity nan for actuator " << a_idx << " when packing LCM" << std::endl;
+			std::cout << "\nvel nan a" << a_idx << " LCM; get vel = " << actuator_ptrs_[a_idx]->get_velocity_rad_s();
+			// std::cout.flush();
 		}
 		server_response.tau_est[a_idx] = actuator_ptrs_[a_idx]->get_torque_Nm();
 	}
