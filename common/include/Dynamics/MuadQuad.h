@@ -29,7 +29,7 @@ Quadruped<T> buildMuadQuad() {
 
   muadquad._abadGearRatio = 7.5;
   muadquad._hipGearRatio = 7.5;
-  muadquad._kneeGearRatio = 7.5;
+  muadquad._kneeGearRatio = 12.0232;
   muadquad._abadLinkLength = 0.025;
   muadquad._hipLinkLength = 0.20;
   //muadquad._kneeLinkLength = 0.175;

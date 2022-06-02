@@ -124,7 +124,7 @@ void LinearKFPositionVelocityEstimator<T>::run() {
     T trust = T(1);
     T phase = fmin(this->_stateEstimatorData.result->contactEstimate(i), T(1));
     //T trust_window = T(0.25);
-    T trust_window = T(0.0);
+    T trust_window = T(0.02);
 
     if (phase < trust_window) {
       trust = phase / trust_window;

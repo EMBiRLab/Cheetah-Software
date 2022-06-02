@@ -10,4 +10,5 @@ struct mpc_state_data_t
     float aFoot_des[12];
     float Fr_des[12];
     float contact_state[4];
+    // float future_Fr[108];
 }

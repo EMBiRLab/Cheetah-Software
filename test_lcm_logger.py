@@ -14,6 +14,7 @@ from mpc_state_data_t import mpc_state_data_t
 class Handler:
 
     def __init__(self):
+        # self.buffer = [0 for x in range(413)]
         self.buffer = [0 for x in range(305)]
         self.header = ['time','cmd_tau_ff_0','cmd_tau_ff_1','cmd_tau_ff_2','cmd_tau_ff_3','cmd_tau_ff_4','cmd_tau_ff_5','cmd_tau_ff_6','cmd_tau_ff_7','cmd_tau_ff_8','cmd_tau_ff_9','cmd_tau_ff_10','cmd_tau_ff_11',
                 'cmd_f_ff_0','cmd_f_ff_1','cmd_f_ff_2','cmd_f_ff_3','cmd_f_ff_4','cmd_f_ff_5','cmd_f_ff_6','cmd_f_ff_7','cmd_f_ff_8','cmd_f_ff_9','cmd_f_ff_10','cmd_f_ff_11',
@@ -49,8 +50,17 @@ class Handler:
                 'pFoot_des_0','pFoot_des_1','pFoot_des_2','pFoot_des_3','pFoot_des_4','pFoot_des_5','pFoot_des_6','pFoot_des_7','pFoot_des_8','pFoot_des_9','pFoot_des_10','pFoot_des_11',
                 'vFoot_des_0','vFoot_des_1','vFoot_des_2','vFoot_des_3','vFoot_des_4','vFoot_des_5','vFoot_des_6','vFoot_des_7','vFoot_des_8','vFoot_des_9','vFoot_des_10','vFoot_des_11',
                 'aFoot_des_0','aFoot_des_1','aFoot_des_2','aFoot_des_3','aFoot_des_4','aFoot_des_5','aFoot_des_6','aFoot_des_7','aFoot_des_8','aFoot_des_9','aFoot_des_10','aFoot_des_11',
-                'Fr_des_0','Fr_des_1','Fr_des_2','Fr_des_3','Fr_des_4','Fr_des_5','Fr_des_6','Fr_des_7','Fr_des_8','Fr_des_9','Fr_des_10','Fr_des_11',
+                'Fr0_des_0','Fr0_des_1','Fr0_des_2','Fr0_des_3','Fr0_des_4','Fr0_des_5','Fr0_des_6','Fr0_des_7','Fr0_des_8','Fr0_des_9','Fr0_des_10','Fr0_des_11',
                 'contact_state_0', 'contact_state_1', 'contact_state_2', 'contact_state_3'
+                # 'Fr1_des_0','Fr1_des_1','Fr1_des_2','Fr1_des_3','Fr1_des_4','Fr1_des_5','Fr1_des_6','Fr1_des_7','Fr1_des_8','Fr1_des_9','Fr1_des_10','Fr1_des_11',
+                # 'Fr2_des_0','Fr2_des_1','Fr2_des_2','Fr2_des_3','Fr2_des_4','Fr2_des_5','Fr2_des_6','Fr2_des_7','Fr2_des_8','Fr2_des_9','Fr2_des_10','Fr2_des_11',
+                # 'Fr3_des_0','Fr3_des_1','Fr3_des_2','Fr3_des_3','Fr3_des_4','Fr3_des_5','Fr3_des_6','Fr3_des_7','Fr3_des_8','Fr3_des_9','Fr3_des_10','Fr3_des_11',
+                # 'Fr4_des_0','Fr4_des_1','Fr4_des_2','Fr4_des_3','Fr4_des_4','Fr4_des_5','Fr4_des_6','Fr4_des_7','Fr4_des_8','Fr4_des_9','Fr4_des_10','Fr4_des_11',
+                # 'Fr5_des_0','Fr5_des_1','Fr5_des_2','Fr5_des_3','Fr5_des_4','Fr5_des_5','Fr5_des_6','Fr5_des_7','Fr5_des_8','Fr5_des_9','Fr5_des_10','Fr5_des_11',
+                # 'Fr6_des_0','Fr6_des_1','Fr6_des_2','Fr6_des_3','Fr6_des_4','Fr6_des_5','Fr6_des_6','Fr6_des_7','Fr6_des_8','Fr6_des_9','Fr6_des_10','Fr6_des_11',
+                # 'Fr7_des_0','Fr7_des_1','Fr7_des_2','Fr7_des_3','Fr7_des_4','Fr7_des_5','Fr7_des_6','Fr7_des_7','Fr7_des_8','Fr7_des_9','Fr7_des_10','Fr7_des_11',
+                # 'Fr8_des_0','Fr8_des_1','Fr8_des_2','Fr8_des_3','Fr8_des_4','Fr8_des_5','Fr8_des_6','Fr8_des_7','Fr8_des_8','Fr8_des_9','Fr8_des_10','Fr8_des_11',
+                # 'Fr9_des_0','Fr9_des_1','Fr9_des_2','Fr9_des_3','Fr9_des_4','Fr9_des_5','Fr9_des_6','Fr9_des_7','Fr9_des_8','Fr9_des_9','Fr9_des_10','Fr9_des_11'
                 ]
         self.ctrl_cmd_ready  = False
         self.ctrl_data_ready = False
@@ -181,6 +191,8 @@ class Handler:
         float Fr_des[12];
 
         float contact_state[4];
+
+        float future_Fr[108];
     }
     """
     def mpc_data_handler(self, channel, data):
@@ -196,6 +208,7 @@ class Handler:
         self.buffer[277:288] = msg.aFoot_des
         self.buffer[289:300] = msg.Fr_des
         self.buffer[301:304] = msg.contact_state
+        # self.buffer[305:412] = msg.future_Fr
 
         self.mpc_state_data_ready = True
 
@@ -228,9 +241,11 @@ try:
         if handler.ctrl_cmd_ready and handler.ctrl_data_ready and handler.state_est_ready:
             lc_mpc.handle_timeout(1)
             cur_time = time.time() - start_time
+            # buf2 = [cur_time] + handler.buffer[:413]
             buf2 = [cur_time] + handler.buffer[:305]
             # print(len(handler.buffer))
             writer.writerow([round(e, 4) for e in buf2])
+            # handler.buffer = [0 for x in range(413)]
             handler.buffer = [0 for x in range(305)]
             handler.ctrl_cmd_ready = False
             handler.ctrl_data_ready = False
