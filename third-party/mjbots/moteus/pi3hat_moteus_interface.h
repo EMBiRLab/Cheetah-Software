@@ -113,7 +113,12 @@ class Pi3HatMoteusInterface {
   void CHILD_Run() {
     ConfigureRealtime(options_.cpu);
 
-    pi3hat_.reset(new pi3hat::Pi3Hat({}));
+    Pi3Hat::Configuration config;
+    config.mounting_deg.yaw = 90;
+    config.mounting_deg.pitch = 90;
+    config.mounting_deg.roll = 0;
+
+    pi3hat_.reset(new pi3hat::Pi3Hat(config));
 
     while (true) {
       {
