@@ -28,13 +28,15 @@ trot_attempt_10_rs = "data\robot_server_24_05_2022_15-05-35.csv";
 
 new_actuator_thermal_1 = "data\robot_server_26_05_2022_21-39-51.csv";
 
-T_rs = readtable(new_actuator_thermal_1);
+robot_walk_new_actuator_1_rs = "data\robot_server_02_06_2022_13-02-10_num2.csv"; % walked but back legs sagged after a bit
+
+T_rs = readtable(robot_walk_new_actuator_1_rs);
 
 offset_angles = false;
 MQ_MOT_ROT = pi/7.5;
 MQ_MOT_ROT_12 = pi/12;
-angles = [0,-2*MQ_MOT_ROT,4*MQ_MOT_ROT,...
-           0,2*MQ_MOT_ROT,-4*MQ_MOT_ROT,...
+angles = [0,-2*MQ_MOT_ROT,8*MQ_MOT_ROT,...
+           0,2*MQ_MOT_ROT,-8*MQ_MOT_ROT,...
            0,-2*MQ_MOT_ROT,8*MQ_MOT_ROT_12,...
            0,2*MQ_MOT_ROT,-8*MQ_MOT_ROT_12];
 if offset_angles
@@ -58,7 +60,8 @@ figure;
 subplot(2,1,1)
 hold on
 plot(T_rs.time_s_, -T_rs.a13PositionCmd_rad_, 'DisplayName',"a13 cmd")
-plot(T_rs.time_s_, T_rs.a23PositionCmd_rad_, 'DisplayName',"a23 cmd")
+% plot(T_rs.time_s_, T_rs.a23PositionCmd_rad_, 'DisplayName',"a23 cmd")
+plot(T_rs.time_s_, T_rs.a63PositionCmd_rad_, 'DisplayName',"a63 cmd")
 plot(T_rs.time_s_, -T_rs.a33PositionCmd_rad_, 'DisplayName',"a33 cmd")
 plot(T_rs.time_s_, T_rs.a43PositionCmd_rad_, 'DisplayName',"a43 cmd")
 % plot(T.time_s_, T.a43Position_rad_, 'DisplayName',"pos")
@@ -123,9 +126,34 @@ hold off;
 %% thermal
 figure
 
+subplot(3,1,1)
+hold on;
+plot(T_rs.time_s_, T_rs.a11Temp_C_, 'm:', 'DisplayName','a11 temp');
+plot(T_rs.time_s_, T_rs.a61Temp_C_, 'r:', 'DisplayName','a61 temp');
+plot(T_rs.time_s_, T_rs.a31Temp_C_, 'b:', 'DisplayName','a31 temp');
+plot(T_rs.time_s_, T_rs.a41Temp_C_, 'k:', 'DisplayName','a41 temp');
+legend('Location','best')
+title("temperature")
+ylabel("x1 moteus temp [degC]")
+xlabel("time")
+hold off
+
+subplot(3,1,2)
+hold on;
+plot(T_rs.time_s_, T_rs.a12Temp_C_, 'm:', 'DisplayName','a12 temp');
+plot(T_rs.time_s_, T_rs.a62Temp_C_, 'r:', 'DisplayName','a62 temp');
+plot(T_rs.time_s_, T_rs.a32Temp_C_, 'b:', 'DisplayName','a32 temp');
+plot(T_rs.time_s_, T_rs.a42Temp_C_, 'k:', 'DisplayName','a42 temp');
+legend('Location','best')
+title("temperature")
+ylabel("x2 moteus temp [degC]")
+xlabel("time")
+hold off
+
+subplot(3,1,3)
 hold on;
 plot(T_rs.time_s_, T_rs.a13Temp_C_, 'm:', 'DisplayName','a13 temp');
-plot(T_rs.time_s_, T_rs.a63Temp_C_, 'r:', 'DisplayName','a23 temp');
+plot(T_rs.time_s_, T_rs.a63Temp_C_, 'r:', 'DisplayName','a63 temp');
 plot(T_rs.time_s_, T_rs.a33Temp_C_, 'b:', 'DisplayName','a33 temp');
 plot(T_rs.time_s_, T_rs.a43Temp_C_, 'k:', 'DisplayName','a43 temp');
 legend('Location','best')
@@ -171,3 +199,5 @@ title("temperature")
 ylabel("x3 moteus mean temp [degC]")
 xlabel("time")
 hold off
+
+%% Quaternion
