@@ -110,8 +110,12 @@ wbc_oscillation_tuning_3 = "data/mq_telem_02_06_2022_11-49-21.csv"; % kp_kin to 
 high_contact_walk_2 = "data/mq_telem_03_06_2022_13-03-18.csv"; % used the walking gait which overlaps stance phase
 robot_walk_new_actuator_1 = "data/mq_telem_03_06_2022_14-18-58.csv";  % walked but back legs sagged after a bit
 
+logging_revision_test_1 = "data/mq_telem_06_06_2022_14-44-36.csv";
+
+imu_drift_test_1 = "data/mq_telem_06_06_2022_14-54-08.csv"; % dog pose for the first and last 30sec with locomotion in between to check for IMU drift
+
 sample_freq = 500; % Hz
-T = readtable(robot_walk_new_actuator_1);
+T = readtable(imu_drift_test_1);
 mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_table(T);
@@ -279,7 +283,7 @@ figure;
 time_mask = mq_time > 0;
 
 lims = [35, 70];
-% lims = [0, inf];
+lims = [0, inf];
 
 plot_mocap = false;
 
@@ -626,6 +630,38 @@ title("Controller commanded Kd cartesian")
 legend("Location","best")
 xlim(lims)
 hold off
+
+%% write quaternion data
+
+quaternions = [T.quat_0,T.quat_1,T.quat_2,T.quat_3, T.quat_0_1,T.quat_1_1,T.quat_2_1,T.quat_3_1];
+quat_T = array2table(quaternions);
+quat_T.Properties.VariableNames(1:8) = ["mit w","mit x","mit y","mit z","p3h w","p3h x","p3h y","p3h z"];
+writetable(quat_T,'quaternion_test.csv');
+
+%% quaternion comparsion
+
+mit_q = quaternions(:,1:4);
+p3h_q = quaternions(:,5:8);
+
+mit_q = quaternion(mit_q);
+p3h_q = quaternion(p3h_q);
+
+mit_rpy = quat2eul(mit_q, "XYZ");
+p3h_rpy = quat2eul(p3h_q, "XYZ");
+
+figure;
+hold on;
+
+plot((180/pi)*mit_rpy(:,1), 'DisplayName',"mit roll");
+plot((180/pi)*mit_rpy(:,2), 'DisplayName',"mit pitch");
+plot((180/pi)*mit_rpy(:,3), 'DisplayName',"mit yaw");
+
+
+plot((180/pi)*p3h_rpy(:,1), 'DisplayName',"p3h roll");
+plot((180/pi)*p3h_rpy(:,2), 'DisplayName',"p3h pitch");
+plot((180/pi)*p3h_rpy(:,3), 'DisplayName',"p3h yaw");
+legend()
+hold off;
 
 
 function mq_telem = parse_table(T)
