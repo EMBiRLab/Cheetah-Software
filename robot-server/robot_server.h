@@ -189,7 +189,7 @@ private:
 	robot_server_command_lcmt requested_command;
 
 	// filters for the commands
-	LowPassFilter lpf_command;
+	// LowPassFilter lpf_command;
 
 	// protects requested_command variable, which is async manipulated 
 	// by the LCM handling on a different thread
