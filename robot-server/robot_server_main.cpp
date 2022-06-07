@@ -72,6 +72,11 @@ void Run(RobotServer& robotserver) {
 	std::cout << "configuring realtime and constructing moteus interface... ";
 	moteus::ConfigureRealtime(rs_settings.main_cpu);
 	MoteusInterface::Options moteus_options;
+
+	moteus_options.mounting_roll = rs_settings.mounting_roll_deg;
+	moteus_options.mounting_pitch = rs_settings.mounting_pitch_deg;
+	moteus_options.mounting_yaw = rs_settings.mounting_yaw_deg;
+
 	moteus_options.cpu = rs_settings.can_cpu;
 
 	moteus_options.servo_bus_map = robotserver.create_servo_bus_map();

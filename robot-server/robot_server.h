@@ -87,6 +87,10 @@ public:
 		float lpf_order;
 		float lpf_freq;
 
+		float mounting_roll_deg;
+		float mounting_pitch_deg;
+		float mounting_yaw_deg;
+
 		std::vector<float> gear_ratios;
 
 		bool load_success = false;
