@@ -13,6 +13,7 @@
 
 #include "robot_server.h"
 #include "third-party/rapidcsv/rapidcsv.h"
+// #include "src/utils.h"
 
 // #include "Utilities/utilities.h"
 
@@ -43,7 +44,7 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 	responseLCM_(getLcmUrl(255)) {
 
 	// Construct the lowpass filter for the incoming command data
-	lpf_command(rs_set_.lpf_order, rs_set_.lpf_freq, rs_set_.period_s);
+	// lpf_command(rs_set_.lpf_order, rs_set_.lpf_freq, rs_set_.period_s);
 
 	// construct variable number of actuator objects depending on what is in
 	// robot_server_config.json
