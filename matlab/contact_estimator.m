@@ -1,0 +1,1 @@
+function estimate = contact_estimator

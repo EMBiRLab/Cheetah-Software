@@ -114,8 +114,22 @@ logging_revision_test_1 = "data/mq_telem_06_06_2022_14-44-36.csv";
 
 imu_drift_test_1 = "data/mq_telem_06_06_2022_14-54-08.csv"; % dog pose for the first and last 30sec with locomotion in between to check for IMU drift
 
+% after applying mounting angle changes on robot-server side
+% robot freaked out during standup and terminal print for orientation
+% safety check failure came up
+imu_drift_test_2 = "data/mq_telem_07_06_2022_12-09-00.csv";
+
+% reverted mounting angle change and the robot did not freak out, though
+% gradual pitch/yaw drift still an issue
+imu_drift_test_3 = "data/mq_telem_07_06_2022_13-06-49.csv";
+
+% Set mounting-roll to 180, mounting-pitch to 90, and applied 180deg 
+% rotation about roll in MIT data unpacking. Less drift for robot, still
+% pitch back in locomotion state
+imu_drift_test_4 = "data/mq_telem_07_06_2022_15-01-45.csv";
+
 sample_freq = 500; % Hz
-T = readtable(imu_drift_test_1);
+T = readtable(imu_drift_test_4);
 mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_table(T);
@@ -132,7 +146,9 @@ dummy_test_2 = "data/muadquad_setup_014.csv";
 
 high_contact_mocap_3 = "data/muadquad_setup_017.csv";
 
-mocap_T = readtable(high_contact_mocap_3);
+imu_drift_test_4_mocap = "data/muadquad_6_7_22_004.csv";
+
+mocap_T = readtable(imu_drift_test_4_mocap);
 mocap_data = parse_mocap(mocap_T);
 
 %% mocap 3d plotting
@@ -150,18 +166,18 @@ view([-140 30])
 grid on;
 hold off;
 
-figure;
-hold on;
-plot3(mocap_data.RB_pos_mocap(1,20:end), mocap_data.RB_pos_mocap(2,20:end), mocap_data.RB_pos_mocap(3,20:end));
-plot3(mocap_data.RB_pos_mocap(1,20), mocap_data.RB_pos_mocap(2,20), mocap_data.RB_pos_mocap(3,20), 'go');
-plot3(mocap_data.RB_pos_mocap(1,end), mocap_data.RB_pos_mocap(2,end), mocap_data.RB_pos_mocap(3,end), 'ro');
-daspect([1 1 1]);
-xlabel("x [mm]")
-ylabel("y [mm]")
-zlabel("z [mm]")
-% view([-140 30])
-grid on;
-hold off;
+% figure;
+% hold on;
+% plot3(mocap_data.RB_pos_mocap(1,20:end), mocap_data.RB_pos_mocap(2,20:end), mocap_data.RB_pos_mocap(3,20:end));
+% plot3(mocap_data.RB_pos_mocap(1,20), mocap_data.RB_pos_mocap(2,20), mocap_data.RB_pos_mocap(3,20), 'go');
+% plot3(mocap_data.RB_pos_mocap(1,end), mocap_data.RB_pos_mocap(2,end), mocap_data.RB_pos_mocap(3,end), 'ro');
+% daspect([1 1 1]);
+% xlabel("x [mm]")
+% ylabel("y [mm]")
+% zlabel("z [mm]")
+% % view([-140 30])
+% grid on;
+% hold off;
 
 %% foot pos 3d plotting
 
@@ -285,36 +301,42 @@ time_mask = mq_time > 0;
 lims = [35, 70];
 lims = [0, inf];
 
-plot_mocap = false;
+plot_mocap = true;
+mq_telem_time_mark = 30.338;
+mocap_time_mark = 47.917;
+mocap_offset_back = mocap_time_mark - mq_telem_time_mark;
 
-subplot(2,1,1)
+% subplot(2,1,1)
 hold on
-plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,1), 'DisplayName',"roll");
-plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,2), 'DisplayName',"pitch");
-plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,3), 'DisplayName',"yaw");
+% plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,1), 'DisplayName',"roll");
+plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,2), 'DisplayName',"IMU pitch");
+% plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,3), 'DisplayName',"yaw");
 
 if plot_mocap
-plot(mocap_data.time, (180/pi)*mocap_data.RB_rpy(:,1), 'DisplayName',"mocap roll");
-plot(mocap_data.time, (180/pi)*mocap_data.RB_rpy(:,2), 'DisplayName',"mocap pitch");
-plot(mocap_data.time, (180/pi)*mocap_data.RB_rpy(:,3), 'DisplayName',"mocap yaw");
+% plot(mocap_data.time - mocap_offset_back, (180/pi)*mocap_data.RB_rpy(:,1), 'DisplayName',"mocap roll");
+plot(mocap_data.time - mocap_offset_back, (180/pi)*mocap_data.RB_rpy(:,2), 'DisplayName',"mocap pitch");
+% plot(mocap_data.time - mocap_offset_back, (180/pi)*mocap_data.RB_rpy(:,3), 'DisplayName',"mocap yaw");
 end
 
 legend()
-if ~plot_mocap
+xlabel("time [s]")
+ylabel("angle [deg]")
+% if ~plot_mocap
 xlim(lims)
-end
+% end
 title("angle")
 hold off;
 
+%%
 subplot(2,1,2)
 hold on
 plot(mq_time, (180/pi)*mq_telem.torso_omega(:,1), 'DisplayName',"roll");
 plot(mq_time, (180/pi)*mq_telem.torso_omega(:,2), 'DisplayName',"pitch");
 plot(mq_time, (180/pi)*mq_telem.torso_omega(:,3), 'DisplayName',"yaw");
 legend()
-if ~plot_mocap
+% if ~plot_mocap
 xlim(lims)
-end
+% end
 title("angle rate")
 hold off;
 
@@ -439,8 +461,8 @@ legend
 
 figure;
 
-lims = [66.6, 67];
-% lims = [0, inf];
+lims = [38,40.5];
+lims = [0, inf];
 actuator_num = 3;
 
 plot_time = mq_time;
@@ -636,7 +658,7 @@ hold off
 quaternions = [T.quat_0,T.quat_1,T.quat_2,T.quat_3, T.quat_0_1,T.quat_1_1,T.quat_2_1,T.quat_3_1];
 quat_T = array2table(quaternions);
 quat_T.Properties.VariableNames(1:8) = ["mit w","mit x","mit y","mit z","p3h w","p3h x","p3h y","p3h z"];
-writetable(quat_T,'quaternion_test.csv');
+% writetable(quat_T,'quaternion_test.csv');
 
 %% quaternion comparsion
 
@@ -645,24 +667,109 @@ p3h_q = quaternions(:,5:8);
 
 mit_q = quaternion(mit_q);
 p3h_q = quaternion(p3h_q);
+q180r = quaternion(rotm2quat([1 0 0; 0 -1 0; 0 0 -1]));
 
+
+q_p3h_init = p3h_q(1);
+q_mit_init = mit_q(1);
+qtransform = q_mit_init*conj(q_p3h_init);
+
+
+initial_p3h_yaw = -p3h_rpy(1,1);
+
+yaw_mat = [cos(initial_p3h_yaw) -sin(initial_p3h_yaw) 0;...
+    sin(initial_p3h_yaw) cos(initial_p3h_yaw) 0;...
+    0 0 1];
+
+qyaw = quaternion(rotm2quat(yaw_mat));
+
+p3h_180r_q = p3h_q;
+p3h_180r_q = qtransform*p3h_180r_q;
+
+p3h_180r_q = q180r * p3h_180r_q * conj(q180r);
 mit_rpy = quat2eul(mit_q, "XYZ");
 p3h_rpy = quat2eul(p3h_q, "XYZ");
+p3h_rpy_180r = quat2eul(p3h_180r_q, "XYZ");
 
 figure;
-hold on;
 
+subplot(3,1,1);
+hold on;
 plot((180/pi)*mit_rpy(:,1), 'DisplayName',"mit roll");
 plot((180/pi)*mit_rpy(:,2), 'DisplayName',"mit pitch");
 plot((180/pi)*mit_rpy(:,3), 'DisplayName',"mit yaw");
+legend()
+hold off;
 
-
+subplot(3,1,2);
+hold on;
 plot((180/pi)*p3h_rpy(:,1), 'DisplayName',"p3h roll");
 plot((180/pi)*p3h_rpy(:,2), 'DisplayName',"p3h pitch");
 plot((180/pi)*p3h_rpy(:,3), 'DisplayName',"p3h yaw");
 legend()
 hold off;
 
+subplot(3,1,3);
+hold on;
+plot((180/pi)*p3h_rpy_180r(:,1), 'DisplayName',"p3h\_180r roll");
+plot((180/pi)*p3h_rpy_180r(:,2), 'DisplayName',"p3h\_180r pitch");
+plot((180/pi)*p3h_rpy_180r(:,3), 'DisplayName',"p3h\_180r yaw");
+legend()
+hold off;
+
+
+%%
+% subplot(3,1,3);
+figure
+hold on;
+subplot(3,1,1); hold on;
+plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,1), 'r-', 'DisplayName',"mit roll");
+subplot(3,1,2); hold on;
+plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,2), 'm-',  'DisplayName',"mit pitch");
+subplot(3,1,3); hold on;
+plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,3), 'b-',  'DisplayName',"mit yaw");
+
+subplot(3,1,1); hold on;
+plot(mq_time, (180/pi)*mit_rpy(:,1), 'r:',  'DisplayName',"mit q roll");
+subplot(3,1,2); hold on;
+plot(mq_time, (180/pi)*mit_rpy(:,2), 'm:', 'DisplayName',"mit q pitch");
+subplot(3,1,3); hold on;
+plot(mq_time, (180/pi)*mit_rpy(:,3), 'b:', 'DisplayName',"mit q yaw");
+
+subplot(3,1,1); hold on;
+plot(mq_time, (180/pi)*p3h_rpy_180r(:,1), 'r--', 'DisplayName',"p3h\_180r roll");
+subplot(3,1,2); hold on;
+plot(mq_time, (180/pi)*p3h_rpy_180r(:,2), 'm--', 'DisplayName',"p3h\_180r pitch");
+subplot(3,1,3); hold on;
+plot(mq_time, (180/pi)*p3h_rpy_180r(:,3), 'b--', 'DisplayName',"p3h\_180r yaw");
+legend()
+hold off;
+
+%% Accelerometer Data Plotting
+
+figure;
+
+hold on
+plot(mq_time, mq_telem.accelerometer(:,1) / 9.81, 'DisplayName',"IMU X acc")
+plot(mq_time, mq_telem.accelerometer(:,2) / 9.81, 'DisplayName',"IMU Y acc")
+plot(mq_time, mq_telem.accelerometer(:,3) / 9.81, 'DisplayName',"IMU Z acc")
+plot(mq_time,  2*ones(size(mq_time)), 'r--', 'DisplayName',"validity thresh")
+plot(mq_time, -2*ones(size(mq_time)), 'r--', 'DisplayName',"validity thresh")
+legend()
+title("IMU Accelerometer Data")
+hold off;
+
+%% Gyro Data Plotting
+
+figure;
+
+hold on
+plot(mq_time, mq_telem.gyro(:,1), 'DisplayName',"IMU X w")
+plot(mq_time, mq_telem.gyro(:,2), 'DisplayName',"IMU Y w")
+plot(mq_time, mq_telem.gyro(:,3), 'DisplayName',"IMU Z w")
+legend()
+title("IMU Gyroscope Data")
+hold off;
 
 function mq_telem = parse_table(T)
     mq_telem = struct;
@@ -750,6 +857,9 @@ function mq_telem = parse_table(T)
     mq_telem.torso_v_ori_des = [T.vBody_ori_des_0,T.vBody_ori_des_1,T.vBody_ori_des_2];
     mq_telem.contact_state = [T.contact_state_0,T.contact_state_1,T.contact_state_2,T.contact_state_3];
 
+    mq_telem.accelerometer = [T.accelerometer_0,T.accelerometer_1,T.accelerometer_2];
+    mq_telem.gyro = [T.gyro_0,T.gyro_1,T.gyro_2];
+
     for ii = 1:length(T.data_p_0)
         q_vec = mq_telem.leg0_q_data(ii,:)';
         sideSign = -1;
@@ -821,9 +931,9 @@ function mocap_data = parse_mocap(mT)
     
     % robot_forward_vec is how the robot's +x axis looks in the mocap frame
     robot_forward_vec = [...
-        (calib_mocap_x_forward(1:num_samples-10) - calib_mocap_x_rear(1:num_samples-10))';...
-        (calib_mocap_y_forward(1:num_samples-10) - calib_mocap_y_rear(1:num_samples-10))';...
-        (calib_mocap_z_forward(1:num_samples-10) - calib_mocap_z_rear(1:num_samples-10))'];
+        (calib_mocap_x_forward(1:num_samples-2000) - calib_mocap_x_rear(1:num_samples-2000))';...
+        (calib_mocap_y_forward(1:num_samples-2000) - calib_mocap_y_rear(1:num_samples-2000))';...
+        (calib_mocap_z_forward(1:num_samples-2000) - calib_mocap_z_rear(1:num_samples-2000))'];
 %     robot_forward_vec = robot_forward_vec/norm(robot_forward_vec);
 
     cal_vec = mean(robot_forward_vec(:,3:10), 2);
@@ -857,10 +967,10 @@ function mocap_data = parse_mocap(mT)
     RB_quat = quaternion(RB_quat');
     md.RB_quat_mocap = RB_quat;
 
-%     RB_quat = qy*RB_quat;
-    RB_quat = RB_quat*qy;
-%     RB_quat = qx*RB_quat;
-    RB_quat = RB_quat*qx;
+    RB_quat = qy*RB_quat*conj(qy);
+%     RB_quat = RB_quat*qy;
+    RB_quat = qx*RB_quat*conj(qx);
+%     RB_quat = RB_quat*qx;
 
     q_start = RB_quat(3:20);
     q_start = meanrot(q_start);
@@ -877,14 +987,14 @@ function mocap_data = parse_mocap(mT)
     % test angle math
 
     test_angles = atan2(...
-        calib_mocap_z_forward(10:num_samples-10) - calib_mocap_z_rear(10:num_samples-10),...
-        calib_mocap_x_forward(10:num_samples-10) - calib_mocap_x_rear(10:num_samples-10))...
+        calib_mocap_z_forward(10:num_samples-2000) - calib_mocap_z_rear(10:num_samples-2000),...
+        calib_mocap_x_forward(10:num_samples-2000) - calib_mocap_x_rear(10:num_samples-2000))...
         - y_angle;
     test_angles = unwrap(mod(test_angles+10*pi, 2*pi));
     quat_angles = quat2eul(RB_quat, "XYZ");
-    new_yaws = unwrap(mod(quat_angles(10:num_samples-10, 3) + 2*pi, 2*pi));
-    new_pitch = unwrap(mod(quat_angles(10:num_samples-10, 2) + 2*pi, 2*pi));
-    new_roll = unwrap(mod(quat_angles(10:num_samples-10, 1) + 2*pi, 2*pi));
+    new_yaws = unwrap(mod(quat_angles(10:num_samples-2000, 3) + 2*pi, 2*pi));
+    new_pitch = unwrap(mod(quat_angles(10:num_samples-2000, 2) + 2*pi, 2*pi));
+    new_roll = unwrap(mod(quat_angles(10:num_samples-2000, 1) + 2*pi, 2*pi));
     diff_angles = (new_yaws-test_angles);
     fprintf("mean: %f, std: %f\n", mean(diff_angles), std(diff_angles));
 %     figure;

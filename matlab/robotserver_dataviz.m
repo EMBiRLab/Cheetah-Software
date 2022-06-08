@@ -30,13 +30,15 @@ new_actuator_thermal_1 = "data\robot_server_26_05_2022_21-39-51.csv";
 
 robot_walk_new_actuator_1_rs = "data\robot_server_02_06_2022_13-02-10_num2.csv"; % walked but back legs sagged after a bit
 
-T_rs = readtable(robot_walk_new_actuator_1_rs);
+imu_drift_test_4_rs = "data/robot_server_07_06_2022_15-00-52.csv"; % see mq_telem_viz for details
+
+T_rs = readtable(imu_drift_test_4_rs);
 
 offset_angles = false;
 MQ_MOT_ROT = pi/7.5;
 MQ_MOT_ROT_12 = pi/12;
-angles = [0,-2*MQ_MOT_ROT,8*MQ_MOT_ROT,...
-           0,2*MQ_MOT_ROT,-8*MQ_MOT_ROT,...
+angles = [0,-2*MQ_MOT_ROT,8*MQ_MOT_ROT_12,...
+           0,2*MQ_MOT_ROT,-8*MQ_MOT_ROT_12,...
            0,-2*MQ_MOT_ROT,8*MQ_MOT_ROT_12,...
            0,2*MQ_MOT_ROT,-8*MQ_MOT_ROT_12];
 if offset_angles
@@ -67,6 +69,34 @@ plot(T_rs.time_s_, T_rs.a43PositionCmd_rad_, 'DisplayName',"a43 cmd")
 % plot(T.time_s_, T.a43Position_rad_, 'DisplayName',"pos")
 legend()
 title("position")
+hold off;
+
+%% Accelerometer Data Plotting
+
+figure;
+
+hold on
+plot(T_rs.time_s_, T_rs.IMUAccelX_m_s_s_ / 9.81, 'DisplayName',"IMU X acc")
+plot(T_rs.time_s_, T_rs.IMUAccelY_m_s_s_ / 9.81, 'DisplayName',"IMU Y acc")
+plot(T_rs.time_s_, T_rs.IMUAccelZ_m_s_s_ / 9.81, 'DisplayName',"IMU Z acc")
+plot(T_rs.time_s_,  2*ones(size(T_rs.time_s_)), 'r--', 'DisplayName',"validity thresh")
+plot(T_rs.time_s_, -2*ones(size(T_rs.time_s_)), 'r--', 'DisplayName',"validity thresh")
+legend()
+title("IMU Accelerometer Data")
+hold off;
+
+%% Gyro Data Plotting
+
+figure;
+
+hold on
+plot(T_rs.time_s_, T_rs.IMUOmegaX_rad_s_ / 9.81, 'DisplayName',"IMU X w")
+plot(T_rs.time_s_, T_rs.IMUOmegaY_rad_s_ / 9.81, 'DisplayName',"IMU Y w")
+plot(T_rs.time_s_, T_rs.IMUOmegaZ_rad_s_ / 9.81, 'DisplayName',"IMU Z w")
+% plot(T_rs.time_s_,  2*ones(size(T_rs.time_s_)), 'r--', 'DisplayName',"validity thresh")
+% plot(T_rs.time_s_, -2*ones(size(T_rs.time_s_)), 'r--', 'DisplayName',"validity thresh")
+legend()
+title("IMU Gyroscope Data")
 hold off;
 
 %%
