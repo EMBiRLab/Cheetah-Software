@@ -266,13 +266,10 @@ hold on
 
 plot(mq_time, mq_telem.leg0_grf_cmd(:,3), 'r', 'DisplayName', 'leg0 cmd')
 plot(mq_time, mq_telem.leg0_grf_est(:,3), 'r.', 'DisplayName', 'leg0 est')
-
 plot(mq_time, mq_telem.leg1_grf_cmd(:,3), 'b', 'DisplayName', 'leg1 cmd')
 plot(mq_time, mq_telem.leg1_grf_est(:,3), 'b.', 'DisplayName', 'leg1 est')
-
 plot(mq_time, mq_telem.leg2_grf_cmd(:,3), 'k', 'DisplayName', 'leg2 cmd')
 plot(mq_time, mq_telem.leg2_grf_est(:,3), 'k.', 'DisplayName', 'leg2 est')
-
 plot(mq_time, mq_telem.leg3_grf_cmd(:,3), 'm', 'DisplayName', 'leg3 cmd')
 plot(mq_time, mq_telem.leg3_grf_est(:,3), 'm.', 'DisplayName', 'leg3 est')
 
@@ -424,10 +421,7 @@ hold off;
 
 time_mask = mq_time > 125 & mq_time < 126.7;
 time_mask = mq_time > 0;
-
-% time_mask = mq_time > 0 & mq_time < inf;
 time_indices = find(time_mask);
-
 plot_mocap = true;
 
 figure;
@@ -436,13 +430,9 @@ plot(-mq_telem.torso_pos(time_mask,2), mq_telem.torso_pos(time_mask,1));
 plot(-mq_telem.torso_pos_des(time_mask,2), mq_telem.torso_pos_des(time_mask,1), 'm.')
 plot(-mq_telem.torso_pos((time_indices(1)),2), mq_telem.torso_pos((time_indices(1)),1), "k*");
 plot(-mq_telem.torso_pos((time_indices(end)),2), mq_telem.torso_pos((time_indices(end)),1), "r*");
-
 if plot_mocap
-
-plot(-mocap_data.RB_pos(2,:)/1000, mocap_data.RB_pos(1,:)/1000, 'g.');
-
+    plot(-mocap_data.RB_pos(2,:)/1000, mocap_data.RB_pos(1,:)/1000, 'g.');
 end
-
 hold off
 daspect([1 1 1])
 title("x-y torso location")
@@ -461,8 +451,8 @@ legend
 
 figure;
 
-lims = [38,40.5];
-lims = [0, inf];
+lims = [24, 26];
+% lims = [0, inf];
 actuator_num = 3;
 
 plot_time = mq_time;
@@ -474,10 +464,6 @@ if periodize
     cmd_diff = diff(mq_telem.leg0_tau_ff(:,3));
     cmd_diff = [cmd_diff; 0];
     start_mask = cmd_diff > 4;
-%     contact = mq_telem.contact_state(:,1);
-%     contact = (contact > 0);
-%     contact_diff = [diff(contact); 0];
-%     start_mask = contact_diff > 0;
     
     start_indices = find(start_mask);
     periodized_time = plot_time;
@@ -496,18 +482,14 @@ end
 
 subplot(5,1,1)
 hold on
-
 plot(plot_time(time_mask), mq_telem.leg0_q_cmd(time_mask,actuator_num) * 180/pi, 'r', 'DisplayName',"mq0 x" + actuator_num + " cmd")
 plot(plot_time(time_mask), mq_telem.leg0_q_data(time_mask,actuator_num) * 180/pi, 'r.', 'DisplayName',"mq0 x" + actuator_num + " data")
-
-plot(plot_time(time_mask), mq_telem.leg1_q_cmd(time_mask,actuator_num) * 180/pi, 'b', 'DisplayName',"mq1 x" + actuator_num + " cmd")
-plot(plot_time(time_mask), mq_telem.leg1_q_data(time_mask,actuator_num) * 180/pi, 'b.', 'DisplayName',"mq1 x" + actuator_num + " data")
-
-plot(plot_time(time_mask), mq_telem.leg2_q_cmd(time_mask,actuator_num) * 180/pi, 'k', 'DisplayName',"mq2 x" + actuator_num + " cmd")
-plot(plot_time(time_mask), mq_telem.leg2_q_data(time_mask,actuator_num) * 180/pi, 'k.', 'DisplayName',"mq2 x" + actuator_num + " data")
-
-plot(plot_time(time_mask), mq_telem.leg3_q_cmd(time_mask,actuator_num) * 180/pi, 'm', 'DisplayName',"mq3 x" + actuator_num + " cmd")
-plot(plot_time(time_mask), mq_telem.leg3_q_data(time_mask,actuator_num) * 180/pi, 'm.', 'DisplayName',"mq3 x" + actuator_num + " data")
+% plot(plot_time(time_mask), mq_telem.leg1_q_cmd(time_mask,actuator_num) * 180/pi, 'b', 'DisplayName',"mq1 x" + actuator_num + " cmd")
+% plot(plot_time(time_mask), mq_telem.leg1_q_data(time_mask,actuator_num) * 180/pi, 'b.', 'DisplayName',"mq1 x" + actuator_num + " data")
+% plot(plot_time(time_mask), mq_telem.leg2_q_cmd(time_mask,actuator_num) * 180/pi, 'k', 'DisplayName',"mq2 x" + actuator_num + " cmd")
+% plot(plot_time(time_mask), mq_telem.leg2_q_data(time_mask,actuator_num) * 180/pi, 'k.', 'DisplayName',"mq2 x" + actuator_num + " data")
+% plot(plot_time(time_mask), mq_telem.leg3_q_cmd(time_mask,actuator_num) * 180/pi, 'm', 'DisplayName',"mq3 x" + actuator_num + " cmd")
+% plot(plot_time(time_mask), mq_telem.leg3_q_data(time_mask,actuator_num) * 180/pi, 'm.', 'DisplayName',"mq3 x" + actuator_num + " data")
 title("position q")
 legend("Location","best")
 if ~periodize
@@ -517,33 +499,17 @@ hold off
 
 subplot(5,1,2)
 hold on
-
 plot(plot_time(time_mask), mq_telem.leg0_qd_cmd(time_mask,actuator_num) * 180/pi, 'r', 'DisplayName',"mq0 x" + actuator_num + " cmd")
 plot(plot_time(time_mask), mq_telem.leg0_qd_data(time_mask,actuator_num) * 180/pi, 'r.', 'DisplayName',"mq0 x" + actuator_num + " data")
-
-plot(plot_time(time_mask), mq_telem.leg1_qd_cmd(time_mask,actuator_num) * 180/pi, 'b', 'DisplayName',"mq1 x" + actuator_num + " cmd")
-plot(plot_time(time_mask), mq_telem.leg1_qd_data(time_mask,actuator_num) * 180/pi, 'b.', 'DisplayName',"mq1 x" + actuator_num + " data")
-
-plot(plot_time(time_mask), mq_telem.leg2_qd_cmd(time_mask,actuator_num) * 180/pi, 'k', 'DisplayName',"mq2 x" + actuator_num + " cmd")
-plot(plot_time(time_mask), mq_telem.leg2_qd_data(time_mask,actuator_num) * 180/pi, 'k.', 'DisplayName',"mq2 x" + actuator_num + " data")
-
-plot(plot_time(time_mask), mq_telem.leg3_qd_cmd(time_mask,actuator_num) * 180/pi, 'm', 'DisplayName',"mq3 x" + actuator_num + " cmd")
-plot(plot_time(time_mask), mq_telem.leg3_qd_data(time_mask,actuator_num) * 180/pi, 'm.', 'DisplayName',"mq3 x" + actuator_num + " data")
+plot(plot_time(time_mask(1:end-1)), diff(mq_telem.leg0_qd_data(time_mask,actuator_num) * 180/pi), 'b--')
+% plot(plot_time(time_mask), mq_telem.leg1_qd_cmd(time_mask,actuator_num) * 180/pi, 'b', 'DisplayName',"mq1 x" + actuator_num + " cmd")
+% plot(plot_time(time_mask), mq_telem.leg1_qd_data(time_mask,actuator_num) * 180/pi, 'b.', 'DisplayName',"mq1 x" + actuator_num + " data")
+% plot(plot_time(time_mask), mq_telem.leg2_qd_cmd(time_mask,actuator_num) * 180/pi, 'k', 'DisplayName',"mq2 x" + actuator_num + " cmd")
+% plot(plot_time(time_mask), mq_telem.leg2_qd_data(time_mask,actuator_num) * 180/pi, 'k.', 'DisplayName',"mq2 x" + actuator_num + " data")
+% plot(plot_time(time_mask), mq_telem.leg3_qd_cmd(time_mask,actuator_num) * 180/pi, 'm', 'DisplayName',"mq3 x" + actuator_num + " cmd")
+% plot(plot_time(time_mask), mq_telem.leg3_qd_data(time_mask,actuator_num) * 180/pi, 'm.', 'DisplayName',"mq3 x" + actuator_num + " data")
 title("velocity qd")
 legend()
-
-% plot(plot_time(time_mask), mq_telem.leg0_grf_cmd(time_mask,3), 'r', 'DisplayName', 'leg0 cmd')
-% plot(plot_time(time_mask), mq_telem.leg0_grf_est(time_mask,3), 'r.', 'DisplayName', 'leg0 est')
-% 
-% plot(plot_time(time_mask), mq_telem.leg1_grf_cmd(time_mask,3), 'b', 'DisplayName', 'leg1 cmd')
-% plot(plot_time(time_mask), mq_telem.leg1_grf_est(time_mask,3), 'b.', 'DisplayName', 'leg1 est')
-% 
-% plot(plot_time(time_mask), mq_telem.leg2_grf_cmd(time_mask,3), 'k', 'DisplayName', 'leg2 cmd')
-% plot(plot_time(time_mask), mq_telem.leg2_grf_est(time_mask,3), 'k.', 'DisplayName', 'leg2 est')
-% 
-% plot(plot_time(time_mask), mq_telem.leg3_grf_cmd(time_mask,3), 'm', 'DisplayName', 'leg3 cmd')
-% plot(plot_time(time_mask), mq_telem.leg3_grf_est(time_mask,3), 'm.', 'DisplayName', 'leg3 est')
-% title("grf z")
 
 if ~periodize
 xlim(lims)
@@ -553,55 +519,87 @@ hold off
 subplot(5,1,3)
 hold on
 title("torques")
+cutoff  = -3;
+cutoff2 = -20; 
 plot(plot_time(time_mask), mq_telem.leg0_tau_ff(time_mask,actuator_num), 'r-', 'DisplayName', 'leg0 cmd')
-plot(plot_time(time_mask), mq_telem.leg1_tau_ff(time_mask,actuator_num), 'b-', 'DisplayName', 'leg1 cmd')
-plot(plot_time(time_mask), mq_telem.leg2_tau_ff(time_mask,actuator_num), 'k-', 'DisplayName', 'leg2 cmd')
-plot(plot_time(time_mask), mq_telem.leg3_tau_ff(time_mask,actuator_num), 'm-', 'DisplayName', 'leg3 cmd')
 plot(plot_time(time_mask), mq_telem.leg0_tau_est(time_mask,actuator_num), 'r.', 'DisplayName', 'leg0 est')
-plot(plot_time(time_mask), mq_telem.leg1_tau_est(time_mask,actuator_num), 'b.', 'DisplayName', 'leg1 est')
-plot(plot_time(time_mask), mq_telem.leg2_tau_est(time_mask,actuator_num), 'k.', 'DisplayName', 'leg2 est')
-plot(plot_time(time_mask), mq_telem.leg3_tau_est(time_mask,actuator_num), 'm.', 'DisplayName', 'leg3 est')
-
+plot(plot_time(time_mask), cutoff*ones(size(plot_time(time_mask))), 'b--', 'DisplayName', 'contact\_cutoff')
+% plot(plot_time(time_mask), mq_telem.leg1_tau_ff(time_mask,actuator_num), 'b-', 'DisplayName', 'leg1 cmd')
+% plot(plot_time(time_mask), mq_telem.leg1_tau_est(time_mask,actuator_num), 'b.', 'DisplayName', 'leg1 est')
+% plot(plot_time(time_mask), mq_telem.leg2_tau_ff(time_mask,actuator_num), 'k-', 'DisplayName', 'leg2 cmd')
+% plot(plot_time(time_mask), mq_telem.leg2_tau_est(time_mask,actuator_num), 'k.', 'DisplayName', 'leg2 est')
+% plot(plot_time(time_mask), mq_telem.leg3_tau_ff(time_mask,actuator_num), 'm-', 'DisplayName', 'leg3 cmd')
+% plot(plot_time(time_mask), mq_telem.leg3_tau_est(time_mask,actuator_num), 'm.', 'DisplayName', 'leg3 est')
 if ~periodize
-xlim(lims)
+    xlim(lims)
 end
 hold off
 
 subplot(5,1,4)
 hold on
-% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,1), 'DisplayName',"Contact State Foot 0");
-% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,2), 'DisplayName',"Contact State Foot 1");
-% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,3), 'DisplayName',"Contact State Foot 2");
-% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,4), 'DisplayName',"Contact State Foot 3");
-% legend()
-% title("Feet Contact State")
-
-plot(mq_time, (180/pi)*mq_telem.torso_omega(:,1), 'DisplayName',"roll");
-plot(mq_time, (180/pi)*mq_telem.torso_omega(:,2), 'DisplayName',"pitch");
-plot(mq_time, (180/pi)*mq_telem.torso_omega(:,3), 'DisplayName',"yaw");
+plot(plot_time(time_mask), mq_telem.leg0_grf_cmd(time_mask,3), 'r', 'DisplayName', 'leg0 cmd')
+plot(plot_time(time_mask), mq_telem.leg0_grf_est(time_mask,3), 'r.', 'DisplayName', 'leg0 est')
+plot(plot_time(time_mask), cutoff2*ones(size(plot_time(time_mask))), 'b--', 'DisplayName', 'contact\_cutoff')
+% plot(plot_time(time_mask), mq_telem.leg1_grf_cmd(time_mask,3), 'b', 'DisplayName', 'leg1 cmd')
+% plot(plot_time(time_mask), mq_telem.leg1_grf_est(time_mask,3), 'b.', 'DisplayName', 'leg1 est')
+% plot(plot_time(time_mask), mq_telem.leg2_grf_cmd(time_mask,3), 'k', 'DisplayName', 'leg2 cmd')
+% plot(plot_time(time_mask), mq_telem.leg2_grf_est(time_mask,3), 'k.', 'DisplayName', 'leg2 est')
+% plot(plot_time(time_mask), mq_telem.leg3_grf_cmd(time_mask,3), 'm', 'DisplayName', 'leg3 cmd')
+% plot(plot_time(time_mask), mq_telem.leg3_grf_est(time_mask,3), 'm.', 'DisplayName', 'leg3 est')
 legend()
-title("angle rate")
+title("GRF (N)")
 if ~periodize
-xlim(lims)
+    xlim(lims);
 end
-hold off;
+hold off
+
+
+% Temporary removal because I need to find best contact estimate method
+% subplot(5,1,4)
+% hold on
+% plot(mq_time, (180/pi)*mq_telem.torso_omega(:,1), 'DisplayName',"roll");
+% plot(mq_time, (180/pi)*mq_telem.torso_omega(:,2), 'DisplayName',"pitch");
+% plot(mq_time, (180/pi)*mq_telem.torso_omega(:,3), 'DisplayName',"yaw");
+% legend()
+% title("angle rate")
+% if ~periodize
+% xlim(lims)
+% end
+% hold off;
 
 subplot(5,1,5)
 hold on
-plot(plot_time(time_mask), mq_telem.torso_vel(time_mask,1), 'DisplayName',"x");
-plot(plot_time(time_mask), mq_telem.torso_vel(time_mask,2), 'DisplayName',"y");
-plot(plot_time(time_mask), mq_telem.torso_vel(time_mask,3), 'DisplayName',"z");
+plot(plot_time(time_mask), mq_telem.contact_state(time_mask,1), 'DisplayName',"Contact State Foot 0");
+% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,2), 'DisplayName',"Contact State Foot 1");
+% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,3), 'DisplayName',"Contact State Foot 2");
+% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,4), 'DisplayName',"Contact State Foot 3");
+% plot(plot_time(time_mask), (mq_telem.leg0_tau_est(time_mask,actuator_num) < cutoff), 'k--', 'DisplayName', 'contact\_state')
+plot(plot_time(time_mask), (mq_telem.leg0_grf_est(time_mask,3) < cutoff2), 'm:', 'DisplayName', 'contact\_state')
 legend()
-title("state estimate velocities")
+title("Feet Contact State")
 if ~periodize
-xlim(lims)
+    xlim(lims)
+    ylim([-0.1, 1.1])
 end
 hold off;
+
+% Temporary removal because I need to find best contact estimate method
+% subplot(5,1,5)
+% hold on
+% plot(plot_time(time_mask), mq_telem.torso_vel(time_mask,1), 'DisplayName',"x");
+% plot(plot_time(time_mask), mq_telem.torso_vel(time_mask,2), 'DisplayName',"y");
+% plot(plot_time(time_mask), mq_telem.torso_vel(time_mask,3), 'DisplayName',"z");
+% legend()
+% title("state estimate velocities")
+% if ~periodize
+% xlim(lims)
+% end
+% hold off;
+
 
 %% Actuator Kp and Kd plotting
 
 figure;
-
 lims = [0,inf];
 actuator_num = 3;
 
