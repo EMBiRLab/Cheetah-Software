@@ -114,17 +114,17 @@ FSM_StateName FSM_State_Locomotion<T>::checkTransition() {
 
       case K_STAND_UP:
         this->nextStateName = FSM_StateName::STAND_UP;
-        this->transitionDuration = 0.;
+        this->transitionDuration = 0.0;
         break;
 
       case K_RECOVERY_STAND:
         this->nextStateName = FSM_StateName::RECOVERY_STAND;
-        this->transitionDuration = 0.;
+        this->transitionDuration = 0.0;
         break;
 
       case K_VISION:
         this->nextStateName = FSM_StateName::VISION;
-        this->transitionDuration = 0.;
+        this->transitionDuration = 0.0;
         break;
 
       default:

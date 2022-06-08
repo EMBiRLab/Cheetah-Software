@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <eigen3/Eigen/Geometry>
 #include <math.h>
+#include <iomanip>
 #include "RobotRunner.h"
 #include "Controllers/ContactEstimator.h"
 #include "Controllers/OrientationEstimator.h"
@@ -359,8 +360,10 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   
   // Populate vectorNavData here from the lcm bc we receive IMU 
   // updates via lcm from robot_server
-  static Eigen::Quaternionf y_90(std::sqrt(2)/2.0, 0, std::sqrt(2)/2.0, 0);
-  static Eigen::Quaternionf y_n90(std::sqrt(2)/2.0, 0, -std::sqrt(2)/2.0, 0);
+  // static Eigen::Quaternionf y_90(std::sqrt(2)/2.0, 0, std::sqrt(2)/2.0, 0);
+  // static Eigen::Quaternionf y_n90(std::sqrt(2)/2.0, 0, -std::sqrt(2)/2.0, 0);
+  static Eigen::Quaternionf r_180(0., 1., 0., 0.);
+  static Eigen::Quaternionf r_180_conj(0., -1., 0., 0);
   static Eigen::Quaternionf qtransform(1, 0, 0, 0);
   static int handle_count = 0;
   
@@ -371,18 +374,29 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
     qtransform = qtransform * robserv_quat.inverse();
   }
 
-  robserv_quat = qtransform * robserv_quat;
-  robserv_quat = y_n90 * robserv_quat * y_90;
+  // robserv_quat = qtransform * robserv_quat;
+  // robserv_quat = y_n90 * robserv_quat * y_90;
+  robserv_quat = r_180 * robserv_quat * r_180_conj;
   
-  // robserv_quat = robserv_quat * y_90;
+  // vectorNavData->accelerometer(2) =  msg->accelerometer[0];
+  // vectorNavData->accelerometer(1) =  msg->accelerometer[1];
+  // vectorNavData->accelerometer(0) = -msg->accelerometer[2];
 
-  vectorNavData->accelerometer(2) =  msg->accelerometer[0];
-  vectorNavData->accelerometer(1) =  msg->accelerometer[1];
-  vectorNavData->accelerometer(0) = -msg->accelerometer[2];
+  // vectorNavData->gyro(2) =  msg->gyro[0];
+  // vectorNavData->gyro(1) =  msg->gyro[1];
+  // vectorNavData->gyro(0) = -msg->gyro[2];
 
-  vectorNavData->gyro(2) =  msg->gyro[0];
-  vectorNavData->gyro(1) =  msg->gyro[1];
-  vectorNavData->gyro(0) = -msg->gyro[2];
+  vectorNavData->accelerometer(0) =  msg->accelerometer[0];
+  vectorNavData->accelerometer(1) = -msg->accelerometer[1];
+  // vectorNavData->accelerometer(1) =  msg->accelerometer[1];
+  vectorNavData->accelerometer(2) = -msg->accelerometer[2];
+  // vectorNavData->accelerometer(2) =  msg->accelerometer[2];
+
+  vectorNavData->gyro(0) =  msg->gyro[0];
+  vectorNavData->gyro(1) = -msg->gyro[1];
+  // vectorNavData->gyro(1) =  msg->gyro[1];
+  vectorNavData->gyro(2) = -msg->gyro[2];
+  // vectorNavData->gyro(2) =  msg->gyro[2];
 
 
   // get the quaternion
@@ -390,9 +404,9 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   vectorNavData->quat.segment(0,3) = robserv_quat.vec();
 
   // std::cout.precision(3);
-  // std::cout << "GYRO is: " << vectorNavData->gyro(0) << ",\t" << 
-                              //  vectorNavData->gyro(1) << ",\t" << 
-                              //  vectorNavData->gyro(2) << "\n";
+  std::cout << "ACC is: " << std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(0) << ",\t" << 
+                             std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(1) << ",\t" << 
+                             std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(2) << "\r";
   // std::cout.flush();
 
 }

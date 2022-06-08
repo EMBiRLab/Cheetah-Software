@@ -47,7 +47,7 @@ void FSM_State_BalanceStand<T>::onEnter() {
   //TODO: Will have to switch back to using the initial bosy orientation and position instead of setting it to 0
   // Only did it for better debugging!
   _ini_body_pos = (this->_data->_stateEstimator->getResult()).position;
-  _ini_body_pos[1] = 0.;
+  //_ini_body_pos[1] = 0.;
 
 
   if(_ini_body_pos[2] < 0.2) {
@@ -57,8 +57,8 @@ void FSM_State_BalanceStand<T>::onEnter() {
   last_height_command = _ini_body_pos[2];
 
   _ini_body_ori_rpy = (this->_data->_stateEstimator->getResult()).rpy;
-  _ini_body_ori_rpy[0] = 0.; 
-  _ini_body_ori_rpy[1] = 0.; 
+  //_ini_body_ori_rpy[0] = 0.; 
+  // _ini_body_ori_rpy[1] = 0.; 
   // _body_weight = this->_data->_quadruped->_bodyMass * 9.81;
   _body_weight = (this->_wbc_ctrl->_model.totalNonRotorMass() + this->_wbc_ctrl->_model.totalRotorMass()) * 9.81; 
 }
@@ -147,7 +147,7 @@ FSM_StateName FSM_State_BalanceStand<T>::checkTransition() {
 
     case K_BACKFLIP:
       this->nextStateName = FSM_StateName::BACKFLIP;
-      this->transitionDuration = 0.;
+      this->transitionDuration = 0.0;
       break;
 
     default:
