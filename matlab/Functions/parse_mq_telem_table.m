@@ -2,6 +2,8 @@
 function mq_telem = parse_mq_telem_table(T)
     mq_telem = struct;
 
+    mq_telem.time = T.time;
+
     mq_telem.leg0_qd_data = [T.data_qd_0, T.data_qd_1,  T.data_qd_2];
     mq_telem.leg1_qd_data = [T.data_qd_3, T.data_qd_4,  T.data_qd_5];
     mq_telem.leg2_qd_data = [T.data_qd_6, T.data_qd_7,  T.data_qd_8];

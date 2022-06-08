@@ -2,23 +2,48 @@
 
 trot_12_1_2 = "data/mq_telem_01_06_2022_17-09-25.csv"; % same as above, but did torso orientation demo to verify wbc without mpc
 
+% Set mounting-roll to 180, mounting-pitch to 90, and applied 180deg 
+% rotation about roll in MIT data unpacking. Less drift for robot, still
+% pitch back in locomotion state
+imu_drift_test_4 = "data/mq_telem_07_06_2022_15-01-45.csv";
+imu_drift_test_4_mocap = "data/muadquad_6_7_22_004.csv";
+
 % orientation test in balance stand
 orientation_test_1 = "data/mq_telem_08_06_2022_15-54-05.csv";
 orientation_test_1_mocap = "data/muadquad_6_7_22_005.csv";
 
 sample_freq = 500; % Hz
-T = readtable(orientation_test_1);
-mq_time = (1:1:height(T))/sample_freq;
+T = readtable(imu_drift_test_4);
+% mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_mq_telem_table(T);
+mq_time = mq_telem.time;
 
-%% Preview
+
+mocap_T = readtable(imu_drift_test_4_mocap);
+mocap_data = parse_mocap(mocap_T);
+
+%% RPY Preview
+
+mq_telem_time_mark = 39.7134;
+mocap_time_mark = 19.2115;
+
+mq_telem_time_mark = 35.9679;
+mocap_time_mark = 48.1823;
+
+mocap_offset_back = mocap_time_mark - mq_telem_time_mark;
+
 figure;
 
 hold on
-plot(mq_time, mq_telem.torso_rpy(:,1)*180/pi, 'DisplayName','roll');
-plot(mq_time, mq_telem.torso_rpy(:,2)*180/pi, 'DisplayName','pitch');
-plot(mq_time, mq_telem.torso_rpy(:,3)*180/pi, 'DisplayName','yaw');
+plot(mq_time, mq_telem.torso_rpy(:,1)*180/pi, 'r-', 'DisplayName','mit roll');
+plot(mq_time, mq_telem.torso_rpy(:,2)*180/pi, 'm-', 'DisplayName','mit pitch');
+plot(mq_time, mq_telem.torso_rpy(:,3)*180/pi, 'k-', 'DisplayName','mit yaw');
+
+
+plot(mocap_data.time - mocap_offset_back, mocap_data.RB_rpy(:,1)*180/pi, 'r--', 'DisplayName','mocap roll');
+plot(mocap_data.time - mocap_offset_back, mocap_data.RB_rpy(:,2)*180/pi, 'm--', 'DisplayName','mocap pitch');
+plot(mocap_data.time - mocap_offset_back, mocap_data.RB_rpy(:,3)*180/pi, 'k--', 'DisplayName','mocap yaw');
 
 xlabel("time [s]")
 ylabel("angle [deg]")
@@ -26,7 +51,7 @@ legend("Location","best")
 
 hold off
 
-%% Calculation of Orientation
+%% Calculation of Orientation from Legs
 time_thresh = 79.2;
 time_thresh = 87.24;
 % time_thresh = 115.24;
@@ -127,8 +152,8 @@ hold on
 % plot(mq_time, xyz_eul(3,:)*180/pi, ':', "displayname", "xyz\_eul(3,:)")
 
 % plot(mq_time, zyx_eul_trans(1,:)*180/pi, '-.', "displayname", "zyx\_eul\_trans(1,:)")
-plot(mq_time, zyx_eul_trans(2,:)*180/pi, '-.', "displayname", "zyx\_eul\_trans(2,:)")
-plot(mq_time, zyx_eul_trans(3,:)*180/pi, '-.', "displayname", "zyx\_eul\_trans(3,:)")
+plot(mq_time, zyx_eul_trans(2,:)*180/pi, 'k:', "displayname", "zyx\_eul\_trans(2,:)")
+plot(mq_time, zyx_eul_trans(3,:)*180/pi, 'r:', "displayname", "zyx\_eul\_trans(3,:)")
 
 % plot(mq_time, xyz_eul_trans(1,:)*180/pi, '-', "displayname", "xyz\_eul\_trans(1,:)")
 % plot(mq_time, xyz_eul_trans(2,:)*180/pi, '-', "displayname", "xyz\_eul\_trans(2,:)")
@@ -136,6 +161,12 @@ plot(mq_time, zyx_eul_trans(3,:)*180/pi, '-.', "displayname", "zyx\_eul\_trans(3
 
 plot(mq_time, mq_telem.torso_rpy(:,1)*180/pi, 'r-', "displayname", "mq roll")
 plot(mq_time, mq_telem.torso_rpy(:,2)*180/pi, 'k-', "displayname", "mq pitch")
+plot(mq_time, mq_telem.torso_rpy(:,3)*180/pi, 'm-', "displayname", "mq yaw")
+
+
+plot(mocap_data.time - mocap_offset_back, mocap_data.RB_rpy(:,1)*180/pi, 'r--', 'DisplayName','mocap roll');
+plot(mocap_data.time - mocap_offset_back, mocap_data.RB_rpy(:,2)*180/pi, 'k--', 'DisplayName','mocap pitch');
+plot(mocap_data.time - mocap_offset_back, mocap_data.RB_rpy(:,3)*180/pi, 'm--', 'DisplayName','mocap yaw');
 
 xlabel("time [s]")
 ylabel("angle [deg]")

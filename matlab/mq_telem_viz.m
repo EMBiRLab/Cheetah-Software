@@ -132,7 +132,7 @@ imu_drift_test_4 = "data/mq_telem_07_06_2022_15-01-45.csv";
 orientation_test_1 = "data/mq_telem_08_06_2022_15-54-05.csv";
 
 sample_freq = 500; % Hz
-T = readtable(imu_drift_test_4);
+T = readtable(orientation_test_1);
 mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_mq_telem_table(T);
@@ -466,7 +466,7 @@ figure;
 
 lims = [38,40.5];
 lims = [0, inf];
-actuator_num = 3;
+actuator_num = 1;
 
 plot_time = mq_time;
 time_mask = plot_time > 0;

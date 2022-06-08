@@ -70,15 +70,20 @@ function mocap_data = parse_mocap(mT)
     RB_quat = quaternion(RB_quat');
     md.RB_quat_mocap = RB_quat;
 
+    q_start = RB_quat(3:20);
+    q_start = meanrot(q_start);
+    qtransform = quaternion([1 0 0 0]) * q_start';
+    RB_quat = qtransform*RB_quat;
+
     RB_quat = qy*RB_quat*conj(qy);
 %     RB_quat = RB_quat*qy;
     RB_quat = qx*RB_quat*conj(qx);
 %     RB_quat = RB_quat*qx;
 
-    q_start = RB_quat(3:20);
-    q_start = meanrot(q_start);
-    qtransform = quaternion([1 0 0 0]) * q_start';
-    RB_quat = qtransform*RB_quat;
+%     q_start = RB_quat(3:20);
+%     q_start = meanrot(q_start);
+%     qtransform = quaternion([1 0 0 0]) * q_start';
+%     RB_quat = qtransform*RB_quat;
     
     md.RB_quat = RB_quat;
     md.RB_rpy = quat2eul(RB_quat, "XYZ");
