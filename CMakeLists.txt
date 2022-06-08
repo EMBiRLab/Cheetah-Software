@@ -25,7 +25,7 @@ set(lib_include_path_lcm "/usr/include")
 set(lib_include_path_eigen "/usr/include")
 if(PI_INCLUDE)
   set(lib_include_path_lcm "/usr/local/include")
-  set(lib_include_path_eigen "/usr/local/include")
+  set(lib_include_path_eigen "/usr/include")
 endif()
 if(USR_LOCAL_LCM)
   set(lib_include_path_lcm "/usr/local/include")
@@ -45,7 +45,7 @@ if(EMBIR_ROBOT_SERVER_BUILD)
   SET(undef_JCQP_USE_AVX2 "#undef JCQP_USE_AVX2")
   CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
     ${CMAKE_BINARY_DIR}/Configuration.h)
-  set(CMAKE_CXX_FLAGS "-no-pie -ggdb -Wall \
+  set(CMAKE_CXX_FLAGS "-no-pie -ggdb -Wall -fpermissive \
   -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
   -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
   -Wshadow -Wsign-promo")

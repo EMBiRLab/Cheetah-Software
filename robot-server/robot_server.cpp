@@ -13,6 +13,7 @@
 
 #include "robot_server.h"
 #include "third-party/rapidcsv/rapidcsv.h"
+// #include "src/utils.h"
 
 // #include "Utilities/utilities.h"
 
@@ -43,7 +44,7 @@ RobotServer::RobotServer(RobotServer::RobotServerSettings& rs_set, std::ostream&
 	responseLCM_(getLcmUrl(255)) {
 
 	// Construct the lowpass filter for the incoming command data
-	lpf_command(rs_set_.lpf_order, rs_set_.lpf_freq, rs_set_.period_s);
+	// lpf_command(rs_set_.lpf_order, rs_set_.lpf_freq, rs_set_.period_s);
 
 	// construct variable number of actuator objects depending on what is in
 	// robot_server_config.json
@@ -489,6 +490,10 @@ RobotServer::RobotServerSettings::RobotServerSettings(cxxopts::ParseResult& rs_o
 
 	lpf_order = rs_cfg_j["lpf_order"].get<float>();
 	lpf_freq = rs_cfg_j["lpf_freq"].get<float>();
+
+	mounting_roll_deg = rs_cfg_j["mounting_roll_deg"].get<float>();
+	mounting_pitch_deg = rs_cfg_j["mounting_pitch_deg"].get<float>();
+	mounting_yaw_deg = rs_cfg_j["mounting_yaw_deg"].get<float>();
 
 	gear_ratios = rs_cfg_j["gear_ratios"].get<std::vector<float>>();
 	if (

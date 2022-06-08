@@ -39,6 +39,10 @@ class Pi3HatMoteusInterface {
   struct Options {
     int cpu = -1;
 
+    float mounting_roll = 0;
+    float mounting_pitch = 0;
+    float mounting_yaw = 0;
+
     // If a servo is not present, it is assumed to be on bus 1.
     std::map<int, int> servo_bus_map;
   };
@@ -113,7 +117,12 @@ class Pi3HatMoteusInterface {
   void CHILD_Run() {
     ConfigureRealtime(options_.cpu);
 
-    pi3hat_.reset(new pi3hat::Pi3Hat({}));
+    pi3hat::Pi3Hat::Configuration config;
+    config.mounting_deg.yaw = options_.mounting_yaw;
+    config.mounting_deg.pitch = options_.mounting_pitch;
+    config.mounting_deg.roll = options_.mounting_roll;
+
+    pi3hat_.reset(new pi3hat::Pi3Hat(config));
 
     while (true) {
       {
