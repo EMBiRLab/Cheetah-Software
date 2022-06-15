@@ -129,6 +129,9 @@ void ControlFSM<T>::runFSM() {
     if (data._desiredStateCommand->gamepadCommand->x == 1){
       data.controlParameters->control_mode = K_STAND_UP;
     }
+    if (data._desiredStateCommand->gamepadCommand->rightTriggerButton == 1){
+      data.controlParameters->control_mode = K_SIT_DOWN;
+    }
   }
 
   // std::cout << "Current Operating Mode: " << (int)operatingMode << std::endl;
@@ -294,6 +297,9 @@ FSM_State<T>* ControlFSM<T>::getNextState(FSM_StateName stateName) {
 
     case FSM_StateName::FRONTJUMP:
       return statesList.frontJump;
+
+    case FSM_StateName::SIT_DOWN:
+      return statesList.sitDown;
 
     default:
       return statesList.invalid;
