@@ -157,7 +157,9 @@ high_contact_mocap_3 = "data/muadquad_setup_017.csv";
 imu_drift_test_4_mocap = "data/muadquad_6_7_22_004.csv";
 imu_drift_test_5_mocap = "data/muadquad_6_13_22_001.csv";
 
-mocap_T = readtable(imu_drift_test_4_mocap);
+orientation_test_1_mocap = "data/muadquad_6_7_22_005.csv";
+
+mocap_T = readtable(orientation_test_1_mocap);
 mocap_data = parse_mocap(mocap_T);
 
 %% mocap 3d plotting
@@ -269,10 +271,12 @@ legend()
 hold off
 
 %% grf z plotting
+xlims = [0, inf];
+% xlims = [38, 39];
+figure;
 
-figure
+subplot(2,1,1)
 hold on
-
 plot(mq_time, mq_telem.leg0_grf_cmd(:,3), 'r', 'DisplayName', 'leg0 cmd')
 plot(mq_time, mq_telem.leg0_grf_est(:,3), 'r.', 'DisplayName', 'leg0 est')
 plot(mq_time, mq_telem.leg1_grf_cmd(:,3), 'b', 'DisplayName', 'leg1 cmd')
@@ -281,7 +285,13 @@ plot(mq_time, mq_telem.leg2_grf_cmd(:,3), 'k', 'DisplayName', 'leg2 cmd')
 plot(mq_time, mq_telem.leg2_grf_est(:,3), 'k.', 'DisplayName', 'leg2 est')
 plot(mq_time, mq_telem.leg3_grf_cmd(:,3), 'm', 'DisplayName', 'leg3 cmd')
 plot(mq_time, mq_telem.leg3_grf_est(:,3), 'm.', 'DisplayName', 'leg3 est')
+xlim(xlims)
+ylabel("GRF z [N]")
+legend()
+hold off
 
+subplot(2,1,2)
+hold on
 plot(mq_time, mq_telem.leg0_grf_cmd(:,3)...
     +mq_telem.leg1_grf_cmd(:,3)...
     +mq_telem.leg2_grf_cmd(:,3)...
@@ -290,9 +300,9 @@ plot(mq_time, mq_telem.leg0_grf_est(:,3)...
     +mq_telem.leg1_grf_est(:,3)...
     +mq_telem.leg2_grf_est(:,3)...
     +mq_telem.leg3_grf_est(:,3), 'g.', 'DisplayName', 'total est')
+xlim(xlims)
 ylabel("GRF z [N]")
 legend()
-% xlim([35.5, 40])
 hold off
 
 %% torso pos z plotting
@@ -309,9 +319,11 @@ lims = [0, inf];
 
 plot_mocap = true;
 % mq_telem_time_mark = 43.26; %30.338;
-mq_telem_time_mark = 30.338;
+% mq_telem_time_mark = 30.338;
 % mocap_time_mark = 16.48; %47.917;
-mocap_time_mark = 47.917;
+% mocap_time_mark = 47.917;
+mq_telem_time_mark = 28.654; %30.338;
+mocap_time_mark = 12.399; %47.917;
 mocap_offset_back = mocap_time_mark - mq_telem_time_mark;
 
 [b,a] = butter(2,.002,'low');
