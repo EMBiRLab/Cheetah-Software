@@ -1,10 +1,10 @@
 #!/bin/bash
 
-if [[ $# -lt 1 ]]
+if [[ $# -lt 1 ]]; then
     # no argument given
     echo "Usage: provide a date to set. Example \"14 june 2022 22:22:23\""
     echo "Exiting..."
-    exit 2
+    return
 fi
 
 DATE=$1
