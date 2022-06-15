@@ -173,6 +173,43 @@ ylabel("angle [deg]")
 xlim([0 120])
 legend("Location","best")
 
+%% Plot Error of mq vs mocap against augment vs mocap
+figure;
+mocap_time = mocap_data.time - mocap_offset_back;
+mocap_positive_time = find(mocap_time > 0);
+mocap_positive_time = mocap_positive_time(1);
+
+mq_error_r = abs(mq_telem.torso_rpy(:,1)*180/pi - interp1(mocap_time(mocap_positive_time:end), mocap_data.RB_rpy(mocap_positive_time:end,1)*180/pi, ...
+            linspace( mocap_time(mocap_positive_time), mocap_time(end), length(mq_telem.torso_rpy(:,1)) )' ));
+
+mq_error_p = abs(mq_telem.torso_rpy(:,2)*180/pi - interp1(mocap_time(mocap_positive_time:end), mocap_data.RB_rpy(mocap_positive_time:end,2)*180/pi, ...
+            linspace( mocap_time(mocap_positive_time), mocap_time(end), length(mq_telem.torso_rpy(:,2)) )' ));
+        
+mq_error_y = abs(mq_telem.torso_rpy(:,3)*180/pi - interp1(mocap_time(mocap_positive_time:end), mocap_data.RB_rpy(mocap_positive_time:end,3)*180/pi, ...
+            linspace( mocap_time(mocap_positive_time), mocap_time(end), length(mq_telem.torso_rpy(:,3)) )' ));
+        
+        
+zyx_eul_err_r = abs(mq_telem.torso_rpy(:,1)*180/pi - zyx_eul_trans(3,:)'*180/pi);        
+zyx_eul_err_p = abs(mq_telem.torso_rpy(:,2)*180/pi - zyx_eul_trans(2,:)'*180/pi);
+zyx_eul_err_y = abs(mq_telem.torso_rpy(:,3)*180/pi - zyx_eul_trans(1,:)'*180/pi);
+
+subplot(2,1,1); hold on;
+title("mq\_telem error")
+plot(mq_time, mq_error_r, 'b-')
+plot(mq_time, mq_error_p)
+% plot(mq_time, mq_error_y)
+% plot(mq_time, interp1(mocap_time(mocap_positive_time:end), mocap_data.RB_rpy(mocap_positive_time:end,1)*180/pi, ...
+%             linspace( mocap_time(mocap_positive_time), mocap_time(end), length(mq_telem.torso_rpy(:,1)) )' ), 'o--');
+% plot(mq_time, mq_telem.torso_rpy(:,1)*180/pi, 'k:');
+ylim([0 15])
+
+subplot(2,1,2); hold on;
+title("zyx\_eul error")
+plot(mq_time, zyx_eul_err_r)
+plot(mq_time, zyx_eul_err_p)
+% plot(mq_time, zyx_eul_err_y)
+ylim([0 15])
+
 %% 3D Plotting
 
 mean_foot_pos = mean(points, 1);

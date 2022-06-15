@@ -1,4 +1,4 @@
-
+% Function to unpack data from the mq logs
 function mq_telem = parse_mq_telem_table(T)
     mq_telem = struct;
 
@@ -87,9 +87,10 @@ function mq_telem = parse_mq_telem_table(T)
     mq_telem.torso_v_ori_des = [T.vBody_ori_des_0,T.vBody_ori_des_1,T.vBody_ori_des_2];
     mq_telem.contact_state = [T.contact_state_0,T.contact_state_1,T.contact_state_2,T.contact_state_3];
 
-    if any(ismember(T.Properties.VariableNames,'accellerometer_0'))
-        mq_telem.accelerometer = [T.accelerometer_0,T.accelerometer_1,T.accelerometer_2];
-        mq_telem.gyro = [T.gyro_0,T.gyro_1,T.gyro_2];
+    if any(ismember(T.Properties.VariableNames,'accelerometer_0'))
+        mq_telem.accelerometer = [T.accelerometer_0,-T.accelerometer_1,-T.accelerometer_2];
+        mq_telem.gyro = [T.gyro_0,-T.gyro_1,-T.gyro_2];
+        mq_telem.quat = [T.quat_0,T.quat_1,T.quat_2,T.quat_3];
     end
 
     for ii = 1:length(T.data_p_0)

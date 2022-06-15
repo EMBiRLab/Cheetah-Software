@@ -8,7 +8,7 @@ z = points(:,3);
 m=length(X);                                    %number of points
 
 %Method OLS 2: Ordinary least squares _without_ using Statistics Toolbox
-Xm=mean(X); 
+Xm=mean(X);
 zm=mean(z);
 Xc=X-Xm;                    %centered X=[x,y] data
 zc=z-zm;                    %centered z data

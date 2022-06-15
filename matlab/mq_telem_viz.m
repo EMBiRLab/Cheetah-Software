@@ -131,8 +131,13 @@ imu_drift_test_4 = "data/mq_telem_07_06_2022_15-01-45.csv";
 % orientation test in balance stand
 orientation_test_1 = "data/mq_telem_08_06_2022_15-54-05.csv";
 
+% we ran the robot on a yoga mat to see if having a slightly damped foor
+% helps it or not. The torso lacks torsional rigidity still. Still pitched
+% back but potentially more slowly?
+imu_drift_test_5 = "data/mq_telem_13_06_2022_17-21-25.csv";
+
 sample_freq = 500; % Hz
-T = readtable(orientation_test_1);
+T = readtable(imu_drift_test_4);
 mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_mq_telem_table(T);
@@ -150,6 +155,7 @@ dummy_test_2 = "data/muadquad_setup_014.csv";
 high_contact_mocap_3 = "data/muadquad_setup_017.csv";
 
 imu_drift_test_4_mocap = "data/muadquad_6_7_22_004.csv";
+imu_drift_test_5_mocap = "data/muadquad_6_13_22_001.csv";
 
 mocap_T = readtable(imu_drift_test_4_mocap);
 mocap_data = parse_mocap(mocap_T);
@@ -302,9 +308,13 @@ lims = [35, 70];
 lims = [0, inf];
 
 plot_mocap = true;
+% mq_telem_time_mark = 43.26; %30.338;
 mq_telem_time_mark = 30.338;
+% mocap_time_mark = 16.48; %47.917;
 mocap_time_mark = 47.917;
 mocap_offset_back = mocap_time_mark - mq_telem_time_mark;
+
+[b,a] = butter(2,.002,'low');
 
 % subplot(2,1,1)
 hold on
@@ -312,10 +322,14 @@ hold on
 plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,2), 'DisplayName',"IMU pitch");
 % plot(mq_time, (180/pi)*mq_telem.torso_rpy(:,3), 'DisplayName',"yaw");
 
+plot(mq_time, (180/pi)*filter(b,a,mq_telem.torso_rpy(:,2)), 'DisplayName',"filtered IMU pitch");
+
 if plot_mocap
 % plot(mocap_data.time - mocap_offset_back, (180/pi)*mocap_data.RB_rpy(:,1), 'DisplayName',"mocap roll");
 plot(mocap_data.time - mocap_offset_back, (180/pi)*mocap_data.RB_rpy(:,2), 'DisplayName',"mocap pitch");
 % plot(mocap_data.time - mocap_offset_back, (180/pi)*mocap_data.RB_rpy(:,3), 'DisplayName',"mocap yaw");
+
+plot(mocap_data.time - mocap_offset_back, (180/pi)*filter(b,a,mocap_data.RB_rpy(:,2)), 'DisplayName',"filtered mocap pitch");
 end
 
 legend()
@@ -455,7 +469,7 @@ legend
 figure;
 
 lims = [24, 26];
-% lims = [0, inf];
+lims = [0, inf];
 actuator_num = 3;
 
 plot_time = mq_time;
@@ -760,6 +774,35 @@ legend()
 title("IMU Accelerometer Data")
 hold off;
 
+figure;
+
+hold on; 
+f = 1000;
+Fs = 500;
+[b,a] = butter(2,.001,'low');
+filtered_x_acc = filter(b,a,mq_telem.accelerometer(:,1));
+filtered_y_acc = filter(b,a,mq_telem.accelerometer(:,2));
+filtered_z_acc = filter(b,a,mq_telem.accelerometer(:,3));
+plot(mq_time, filtered_x_acc / 9.81, 'DisplayName',"Filtered IMU X acc")
+plot(mq_time, filtered_y_acc / 9.81, 'DisplayName',"Filtered IMU Y acc")
+plot(mq_time, filtered_z_acc / 9.81, 'DisplayName',"Filtered IMU Z acc")
+plot(mq_time,  2*ones(size(mq_time)), 'r--', 'DisplayName',"validity thresh")
+plot(mq_time, -2*ones(size(mq_time)), 'r--', 'DisplayName',"validity thresh")
+legend()
+title("Filtered IMU Accelerometer Data")
+hold off;
+
+figure; hold on;
+
+y_axis = cumtrapz(mq_time, filtered_y_acc);
+og_y_axis = cumtrapz(mq_time, mq_telem.accelerometer(:,2));
+plot(mq_time, y_axis, 'DisplayName',"Integged filtered IMU Y acc")
+plot(mq_time, og_y_axis, 'DisplayName',"Integged og IMU Y acc")
+legend()
+title("Integrated IMU Accelerometer Data")
+
+hold off;
+
 %% Gyro Data Plotting
 
 figure;
@@ -772,3 +815,37 @@ legend()
 title("IMU Gyroscope Data")
 hold off;
 
+figure;
+
+hold on; 
+f = 1000;
+Fs = 500;
+[b,a] = butter(2,.002,'low');
+filtered_x_w = filter(b,a,mq_telem.gyro(:,1));
+filtered_y_w = filter(b,a,mq_telem.gyro(:,2));
+filtered_z_w = filter(b,a,mq_telem.gyro(:,3));
+plot(mq_time, filtered_x_w, 'DisplayName',"Filtered IMU X w")
+plot(mq_time, filtered_y_w, 'DisplayName',"Filtered IMU Y w")
+plot(mq_time, filtered_z_w, 'DisplayName',"Filtered IMU Z w")
+legend()
+title("Filtered IMU Gyroscope Data")
+hold off;
+
+figure; hold on;
+
+roll = cumtrapz(mq_time, filtered_x_w);
+pitch = cumtrapz(mq_time, filtered_y_w);
+yaw = cumtrapz(mq_time, filtered_z_w);
+og_roll = cumtrapz(mq_time, mq_telem.gyro(:,1));
+og_pitch = cumtrapz(mq_time, mq_telem.gyro(:,2));
+og_yaw = cumtrapz(mq_time, mq_telem.gyro(:,3));
+% plot(mq_time, roll, 'DisplayName',"Integged filtered IMU X w")
+plot(mq_time, (180/pi)*pitch, 'DisplayName',"Integged filtered IMU Y w")
+% plot(mq_time, yaw, 'DisplayName',"Integged filtered IMU Z w")
+% plot(mq_time, og_roll, 'DisplayName',"Integged og IMU X w")
+plot(mq_time, (180/pi)*og_pitch, 'DisplayName',"Integged og IMU Y w")
+% plot(mq_time, og_yaw, 'DisplayName',"Integged og IMU Z w")
+legend()
+title("Integrated IMU Gyroscope Data")
+
+hold off;
