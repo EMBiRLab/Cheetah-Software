@@ -129,6 +129,12 @@ Quadruped<T> buildMuadQuad() {
   muadquad._kneeLocation = Vec3<T>(0, 0, -muadquad._hipLinkLength);
   muadquad._kneeRotorLocation = Vec3<T>(0, 0, 0);
 
+  muadquad._totalMass = muadquad._bodyMass + 4*muadquad._abadInertia.getMass() + 4*muadquad._hipInertia.getMass() +
+                                             4*muadquad._kneeInertia.getMass() + 4*muadquad._abadRotorInertia.getMass() +
+                                             4*muadquad._hipRotorInertia.getMass() + 4*muadquad._kneeRotorInertia.getMass();
+
+  std::cout << "muadquad total Mass is: " << muadquad._totalMass << "\n";                                             
+
   return muadquad;
 }
 

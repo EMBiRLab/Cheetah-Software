@@ -394,6 +394,7 @@ Vec12<float> SparseCMPC::getResult() {
   Vec12<float> result;
   result.setZero();
   for(u32 i = 0; i < _bBlockIds.size(); i++) {
+    std::cout << "_bBlockIds.size() is: " << _bBlockIds.size() << "\n";
     auto& id = _bBlockIds[i];
     if(id.timestep == 0) {
       //printf("result for foot %d %.3f %.3f %.3f\n", id.foot, _result[getControlIndex(i) + 0], _result[getControlIndex(i) + 1], _result[getControlIndex(i) + 2]);

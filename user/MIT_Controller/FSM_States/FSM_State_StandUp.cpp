@@ -72,7 +72,6 @@ void FSM_State_StandUp<T>::onEnter() {
   // _ini_body_ori_rpy[1] = 0.; 
   // _body_weight = this->_data->_quadruped->_bodyMass * 9.81;
   _body_weight = (this->_wbc_ctrl->_model.totalNonRotorMass() + this->_wbc_ctrl->_model.totalRotorMass()) * 9.81;
-  std::cout << "HERE!" << std::endl;
 
 
 
