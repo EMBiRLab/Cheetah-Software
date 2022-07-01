@@ -72,7 +72,6 @@ void FSM_State_StandUp<T>::onEnter() {
   // _ini_body_ori_rpy[1] = 0.; 
   // _body_weight = this->_data->_quadruped->_bodyMass * 9.81;
   _body_weight = (this->_wbc_ctrl->_model.totalNonRotorMass() + this->_wbc_ctrl->_model.totalRotorMass()) * 9.81;
-  std::cout << "HERE!" << std::endl;
 
 
 
@@ -96,6 +95,9 @@ void FSM_State_StandUp<T>::onEnter() {
   _avg_foot_err[2] = _avg_foot_err[2] / 4;
 
   _des_body_pos = _ini_body_pos + _avg_foot_err;
+
+  // Vec3<T> z_offset(0.0,0.0,0.1);
+  // _des_body_pos = _ini_body_pos + z_offset;
 
   std::cout << "made it to the end of OnEnter()!" << std::endl;
 }

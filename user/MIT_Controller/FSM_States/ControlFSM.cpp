@@ -298,8 +298,8 @@ FSM_State<T>* ControlFSM<T>::getNextState(FSM_StateName stateName) {
     case FSM_StateName::FRONTJUMP:
       return statesList.frontJump;
 
-    case FSM_StateName::SIT_DOWN:
-      return statesList.sitDown;
+    // case FSM_StateName::SIT_DOWN:
+    //   return statesList.sitDown;
 
     default:
       return statesList.invalid;

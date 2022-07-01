@@ -13,6 +13,7 @@
 
 #include "Controllers/StateEstimatorContainer.h"
 
+// BELOW IS THE ORIGINAL MIT ContactEstimator. COULD POTENTIALLY TURN THIS ESTIMATOR INTO A CHEATERESTIMATOR
 /*!
  * A "passthrough" contact estimator which returns the expected contact state
  */
@@ -34,5 +35,25 @@ class ContactEstimator : public GenericEstimator<T> {
    */
   virtual void setup() {}
 };
+
+// /*!
+//  * A foot contact estimator that is based on the torque signals that are returned by the legs
+//  */
+// template <typename T>
+// class ContactEstimator : public GenericEstimator<T> {
+//   public:
+//   virtual void run();
+//   virtual void setup() {
+//     // store the robot mass to calculate a threshold for contact estimation
+//     _robotMass = this->_stateEstimatorData.legControllerData->quadruped->_totalMass;
+//     // threshold for contact is 20% of robot mass
+//     _threshold = (_robotMass * 9.81) * 0.2; // TODO: MAKE THIS THRESHOLD PERCENTAGE A YAML FILE PARAMETER
+//   }
+
+//   protected:
+//   T _robotMass;
+//   T _threshold;
+
+// };
 
 #endif  // PROJECT_CONTACTESTIMATOR_H
