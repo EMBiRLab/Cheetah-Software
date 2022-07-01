@@ -65,10 +65,11 @@ class RobotRunner : public PeriodicTask {
   //Updating LCM Data and Command (Robot_server) MUADQUAD
   int   muadquad_leg_reordering[12] = {3,4,5,0,1,2,9,10,11,6,7,8}; // todo: place into a good spot like mq quadruped
   // following written in MIT angle convention
+  // temp note: to run robot in x-type, the back legs need their offsets flipped!
   float muadquad_angle_offsets[12]  = {0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW,
                                        0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW,
-                                       0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW,
-                                       0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW}; // todo: place into a good spot like mq quadruped
+                                       0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW, // for xtype back legs offsets flipped 
+                                       0,-1*MQ_MOT_ROT,4*MQ_MOT_ROT_X3_NEW}; // todo: place into a good spot like mq quadruped // for xtype back legs offsets flipped 
   // robot_server_response_lcmt* LCMData;
   RobServData* robServData;
   void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,

@@ -356,6 +356,21 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
     robServData->qd[i] = sign*msg->qd[idx];
     robServData->tau_est[i] = sign*msg->tau_est[idx];
   }
+  
+  // to run robot as x-type, we need to flip the data of the back legs!
+  // robServData->q[8]        *= -1;
+  // robServData->qd[8]       *= -1;
+  // robServData->tau_est[8]  *= -1;
+  // robServData->q[11]       *= -1;
+  // robServData->qd[11]      *= -1;
+  // robServData->tau_est[11] *= -1;
+  // robServData->q[7]        *= -1;
+  // robServData->qd[7]       *= -1;
+  // robServData->tau_est[7]  *= -1;
+  // robServData->q[10]       *= -1;
+  // robServData->qd[10]      *= -1;
+  // robServData->tau_est[10] *= -1;
+
   robServData->fsm_state = msg->fsm_state;
   
   // Populate vectorNavData here from the lcm bc we receive IMU 

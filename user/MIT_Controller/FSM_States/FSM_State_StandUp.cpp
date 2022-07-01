@@ -96,6 +96,9 @@ void FSM_State_StandUp<T>::onEnter() {
 
   _des_body_pos = _ini_body_pos + _avg_foot_err;
 
+  // Vec3<T> z_offset(0.0,0.0,0.1);
+  // _des_body_pos = _ini_body_pos + z_offset;
+
   std::cout << "made it to the end of OnEnter()!" << std::endl;
 }
 
