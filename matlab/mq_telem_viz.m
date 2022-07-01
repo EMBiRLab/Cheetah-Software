@@ -136,8 +136,12 @@ orientation_test_1 = "data/mq_telem_08_06_2022_15-54-05.csv";
 % back but potentially more slowly?
 imu_drift_test_5 = "data/mq_telem_13_06_2022_17-21-25.csv";
 
+manual_orientation_check = "data/mq_telem_28_06_2022_15-43-46.csv";
+
+x_type_test_1 = "data/mq_telem_29_06_2022_16-49-05.csv";
+
 sample_freq = 500; % Hz
-T = readtable(imu_drift_test_4);
+T = readtable(x_type_test_1);
 mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_mq_telem_table(T);
@@ -159,7 +163,9 @@ imu_drift_test_5_mocap = "data/muadquad_6_13_22_001.csv";
 
 orientation_test_1_mocap = "data/muadquad_6_7_22_005.csv";
 
-mocap_T = readtable(orientation_test_1_mocap);
+manual_orientation_check_mocap = "data/muadquad_6_28_22.csv";
+
+mocap_T = readtable(manual_orientation_check_mocap);
 mocap_data = parse_mocap(mocap_T);
 
 %% mocap 3d plotting
@@ -192,16 +198,16 @@ hold off;
 
 %% foot pos 3d plotting
 
-time_mask = mq_time > 138 & mq_time < 150;
+time_mask = mq_time > 0 & mq_time < 150;
 
 figure;
 subplot(1,2,1)
 hold on
 
-plot3(mq_telem.leg0_foot_pos(time_mask,1), mq_telem.leg0_foot_pos(time_mask,2), mq_telem.leg0_foot_pos(time_mask,3))
-plot3(mq_telem.leg1_foot_pos(time_mask,1), mq_telem.leg1_foot_pos(time_mask,2), mq_telem.leg1_foot_pos(time_mask,3))
-plot3(mq_telem.leg2_foot_pos(time_mask,1), mq_telem.leg2_foot_pos(time_mask,2), mq_telem.leg2_foot_pos(time_mask,3))
-plot3(mq_telem.leg3_foot_pos(time_mask,1), mq_telem.leg3_foot_pos(time_mask,2), mq_telem.leg3_foot_pos(time_mask,3))
+plot3(mq_telem.leg0_foot_pos(10,1), mq_telem.leg0_foot_pos(10,2), mq_telem.leg0_foot_pos(10,3), 'o')
+plot3(mq_telem.leg1_foot_pos(10,1), mq_telem.leg1_foot_pos(10,2), mq_telem.leg1_foot_pos(10,3), 'o')
+plot3(mq_telem.leg2_foot_pos(10,1), mq_telem.leg2_foot_pos(10,2), mq_telem.leg2_foot_pos(10,3), 'o')
+plot3(mq_telem.leg3_foot_pos(10,1), mq_telem.leg3_foot_pos(10,2), mq_telem.leg3_foot_pos(10,3), 'o')
 
 grid on
 daspect([1 1 1])
@@ -223,10 +229,10 @@ plot3(mq_telem.leg1_grf_cmd(:,1), mq_telem.leg1_grf_cmd(:,2), mq_telem.leg1_grf_
 plot3(mq_telem.leg2_grf_cmd(:,1), mq_telem.leg2_grf_cmd(:,2), mq_telem.leg2_grf_cmd(:,3), 'DisplayName', 'leg2')
 plot3(mq_telem.leg3_grf_cmd(:,1), mq_telem.leg3_grf_cmd(:,2), mq_telem.leg3_grf_cmd(:,3), 'DisplayName', 'leg3')
 
-plot3(mq_telem.leg0_grf_est(:,1), mq_telem.leg0_grf_est(:,2), mq_telem.leg0_grf_est(:,3), 'DisplayName', 'leg0')
-plot3(mq_telem.leg1_grf_est(:,1), mq_telem.leg1_grf_est(:,2), mq_telem.leg1_grf_est(:,3), 'DisplayName', 'leg1')
-plot3(mq_telem.leg2_grf_est(:,1), mq_telem.leg2_grf_est(:,2), mq_telem.leg2_grf_est(:,3), 'DisplayName', 'leg2')
-plot3(mq_telem.leg3_grf_est(:,1), mq_telem.leg3_grf_est(:,2), mq_telem.leg3_grf_est(:,3), 'DisplayName', 'leg3')
+% plot3(mq_telem.leg0_grf_est(:,1), mq_telem.leg0_grf_est(:,2), mq_telem.leg0_grf_est(:,3), 'DisplayName', 'leg0')
+% plot3(mq_telem.leg1_grf_est(:,1), mq_telem.leg1_grf_est(:,2), mq_telem.leg1_grf_est(:,3), 'DisplayName', 'leg1')
+% plot3(mq_telem.leg2_grf_est(:,1), mq_telem.leg2_grf_est(:,2), mq_telem.leg2_grf_est(:,3), 'DisplayName', 'leg2')
+% plot3(mq_telem.leg3_grf_est(:,1), mq_telem.leg3_grf_est(:,2), mq_telem.leg3_grf_est(:,3), 'DisplayName', 'leg3')
 
 grid on
 daspect([1 1 1])
@@ -322,8 +328,8 @@ plot_mocap = true;
 % mq_telem_time_mark = 30.338;
 % mocap_time_mark = 16.48; %47.917;
 % mocap_time_mark = 47.917;
-mq_telem_time_mark = 28.654; %30.338;
-mocap_time_mark = 12.399; %47.917;
+mq_telem_time_mark = 0; %30.338;
+mocap_time_mark = 0; %47.917;
 mocap_offset_back = mocap_time_mark - mq_telem_time_mark;
 
 [b,a] = butter(2,.002,'low');
@@ -480,8 +486,8 @@ legend
 
 figure;
 
-lims = [24, 26];
-lims = [0, inf];
+lims = [88.5, 90.5];
+% lims = [0, inf];
 actuator_num = 3;
 
 plot_time = mq_time;
@@ -513,12 +519,12 @@ subplot(5,1,1)
 hold on
 plot(plot_time(time_mask), mq_telem.leg0_q_cmd(time_mask,actuator_num) * 180/pi, 'r', 'DisplayName',"mq0 x" + actuator_num + " cmd")
 plot(plot_time(time_mask), mq_telem.leg0_q_data(time_mask,actuator_num) * 180/pi, 'r.', 'DisplayName',"mq0 x" + actuator_num + " data")
-% plot(plot_time(time_mask), mq_telem.leg1_q_cmd(time_mask,actuator_num) * 180/pi, 'b', 'DisplayName',"mq1 x" + actuator_num + " cmd")
-% plot(plot_time(time_mask), mq_telem.leg1_q_data(time_mask,actuator_num) * 180/pi, 'b.', 'DisplayName',"mq1 x" + actuator_num + " data")
-% plot(plot_time(time_mask), mq_telem.leg2_q_cmd(time_mask,actuator_num) * 180/pi, 'k', 'DisplayName',"mq2 x" + actuator_num + " cmd")
-% plot(plot_time(time_mask), mq_telem.leg2_q_data(time_mask,actuator_num) * 180/pi, 'k.', 'DisplayName',"mq2 x" + actuator_num + " data")
-% plot(plot_time(time_mask), mq_telem.leg3_q_cmd(time_mask,actuator_num) * 180/pi, 'm', 'DisplayName',"mq3 x" + actuator_num + " cmd")
-% plot(plot_time(time_mask), mq_telem.leg3_q_data(time_mask,actuator_num) * 180/pi, 'm.', 'DisplayName',"mq3 x" + actuator_num + " data")
+plot(plot_time(time_mask), mq_telem.leg1_q_cmd(time_mask,actuator_num) * 180/pi, 'b', 'DisplayName',"mq1 x" + actuator_num + " cmd")
+plot(plot_time(time_mask), mq_telem.leg1_q_data(time_mask,actuator_num) * 180/pi, 'b.', 'DisplayName',"mq1 x" + actuator_num + " data")
+plot(plot_time(time_mask), mq_telem.leg2_q_cmd(time_mask,actuator_num) * 180/pi, 'k', 'DisplayName',"mq2 x" + actuator_num + " cmd")
+plot(plot_time(time_mask), mq_telem.leg2_q_data(time_mask,actuator_num) * 180/pi, 'k.', 'DisplayName',"mq2 x" + actuator_num + " data")
+plot(plot_time(time_mask), mq_telem.leg3_q_cmd(time_mask,actuator_num) * 180/pi, 'm', 'DisplayName',"mq3 x" + actuator_num + " cmd")
+plot(plot_time(time_mask), mq_telem.leg3_q_data(time_mask,actuator_num) * 180/pi, 'm.', 'DisplayName',"mq3 x" + actuator_num + " data")
 title("position q")
 legend("Location","best")
 if ~periodize
@@ -531,12 +537,12 @@ hold on
 plot(plot_time(time_mask), mq_telem.leg0_qd_cmd(time_mask,actuator_num) * 180/pi, 'r', 'DisplayName',"mq0 x" + actuator_num + " cmd")
 plot(plot_time(time_mask), mq_telem.leg0_qd_data(time_mask,actuator_num) * 180/pi, 'r.', 'DisplayName',"mq0 x" + actuator_num + " data")
 plot(plot_time(time_mask(1:end-1)), diff(mq_telem.leg0_qd_data(time_mask,actuator_num) * 180/pi), 'b--')
-% plot(plot_time(time_mask), mq_telem.leg1_qd_cmd(time_mask,actuator_num) * 180/pi, 'b', 'DisplayName',"mq1 x" + actuator_num + " cmd")
-% plot(plot_time(time_mask), mq_telem.leg1_qd_data(time_mask,actuator_num) * 180/pi, 'b.', 'DisplayName',"mq1 x" + actuator_num + " data")
-% plot(plot_time(time_mask), mq_telem.leg2_qd_cmd(time_mask,actuator_num) * 180/pi, 'k', 'DisplayName',"mq2 x" + actuator_num + " cmd")
-% plot(plot_time(time_mask), mq_telem.leg2_qd_data(time_mask,actuator_num) * 180/pi, 'k.', 'DisplayName',"mq2 x" + actuator_num + " data")
-% plot(plot_time(time_mask), mq_telem.leg3_qd_cmd(time_mask,actuator_num) * 180/pi, 'm', 'DisplayName',"mq3 x" + actuator_num + " cmd")
-% plot(plot_time(time_mask), mq_telem.leg3_qd_data(time_mask,actuator_num) * 180/pi, 'm.', 'DisplayName',"mq3 x" + actuator_num + " data")
+plot(plot_time(time_mask), mq_telem.leg1_qd_cmd(time_mask,actuator_num) * 180/pi, 'b', 'DisplayName',"mq1 x" + actuator_num + " cmd")
+plot(plot_time(time_mask), mq_telem.leg1_qd_data(time_mask,actuator_num) * 180/pi, 'b.', 'DisplayName',"mq1 x" + actuator_num + " data")
+plot(plot_time(time_mask), mq_telem.leg2_qd_cmd(time_mask,actuator_num) * 180/pi, 'k', 'DisplayName',"mq2 x" + actuator_num + " cmd")
+plot(plot_time(time_mask), mq_telem.leg2_qd_data(time_mask,actuator_num) * 180/pi, 'k.', 'DisplayName',"mq2 x" + actuator_num + " data")
+plot(plot_time(time_mask), mq_telem.leg3_qd_cmd(time_mask,actuator_num) * 180/pi, 'm', 'DisplayName',"mq3 x" + actuator_num + " cmd")
+plot(plot_time(time_mask), mq_telem.leg3_qd_data(time_mask,actuator_num) * 180/pi, 'm.', 'DisplayName',"mq3 x" + actuator_num + " data")
 title("velocity qd")
 legend()
 
@@ -553,12 +559,12 @@ cutoff2 = -20;
 plot(plot_time(time_mask), mq_telem.leg0_tau_ff(time_mask,actuator_num), 'r-', 'DisplayName', 'leg0 cmd')
 plot(plot_time(time_mask), mq_telem.leg0_tau_est(time_mask,actuator_num), 'r.', 'DisplayName', 'leg0 est')
 plot(plot_time(time_mask), cutoff*ones(size(plot_time(time_mask))), 'b--', 'DisplayName', 'contact\_cutoff')
-% plot(plot_time(time_mask), mq_telem.leg1_tau_ff(time_mask,actuator_num), 'b-', 'DisplayName', 'leg1 cmd')
-% plot(plot_time(time_mask), mq_telem.leg1_tau_est(time_mask,actuator_num), 'b.', 'DisplayName', 'leg1 est')
-% plot(plot_time(time_mask), mq_telem.leg2_tau_ff(time_mask,actuator_num), 'k-', 'DisplayName', 'leg2 cmd')
-% plot(plot_time(time_mask), mq_telem.leg2_tau_est(time_mask,actuator_num), 'k.', 'DisplayName', 'leg2 est')
-% plot(plot_time(time_mask), mq_telem.leg3_tau_ff(time_mask,actuator_num), 'm-', 'DisplayName', 'leg3 cmd')
-% plot(plot_time(time_mask), mq_telem.leg3_tau_est(time_mask,actuator_num), 'm.', 'DisplayName', 'leg3 est')
+plot(plot_time(time_mask), mq_telem.leg1_tau_ff(time_mask,actuator_num), 'b-', 'DisplayName', 'leg1 cmd')
+plot(plot_time(time_mask), mq_telem.leg1_tau_est(time_mask,actuator_num), 'b.', 'DisplayName', 'leg1 est')
+plot(plot_time(time_mask), mq_telem.leg2_tau_ff(time_mask,actuator_num), 'k-', 'DisplayName', 'leg2 cmd')
+plot(plot_time(time_mask), mq_telem.leg2_tau_est(time_mask,actuator_num), 'k.', 'DisplayName', 'leg2 est')
+plot(plot_time(time_mask), mq_telem.leg3_tau_ff(time_mask,actuator_num), 'm-', 'DisplayName', 'leg3 cmd')
+plot(plot_time(time_mask), mq_telem.leg3_tau_est(time_mask,actuator_num), 'm.', 'DisplayName', 'leg3 est')
 if ~periodize
     xlim(lims)
 end
@@ -569,12 +575,12 @@ hold on
 plot(plot_time(time_mask), mq_telem.leg0_grf_cmd(time_mask,3), 'r', 'DisplayName', 'leg0 cmd')
 plot(plot_time(time_mask), mq_telem.leg0_grf_est(time_mask,3), 'r.', 'DisplayName', 'leg0 est')
 plot(plot_time(time_mask), cutoff2*ones(size(plot_time(time_mask))), 'b--', 'DisplayName', 'contact\_cutoff')
-% plot(plot_time(time_mask), mq_telem.leg1_grf_cmd(time_mask,3), 'b', 'DisplayName', 'leg1 cmd')
-% plot(plot_time(time_mask), mq_telem.leg1_grf_est(time_mask,3), 'b.', 'DisplayName', 'leg1 est')
-% plot(plot_time(time_mask), mq_telem.leg2_grf_cmd(time_mask,3), 'k', 'DisplayName', 'leg2 cmd')
-% plot(plot_time(time_mask), mq_telem.leg2_grf_est(time_mask,3), 'k.', 'DisplayName', 'leg2 est')
-% plot(plot_time(time_mask), mq_telem.leg3_grf_cmd(time_mask,3), 'm', 'DisplayName', 'leg3 cmd')
-% plot(plot_time(time_mask), mq_telem.leg3_grf_est(time_mask,3), 'm.', 'DisplayName', 'leg3 est')
+plot(plot_time(time_mask), mq_telem.leg1_grf_cmd(time_mask,3), 'b', 'DisplayName', 'leg1 cmd')
+plot(plot_time(time_mask), mq_telem.leg1_grf_est(time_mask,3), 'b.', 'DisplayName', 'leg1 est')
+plot(plot_time(time_mask), mq_telem.leg2_grf_cmd(time_mask,3), 'k', 'DisplayName', 'leg2 cmd')
+plot(plot_time(time_mask), mq_telem.leg2_grf_est(time_mask,3), 'k.', 'DisplayName', 'leg2 est')
+plot(plot_time(time_mask), mq_telem.leg3_grf_cmd(time_mask,3), 'm', 'DisplayName', 'leg3 cmd')
+plot(plot_time(time_mask), mq_telem.leg3_grf_est(time_mask,3), 'm.', 'DisplayName', 'leg3 est')
 legend()
 title("GRF (N)")
 if ~periodize
@@ -599,10 +605,10 @@ hold off
 subplot(5,1,5)
 hold on
 plot(plot_time(time_mask), mq_telem.contact_state(time_mask,1), 'DisplayName',"Contact State Foot 0");
-% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,2), 'DisplayName',"Contact State Foot 1");
-% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,3), 'DisplayName',"Contact State Foot 2");
-% plot(plot_time(time_mask), mq_telem.contact_state(time_mask,4), 'DisplayName',"Contact State Foot 3");
-% plot(plot_time(time_mask), (mq_telem.leg0_tau_est(time_mask,actuator_num) < cutoff), 'k--', 'DisplayName', 'contact\_state')
+plot(plot_time(time_mask), mq_telem.contact_state(time_mask,2), 'DisplayName',"Contact State Foot 1");
+plot(plot_time(time_mask), mq_telem.contact_state(time_mask,3), 'DisplayName',"Contact State Foot 2");
+plot(plot_time(time_mask), mq_telem.contact_state(time_mask,4), 'DisplayName',"Contact State Foot 3");
+plot(plot_time(time_mask), (mq_telem.leg0_tau_est(time_mask,actuator_num) < cutoff), 'k--', 'DisplayName', 'contact\_state')
 plot(plot_time(time_mask), (mq_telem.leg0_grf_est(time_mask,3) < cutoff2), 'm:', 'DisplayName', 'contact\_state')
 legend()
 title("Feet Contact State")
@@ -777,12 +783,13 @@ hold off;
 figure;
 
 hold on
-plot(mq_time, mq_telem.accelerometer(:,1) / 9.81, 'DisplayName',"IMU X acc")
-plot(mq_time, mq_telem.accelerometer(:,2) / 9.81, 'DisplayName',"IMU Y acc")
-plot(mq_time, mq_telem.accelerometer(:,3) / 9.81, 'DisplayName',"IMU Z acc")
+plot(mq_time, mq_telem.accelerometer(:,1), 'DisplayName',"IMU X acc")
+plot(mq_time, mq_telem.accelerometer(:,2), 'DisplayName',"IMU Y acc")
+plot(mq_time, mq_telem.accelerometer(:,3), 'DisplayName',"IMU Z acc")
 plot(mq_time,  2*ones(size(mq_time)), 'r--', 'DisplayName',"validity thresh")
 plot(mq_time, -2*ones(size(mq_time)), 'r--', 'DisplayName',"validity thresh")
 legend()
+ylabel('gravity-compensated m\\s^2')
 title("IMU Accelerometer Data")
 hold off;
 
@@ -820,10 +827,11 @@ hold off;
 figure;
 
 hold on
-plot(mq_time, mq_telem.gyro(:,1), 'DisplayName',"IMU X w")
-plot(mq_time, mq_telem.gyro(:,2), 'DisplayName',"IMU Y w")
-plot(mq_time, mq_telem.gyro(:,3), 'DisplayName',"IMU Z w")
+plot(mq_time, mq_telem.gyro(:,1) * 180/pi, 'DisplayName',"IMU X w")
+plot(mq_time, mq_telem.gyro(:,2) * 180/pi, 'DisplayName',"IMU Y w")
+plot(mq_time, mq_telem.gyro(:,3) * 180/pi, 'DisplayName',"IMU Z w")
 legend()
+xlabel('degrees per second')
 title("IMU Gyroscope Data")
 hold off;
 
