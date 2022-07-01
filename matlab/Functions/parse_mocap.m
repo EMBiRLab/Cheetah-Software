@@ -53,7 +53,7 @@ function mocap_data = parse_mocap(mT)
     RB_pos(3,:) = RB_pos(3,:) - RB_pos_offset(3);
 
     % physically -- yaw orientation of robot (y-axis in mocap frame)
-    y_angle = atan2(cal_vec(3), cal_vec(1));
+    y_angle = atan2(cal_vec(3), cal_vec(1)) - atan2(20,500); % subtraction to comp for new wide spine
     Ry = [cos(y_angle) 0 sin(y_angle); 0 1 0; -sin(y_angle) 0 cos(y_angle)];
     Rx = [1 0 0; 0 cos(pi/2) -sin(pi/2); 0 sin(pi/2) cos(pi/2)];
 
@@ -86,7 +86,7 @@ function mocap_data = parse_mocap(mT)
 %     RB_quat = qtransform*RB_quat;
     
     md.RB_quat = RB_quat;
-    md.RB_rpy = quat2eul(RB_quat, "XYZ");
+    md.RB_ypr = quat2eul(RB_quat, "ZYX");
     md.num_samples = num_samples - 1;
     md.time = (md.time_stamps(2:end) - md.time_stamps(2)) * 1e-6;
 
@@ -95,21 +95,26 @@ function mocap_data = parse_mocap(mT)
     % test angle math
 
     test_angles = atan2(...
-        calib_mocap_z_forward(10:num_samples-2000) - calib_mocap_z_rear(10:num_samples-2000),...
+        -(calib_mocap_z_forward(10:num_samples-2000) - calib_mocap_z_rear(10:num_samples-2000)),...
         calib_mocap_x_forward(10:num_samples-2000) - calib_mocap_x_rear(10:num_samples-2000))...
         - y_angle;
-    test_angles = unwrap(mod(test_angles+10*pi, 2*pi));
-    quat_angles = quat2eul(RB_quat, "XYZ");
-    new_yaws = unwrap(mod(quat_angles(10:num_samples-2000, 3) + 2*pi, 2*pi));
+%     test_angles = atan2(...
+%         -(calib_mocap_y_forward(10:num_samples-2000) - calib_mocap_y_rear(10:num_samples-2000)),...
+%         vecnorm([calib_mocap_x_forward(10:num_samples-2000) - calib_mocap_x_rear(10:num_samples-2000),...
+%         calib_mocap_z_forward(10:num_samples-2000) - calib_mocap_z_rear(10:num_samples-2000)], ...
+%         2,2));
+    test_angles = unwrap(mod(test_angles+2*pi, 2*pi));
+    quat_angles = quat2eul(RB_quat, "ZYX");
+    new_yaws = unwrap(mod(quat_angles(10:num_samples-2000, 1) + 2*pi, 2*pi));
     new_pitch = unwrap(mod(quat_angles(10:num_samples-2000, 2) + 2*pi, 2*pi));
-    new_roll = unwrap(mod(quat_angles(10:num_samples-2000, 1) + 2*pi, 2*pi));
+    new_roll = unwrap(mod(quat_angles(10:num_samples-2000, 3) + 2*pi, 2*pi));
     diff_angles = (new_yaws-test_angles);
     fprintf("mean: %f, std: %f\n", mean(diff_angles), std(diff_angles));
-%     figure;
-%     hold on;
-%     plot(new_yaws*180/pi, "displayname","new yaws");
-%     plot(test_angles*180/pi, "displayname","test angles");
-%     legend("location","best");
-%     hold off;
+    figure;
+    hold on;
+    plot(new_yaws*180/pi, "displayname","new yaws");
+    plot(test_angles*180/pi, "displayname","test angles");
+    legend("location","best");
+    hold off;
 
 end
