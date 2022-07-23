@@ -116,6 +116,7 @@ FSM_StateName FSM_State_BalanceStand<T>::checkTransition() {
       break;
 
     case K_LOCOMOTION:
+      std::cout << "[Jack's debugging] Balance stand -> locomotion!!!!! :3 \n";
       // Requested change to balance stand
       this->nextStateName = FSM_StateName::LOCOMOTION;
 
@@ -147,6 +148,11 @@ FSM_StateName FSM_State_BalanceStand<T>::checkTransition() {
 
     case K_BACKFLIP:
       this->nextStateName = FSM_StateName::BACKFLIP;
+      this->transitionDuration = 0.0;
+      break;
+
+    case K_SIT_DOWN:
+      this->nextStateName = FSM_StateName::SIT_DOWN;
       this->transitionDuration = 0.0;
       break;
 
@@ -199,8 +205,12 @@ TransitionData<T> FSM_State_BalanceStand<T>::transition() {
       this->transitionData.done = true;
       break;
 
+    case FSM_StateName::SIT_DOWN:
+      this->transitionData.done = true;
+      break;
+
     default:
-      std::cout << "[CONTROL FSM] Something went wrong in transition"
+      std::cout << "[CONTROL FSM -- Balance] Something went wrong in transition"
                 << std::endl;
   }
 

@@ -19,13 +19,19 @@ void LegControllerCommand<T>::zero() {
   tauFeedForward = Vec3<T>::Zero();
   forceFeedForward = Vec3<T>::Zero();
   qDes = Vec3<T>::Zero();
-  qDes(0) = nan("");
-  qDes(1) = nan("");
-  qDes(2) = nan("");
   qdDes = Vec3<T>::Zero();
-  qdDes(0) = nan("");
-  qdDes(1) = nan("");
-  qdDes(2) = nan("");
+
+
+  // 0 for sim, nan for hardware
+  qDes(0) = 0;
+  qDes(1) = 0;
+  qDes(2) = 0;
+  qdDes(0) = 0;
+  qdDes(1) = 0;
+  qdDes(2) = 0;
+
+  // = nan("");
+
   pDes = Vec3<T>::Zero();
   vDes = Vec3<T>::Zero();
   kpCartesian = Mat3<T>::Zero();

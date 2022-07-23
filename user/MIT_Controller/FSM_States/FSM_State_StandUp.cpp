@@ -368,7 +368,7 @@ FSM_StateName FSM_State_StandUp<T>::checkTransition() {
 
     default:
       std::cout << "[CONTROL FSM] Bad Request: Cannot transition from "
-                << K_PASSIVE << " to "
+                << K_STAND_UP << " to "
                 << this->_data->controlParameters->control_mode << std::endl;
   }
 

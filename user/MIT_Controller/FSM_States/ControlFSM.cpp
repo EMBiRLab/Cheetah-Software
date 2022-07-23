@@ -52,6 +52,7 @@ ControlFSM<T>::ControlFSM(Quadruped<T>* _quadruped,
   statesList.vision = new FSM_State_Vision<T>(&data);
   statesList.backflip = new FSM_State_BackFlip<T>(&data);
   statesList.frontJump = new FSM_State_FrontJump<T>(&data);
+  statesList.sitDown = new FSM_State_SitDown<T>(&data);
 
   safetyChecker = new SafetyChecker<T>(&data);
 
@@ -298,10 +299,12 @@ FSM_State<T>* ControlFSM<T>::getNextState(FSM_StateName stateName) {
     case FSM_StateName::FRONTJUMP:
       return statesList.frontJump;
 
-    // case FSM_StateName::SIT_DOWN:
-    //   return statesList.sitDown;
+    case FSM_StateName::SIT_DOWN:
+       std::cout << "[Jack's debugging] Sit down state! \n";
+       return statesList.sitDown;
 
     default:
+      std::cout << "[Jack's debugging] invalid state! \n";
       return statesList.invalid;
   }
 }
