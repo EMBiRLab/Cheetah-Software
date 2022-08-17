@@ -1,0 +1,22 @@
+FROM ubuntu:20.04
+
+# LABEL about the custom image
+LABEL maintainer="adityasrinivasmanohar@gmail.com"
+LABEL version="0.1"
+LABEL description="This is custom Docker Image for \
+running the mini cheetah software"
+ENV DEBIAN_FRONTEND=noninteractive 
+
+# Installing dependencies
+RUN apt-get -y update && apt-get -y upgrade &&\
+    apt-get install -y apt-utils &&\
+    apt install -y iputils-ping &&\
+    apt install -y net-tools &&\
+    apt-get install -y build-essential &&\
+    apt-get install -y mesa-common-dev libglu1-mesa-dev freeglut3-dev &&\
+    apt-get install -y libeigen3-dev liblcm-dev &&\
+    apt-get install -y cmake &&\
+    apt-get install -y qt5-default &&\
+    apt-get install -y libqt5gamepad5-dev
+
+RUN apt install -y git
