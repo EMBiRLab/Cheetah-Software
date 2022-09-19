@@ -78,7 +78,7 @@ void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
   }else if(data._quadruped->_robotType == RobotType::CHEETAH_3){
     _body_height = 0.45;
   }else if(data._quadruped->_robotType == RobotType::MUADQUAD){
-    _body_height = 0.325;
+    _body_height = 0.29;
   }else{
     assert(false);
   }
