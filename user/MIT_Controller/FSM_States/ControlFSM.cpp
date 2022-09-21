@@ -157,11 +157,7 @@ void ControlFSM<T>::runFSM() {
 
       } else {
         // Run the iteration for the current state normally
-        if((int)currentState->stateName == 4)
-          std::cout << "about to run standup!" << std::endl;
         currentState->run();
-        if((int)currentState->stateName == 4)
-          std::cout << "finished running standup!" << std::endl;
       }
     }
 
@@ -205,8 +201,6 @@ void ControlFSM<T>::runFSM() {
 
   // Increase the iteration counter
   iter++;
-  if((int)currentState->stateName == 4)
-    std::cout << "Finished runFSM()" << std::endl;
 }
 
 /**

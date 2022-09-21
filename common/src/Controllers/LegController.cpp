@@ -23,14 +23,20 @@ void LegControllerCommand<T>::zero() {
 
 
   // 0 for sim, nan for hardware
-  qDes(0) = 0;
-  qDes(1) = 0;
-  qDes(2) = 0;
-  qdDes(0) = 0;
-  qdDes(1) = 0;
-  qdDes(2) = 0;
+  // qDes(0) = 0;
+  // qDes(1) = 0;
+  // qDes(2) = 0;
+  // qdDes(0) = 0;
+  // qdDes(1) = 0;
+  // qdDes(2) = 0;
 
   // = nan("");
+  qDes(0) = nan("");
+  qDes(1) = nan("");
+  qDes(2) = nan("");
+  qdDes(0) = nan("");
+  qdDes(1) = nan("");
+  qdDes(2) = nan("");
 
   pDes = Vec3<T>::Zero();
   vDes = Vec3<T>::Zero();
@@ -175,7 +181,7 @@ void LegController<T>::updateData(const RobServData* robservdata) {
       // std::cout << "About to access robservdata..." << std::endl;
       datas[leg].q[axis] = robservdata->q[idx];
       // std::cout << "Successfully accessed robservdata" << std::endl;
-      // std::cout<<"the value of q for leg "<<leg+1<<" axis "<<axis+1<<" is "<<datas[leg].q[axis]<<std::endl;
+      // std::cout<<"the value of q for leg "<<leg+1<<" axis "<<axis+1<<" is "<<datas[leg].q[axis]<<" deg:"<< datas[leg].q[axis]*180/3.14 <<std::endl;
       datas[leg].qd[axis] = robservdata->qd[idx];
       datas[leg].tauEstimate[axis] = robservdata->tau_est[idx];
     }
@@ -187,6 +193,7 @@ void LegController<T>::updateData(const RobServData* robservdata) {
     // v
     datas[leg].v = datas[leg].J * datas[leg].qd;
   }
+  // std::cout<<" "<<std::endl;
   
 }
 

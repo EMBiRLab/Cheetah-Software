@@ -293,6 +293,7 @@ void RobotRunner::finalizeStep() {
         //lcmcommand->kd_cartesian[idx] = commands[leg].kdCartesian(axis, axis);
         LCMCommandfix.kp_joint[mq_idx] = robServCommand->kp_joint[idx];
         LCMCommandfix.kd_joint[mq_idx] = robServCommand->kd_joint[idx];
+        
         // std::cout << LCMCommandfix.q_des[idx] << ", ";
       }
     }

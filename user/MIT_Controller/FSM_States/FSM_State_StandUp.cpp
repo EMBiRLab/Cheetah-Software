@@ -16,7 +16,7 @@
 template <typename T>
 FSM_State_StandUp<T>::FSM_State_StandUp(ControlFSMData<T>* _controlFSMData)
     : FSM_State<T>(_controlFSMData, FSM_StateName::STAND_UP, "STAND_UP"),
-_ini_foot_pos(4), _err_foot_pos(4), transition_cmd(4), transition_pos(4){
+_ini_foot_pos(4), transition_cmd(4), transition_pos(4){
   
   // Set the pre controls safety checks
   this->turnOnAllSafetyChecks();
@@ -44,8 +44,6 @@ _ini_foot_pos(4), _err_foot_pos(4), transition_cmd(4), transition_pos(4){
 
 template <typename T>
 void FSM_State_StandUp<T>::onEnter() {
-  std::cout << "Enterred onEnter()" << std::endl;
-
   // Default is to not transition
   this->nextStateName = this->stateName;
 
@@ -76,6 +74,7 @@ void FSM_State_StandUp<T>::onEnter() {
 
 
 
+
   // Reset iteration counter
   iter = 0;
   // standup_iter = 0;
@@ -96,10 +95,6 @@ void FSM_State_StandUp<T>::onEnter() {
 
   _des_body_pos = _ini_body_pos + _avg_foot_err;
 
-  // Vec3<T> z_offset(0.0,0.0,0.1);
-  // _des_body_pos = _ini_body_pos + z_offset;
-
-  std::cout << "made it to the end of OnEnter()!" << std::endl;
 }
 
 /**
