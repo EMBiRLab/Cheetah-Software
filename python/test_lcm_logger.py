@@ -1,4 +1,4 @@
-from ctypes.wintypes import HANDLE
+# from ctypes.wintypes import HANDLE
 import lcm
 import numpy as np
 import sys
@@ -6,7 +6,7 @@ import random
 import csv
 import time
 sys.path.append('../')
-sys.path.append('./lcm-types/python/')
+sys.path.append('../lcm-types/python/')
 from leg_control_command_lcmt import leg_control_command_lcmt
 from leg_control_data_lcmt import leg_control_data_lcmt
 from state_estimator_lcmt import state_estimator_lcmt
@@ -227,7 +227,8 @@ handler = Handler()
 # print(len(handler.buffer))          
 # print(len(handler.header))          
 # f = open("/home/ursk/muadquad_data/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
-f = open("/home/adsm/mq_telem/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
+f = open("/home/embir/data_quad/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
+# f = open("/home/adsm/mq_telem/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
 # f = open("/home/mrako/Documents/EMBIR/mq_telem" + time.strftime("_%d_%m_%Y_%H-%M-%S") + ".csv",'w+')
 writer = csv.writer(f)
 writer.writerow(handler.header)

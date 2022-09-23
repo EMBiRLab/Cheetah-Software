@@ -136,8 +136,10 @@ orientation_test_1 = "data/mq_telem_08_06_2022_15-54-05.csv";
 % back but potentially more slowly?
 imu_drift_test_5 = "data/mq_telem_13_06_2022_17-21-25.csv";
 
+muadquad_reviving_1 = "/home/embir/data_quad/mq_telem_22_09_2022_15-15-28.csv";
+
 sample_freq = 500; % Hz
-T = readtable(imu_drift_test_4);
+T = readtable(muadquad_reviving_1);
 mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_mq_telem_table(T);
@@ -192,7 +194,7 @@ hold off;
 
 %% foot pos 3d plotting
 
-time_mask = mq_time > 138 & mq_time < 150;
+time_mask = mq_time > 0 & mq_time < 150;
 
 figure;
 subplot(1,2,1)
