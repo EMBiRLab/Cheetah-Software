@@ -73,7 +73,7 @@ class RobotRunner : public PeriodicTask {
   // // robot_server_response_lcmt* LCMData;
   float muadquad_angle_offsets[12]  = {0,-1*MQ_MOT_ROT,5*MQ_MOT_ROT_X3_NEW,
                                        -1*MQ_MOT_ROT,-1*MQ_MOT_ROT,2*MQ_MOT_ROT_X3_NEW,
-                                       1*MQ_MOT_ROT,0,5*MQ_MOT_ROT_X3_NEW, // for xtype back legs offsets flipped 
+                                       1*MQ_MOT_ROT,0,4*MQ_MOT_ROT_X3_NEW, // for xtype back legs offsets flipped 
                                        0,0,4*MQ_MOT_ROT_X3_NEW}; 
   RobServData* robServData;
   void handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,

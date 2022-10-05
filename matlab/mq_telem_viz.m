@@ -138,8 +138,11 @@ imu_drift_test_5 = "data/mq_telem_13_06_2022_17-21-25.csv";
 
 muadquad_reviving_1 = "/home/embir/data_quad/mq_telem_22_09_2022_15-15-28.csv";
 
+% IMU
+muadquad_imu_2 = "/home/embir/data_quad/mq_telem_26_09_2022_16-37-32.csv";
+
 sample_freq = 500; % Hz
-T = readtable(muadquad_reviving_1);
+T = readtable(muadquad_imu_2);
 mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_mq_telem_table(T);
@@ -402,7 +405,7 @@ hold off;
 %% Torso position
 
 lims = [0, inf];
-lims = [35, 70];
+% lims = [35, 70];
 
 figure;
 hold on
