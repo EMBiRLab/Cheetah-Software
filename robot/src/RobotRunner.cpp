@@ -418,10 +418,25 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   vectorNavData->quat(3) = robserv_quat.w();
   vectorNavData->quat.segment(0,3) = robserv_quat.vec();
 
+  std::cout<< "The quat is - " << std::endl;
+  std::cout<< vectorNavData->quat(2) << std::endl;
+
+  if (_ini_run == 1 && vectorNavData->quat(2)!= 0){
+    std::cout<<"YESSSSSSSSSSSSS"<<std::endl;
+
+    _ini_quat_2 = vectorNavData->quat(2);
+    _ini_run = 0;
+  }
+  vectorNavData->quat(2) = _ini_quat_2;
+
+  
+  std::cout<< "The quat is supposed to be  - " <<  vectorNavData->quat(2)<<std::endl;
+  std::cout<< "The value of _ini_run is" << _ini_run << std::endl;
+  std::cout<< "The initial quat is - " << _ini_quat_2 << std::endl;
   // std::cout.precision(3);
-  std::cout << "ACC is: " << std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(0) << ",\t" << 
-                             std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(1) << ",\t" << 
-                             std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(2) << "\r";
+  // std::cout << "ACC is: " << std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(0) << ",\t" << 
+  //                            std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(1) << ",\t" << 
+  //                            std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(2) << "\r";
   // std::cout.flush();
 
 }
