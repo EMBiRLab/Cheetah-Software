@@ -50,7 +50,7 @@ void VectorNavOrientationEstimator<T>::run() {
   this->_stateEstimatorData.result->orientation[2] =
       this->_stateEstimatorData.vectorNavData->quat[1];
   this->_stateEstimatorData.result->orientation[3] =
-      this->_stateEstimatorData.vectorNavData->quat[2];
+      this->_stateEstimatorData.vectorNavData->quat[2]; // instead of quat[2] do quat[1] + 0.15
 
   if(_b_first_visit){
     Vec3<T> rpy_ini = ori::quatToRPY(this->_stateEstimatorData.result->orientation);
@@ -64,6 +64,8 @@ void VectorNavOrientationEstimator<T>::run() {
 
   this->_stateEstimatorData.result->rpy =
       ori::quatToRPY(this->_stateEstimatorData.result->orientation);
+	
+	// this->_stateEstimatorData.result->rpy[2] = 0;  
 
 //   std::cout << "We just calculated quatToRPY, result is: " << this->_stateEstimatorData.result->rpy << std::endl;
 

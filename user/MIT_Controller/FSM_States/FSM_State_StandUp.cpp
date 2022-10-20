@@ -58,6 +58,8 @@ void FSM_State_StandUp<T>::onEnter() {
   //TODO: Will have to switch back to using the initial bosy orientation and position instead of setting it to 0
   // Only did it for better debugging!
   _ini_body_pos = (this->_data->_stateEstimator->getResult()).position;
+  std::cout<<"Initial body position is "<<_ini_body_pos<<std::endl;
+  
   // _ini_body_pos[1] = 0.;
 
 

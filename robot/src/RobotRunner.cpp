@@ -417,22 +417,77 @@ void RobotRunner::handleresponseLCM(const lcm::ReceiveBuffer* rbuf, const std::s
   // get the quaternion
   vectorNavData->quat(3) = robserv_quat.w();
   vectorNavData->quat.segment(0,3) = robserv_quat.vec();
+  // vectorNavData->quat(2) = vectorNavData->quat(1) + 0.15;
 
-  std::cout<< "The quat is - " << std::endl;
-  std::cout<< vectorNavData->quat(2) << std::endl;
+  // std::cout<< "The quat is - " << std::endl;
+  _count+=1;
+  // std::cout << vectorNavData->quat(2) << std::endl;
+
+  // vectorNavData->quat(2) = vectorNavData->quat(2) + _bias*_count;  
+
+  std::cout<< "count value is "<< (_count) << std::endl;
+  std::cout<<"Bias * count is "<<_bias*_count<< std::endl; 
+  Vec3<float> rpy_val = ori::quatToRPY(vectorNavData->quat);
 
   if (_ini_run == 1 && vectorNavData->quat(2)!= 0){
     std::cout<<"YESSSSSSSSSSSSS"<<std::endl;
 
-    _ini_quat_2 = vectorNavData->quat(2);
+    _ini_quat_0 = vectorNavData->quat(0); // value of -0.13 this is y quat
+    _ini_quat_1 = vectorNavData->quat(1); // value of -0.0143 this is x quat
+    _ini_quat_2 = vectorNavData->quat(2); // This quaternion has the most variation most likely z, value of 0.14, z = w - 0.8
+    _ini_quat_3 = vectorNavData->quat(3); // value of 0.989, this is the w quat
+    _ini_y = rpy_val[0];
+    std::cout<<"initial quat y is "<<_ini_quat_0<<std::endl;
+    std::cout<<"initial quat x is "<<_ini_quat_1<<std::endl;
+    std::cout<<"initial quat z is "<<_ini_quat_2<<std::endl;
+    std::cout<<"initial quat w is "<<_ini_quat_3<<std::endl;
     _ini_run = 0;
   }
-  vectorNavData->quat(2) = _ini_quat_2;
 
-  
-  std::cout<< "The quat is supposed to be  - " <<  vectorNavData->quat(2)<<std::endl;
-  std::cout<< "The value of _ini_run is" << _ini_run << std::endl;
-  std::cout<< "The initial quat is - " << _ini_quat_2 << std::endl;
+  int cycles = 40000;
+  if (_count < cycles){
+    // _bias = (vectorNavData->quat(2) -_ini_quat_2)/_count;
+    std::cout<<"-------------DO NOT MOVE ROBOT CALIBRATING BIAS----------------"<<std::endl;
+    // std::cout<<"The bias is "<<_bias<<std::endl;
+    _sum_x += _count;
+    _sum_y += vectorNavData->quat(2);
+    _sum_x2 += (_count*_count);
+    _sum_xy += (_count*vectorNavData->quat(2));
+  }
+  else{
+    _bias = (cycles*_sum_xy - _sum_x*_sum_y)/(cycles*_sum_x2 - (_sum_x*_sum_x));
+    std::cout<<"The bias is "<<_bias<<std::endl;
+  }
+
+  // vectorNavData->quat(0) = _ini_quat_0;
+  // vectorNavData->quat(1) = _ini_quat_1;
+  // vectorNavData->quat(2) = _ini_quat_2;
+  // vectorNavData->quat(3) = _ini_quat_3;
+
+  // std::cout << "[RobotRunner] We just calculated quatToRPY, result is: " << std::endl; 
+  // std::cout << rpy_val << std::endl;
+
+  // rpy_val[0] = _ini_y;
+
+  std::cout <<"Current Yaw value is "<< rpy_val[0] << std::endl;
+  std::cout<<"The Difference in z is "<< vectorNavData->quat(2)-_ini_quat_2 << std::endl;
+  std::cout<<"The Quaternion Value " << vectorNavData->quat(2) << std::endl;
+  std::cout<<"DIfference in updated z is "<<(vectorNavData->quat(2) - _bias*_count)-_ini_quat_2<<std::endl;
+  // std::cout<<"The corrected value is - "<< rpy_val[0]-<<std::endl;
+  //std::cout<<"The Bias factor is " << (rpy_val[0]-_ini_y)/_count<<std::endl;
+  // std::cout<<"The Bias factor is " << (vectorNavData->quat(2) -_ini_quat_2)/_count<<std::endl;
+  // std::cout<<"The Quaternion Value " << vectorNavData->quat(0) << std::endl;
+  // std::cout<<"The Quaternion Value " << vectorNavData->quat(1) << std::endl;
+  // std::cout<<"The Quaternion Value " << vectorNavData->quat(3) << std::endl;
+  // Vec4<float> quat_corrected = rpyToQuat(rpy_val);
+  // vectorNavData->quat = quat_corrected;
+
+  // std::cout<< "The quat is supposed to be  - " <<  vectorNavData->quat(0)<<std::endl;
+  // std::cout<< "The quat is supposed to be  - " <<  vectorNavData->quat(1)<<std::endl;
+  // std::cout<< "The quat is supposed to be  - " <<  vectorNavData->quat(2)<<std::endl;
+  // std::cout<< "The quat is supposed to be  - " <<  vectorNavData->quat(3)<<std::endl;
+  // std::cout<< "The value of _ini_run is" << _ini_run << std::endl;
+  // std::cout<< "The initial quat is - " << _ini_quat_2 << std::endl;
   // std::cout.precision(3);
   // std::cout << "ACC is: " << std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(0) << ",\t" << 
   //                            std::setw(7) << std::setprecision(3) << std::fixed << vectorNavData->accelerometer(1) << ",\t" << 

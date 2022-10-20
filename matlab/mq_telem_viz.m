@@ -140,9 +140,10 @@ muadquad_reviving_1 = "/home/embir/data_quad/mq_telem_22_09_2022_15-15-28.csv";
 
 % IMU
 muadquad_imu_2 = "/home/embir/data_quad/mq_telem_26_09_2022_16-37-32.csv";
+muadquad_imu_3 = "/home/embir/data_quad/mq_telem_10_10_2022_17-20-01.csv";
 
 sample_freq = 500; % Hz
-T = readtable(muadquad_imu_2);
+T = readtable(muadquad_imu_3);
 mq_time = (1:1:height(T))/sample_freq;
 headers = T.Properties.VariableNames;
 mq_telem = parse_mq_telem_table(T);

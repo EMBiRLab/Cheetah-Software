@@ -148,6 +148,7 @@ void WBC_Ctrl<T>::_UpdateModel(const StateEstimate<T> & state_est,
     const LegControllerData<T> * leg_data){
 
   _state.bodyOrientation = state_est.orientation;
+  std::cout << "The orientation of body in WBC controller is" << _state.bodyOrientation << std::endl;
   _state.bodyPosition = state_est.position;
   for(size_t i(0); i<3; ++i){
     _state.bodyVelocity[i] = state_est.omegaBody[i];

@@ -110,7 +110,20 @@ class RobotRunner : public PeriodicTask {
   FloatingBaseModel<float> _model;
   u64 _iterations = 0;
 
+  float _ini_quat_0;
+  float _ini_quat_1;
   float _ini_quat_2;
+  float _ini_quat_3;
+  float _ini_y;
+  int _count = 0;
+  float _bias = 0;
+
+  // Regression stuff to remove yaw
+  float _sum_x = 0;
+  float _sum_y = 0;
+  float _sum_xy = 0;
+  float _sum_x2 = 0;
+
   int _ini_run = 1;
 };
 
